@@ -25,3 +25,5 @@ Current candidates:
   access-aware retrieval with source-preserving citations and lifecycle gates.
 - [`behavior-contract-gate.md`](behavior-contract-gate.md): separate dataset,
   trace and grade stages with per-case deterministic release blockers.
+- [`durable-approval-boundary.md`](durable-approval-boundary.md): scoped,
+  expiring authorization plus external side-effect idempotency.

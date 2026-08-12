@@ -1,6 +1,6 @@
 # Behavior Contract Gate
 
-Status: candidate pattern, observed in Phase 6 local/scripted experiments.
+Status: candidate pattern, observed through Phase 7 local/scripted experiments.
 
 ## Problem
 
@@ -91,13 +91,13 @@ failure review and a deterministic fallback for critical policy.
 
 Lab 06 observed:
 
-- five baseline architecture cases passed;
-- all five deliberate breakages failed;
+- six baseline architecture cases passed;
+- all six deliberate breakages failed;
 - broken CLI exited `1`;
-- scripted judge mean `4.2/5` passed while deterministic release failed;
+- scripted judge mean `13/3` passed while deterministic release failed;
 - cross-user memory leakage failed only the policy metric;
 - provenance loss failed retrieval/citation despite a correct fact;
-- two renders of the 73,972-byte bundle were byte-identical.
+- two renders of the 90,166-byte bundle were byte-identical.
 
 ## Sources
 

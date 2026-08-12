@@ -98,8 +98,9 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | Phase 3 Multi-agent systems | Local/scripted baseline complete | Function, single-turn, transfer and task lifecycles under failure and conflict |
 | Phase 4 State, context and memory | Local/scripted baseline complete | Transient context, state scopes, artifact versions and memory isolation/deletion traces |
 | Phase 5 RAG engineering | Local/scripted baseline complete | Same-corpus retrieval, citation, ACL, version and deletion evidence |
-| Phase 6 Evaluation | Local/scripted gate complete | Five cross-phase cases, per-dimension failures and enforceable baseline/broken exit status |
-| Phase 7 Safety and HITL | Next | Enforcement coverage, confirmation lifecycle and resumable approval policy |
+| Phase 6 Evaluation | Local/scripted gate complete | Six cross-phase cases, per-dimension failures and enforceable baseline/broken exit status |
+| Phase 7 Safety and HITL | Local/scripted baseline complete | Enforcement coverage, confirmation lifecycle, approval envelope and replay-safe side effect |
+| Phase 8 Production engineering | Next | Template/lifecycle layering, deployment topology, telemetry and rollback evidence |
 
 The Phase 1 live-model gate remains open, but it is not a dependency for
 deterministic Workflow semantics.
@@ -373,27 +374,27 @@ Hypothesis:
 
 Experiment:
 
-- normalize the existing five lab datasets into one eval-case contract;
+- normalize the completed architecture labs into one eval-case contract;
 - score tool choice/arguments, trajectory, state, retrieval/citation, final
   response, safety and model-request budgets independently;
 - reserve latency, token and monetary-cost metrics for instrumented live
   integration;
 - keep deterministic assertions separate from LLM-judge metrics;
-- deliberately break one Agent in each completed architecture phase;
+- deliberately break one case in each completed architecture phase;
 - produce a CI-style report that blocks the broken variants while preserving
   explainable per-dimension failures.
 
 Observed:
 
 - dataset, trace and grade result remain different typed stages;
-- all five baseline architecture cases passed;
-- all five deliberate breakages failed with owning metric and evidence;
+- all six baseline architecture cases passed;
+- all six deliberate breakages failed with owning metric and evidence;
 - exact tool name/order/arguments, node/Event trajectory, nested state,
   policy, retrieval/citation and request budgets are independent blockers;
-- the broken suite's scripted response-quality mean was `4.2/5` and passed,
+- the broken suite's scripted response-quality mean was `13/3` and passed,
   while deterministic contracts correctly failed the release;
 - baseline CLI exited `0` and broken CLI exited `1`;
-- two 73,972-byte evidence renders were byte-identical;
+- two 90,166-byte evidence renders were byte-identical;
 - partial trace generation and result comparison were shown to require
   separate dataset-completeness and release-policy gates.
 
@@ -406,13 +407,17 @@ Evidence:
 
 ### Phase 7: Safety and HITL
 
-Next hypothesis:
+Status: complete for deterministic local/scripted scope. Durable storage,
+authenticated approval UI, revocation, atomic checkpoint/effect commit,
+streaming confirmation and live policy services remain production gates.
+
+Hypothesis:
 
 > Safety policy must be enforced at the boundary where unsafe data or action
 > can still be blocked. Human approval is a durable state transition with
 > identity, expiry and idempotency, not an instruction asking the model to wait.
 
-Comparative experiment:
+Experiment:
 
 - map callbacks, plugins, tool confirmation and policy services to model
   input/output and tool input/output coverage;
@@ -423,6 +428,48 @@ Comparative experiment:
 - persist approver identity, decision, scope, expiry and action idempotency;
 - resume with fresh runtime objects and prove rejected/expired approval cannot
   execute the side effect.
+
+Observed:
+
+- prompt-only confirmation executed the payment once;
+- complete plugin enforcement blocked at `before_tool` with zero effects;
+- output-only enforcement hid the result after one effect already occurred;
+- unsafe user/tool/model data was stopped or replaced at the owning boundary;
+- the pinned ADK 2 path ignored `before_run` return content, so hard input
+  blocking moved to the verified `before_model` boundary;
+- valid dynamic confirmation resumed with fresh Agent/Runner objects;
+- rejected, expired, unauthorized and tampered approvals produced zero effects;
+- later-run confirmation replay re-entered the tool, while the external ledger
+  retained one effect through action-ID idempotency;
+- Workflow `RequestInput` completed the same approval contract at node scope;
+- credential requests were confined to a specific function-call ID;
+- the prompt-only variant failed the six-case release gate.
+
+Evidence:
+
+- `docs/safety/safety-and-hitl.md`
+- `docs/learning-notes/phase-7-safety-hitl.md`
+- `labs/07-safety-hitl`
+- `patterns/durable-approval-boundary.md`
+
+### Phase 8: Production Engineering
+
+Next hypothesis:
+
+> Production readiness is a replaceable set of lifecycle, deployment,
+> configuration, secret, telemetry and rollback contracts around the Agent,
+> not a property conferred by one generated template.
+
+Comparative experiment:
+
+- render equivalent projects through Starter Pack layering and current
+  Agents CLI lifecycle surfaces;
+- separate Agent code, environment configuration, secrets, infrastructure,
+  deployment target and eval assets;
+- map local, Cloud Run and Agent Engine topology and identity boundaries;
+- inject configuration, deploy, telemetry and rollback failures;
+- define which generated files are authoritative, replaceable or derived;
+- retain the Phase 6 behavior gate as a pre-deploy and rollback signal.
 
 ## Later Phase Design Questions
 

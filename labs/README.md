@@ -22,3 +22,5 @@ Current labs:
 - [`06-evaluation`](06-evaluation/): typed datasets, normalized traces,
   deterministic/judge metrics and an enforceable cross-architecture release
   gate.
+- [`07-safety-hitl`](07-safety-hitl/): global policy boundaries, tool and
+  Workflow approval, credential scope and side-effect replay.

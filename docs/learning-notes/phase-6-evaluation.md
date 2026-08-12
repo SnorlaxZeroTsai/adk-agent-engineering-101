@@ -117,13 +117,15 @@ Lab 06 建立三個純 typed stages：
 2. `TraceSet`
 3. `SuiteReport`
 
-Dataset 各取前五個 phases 的一個 observable contract：
+Dataset最初各取前五個 phases的一個observable contract，Phase 7再加入
+consequential-action approval：
 
 - Agent tool round trip；
 - Workflow loop exhaustion；
 - bounded task specialist；
 - memory user isolation；
 - RAG source grounding。
+- safety/HITL approval與side-effect policy。
 
 每案都有 baseline 與 deliberate break，而且兩個 trace sets 必須包含相同
 case IDs。
@@ -150,15 +152,15 @@ Advisory metric：
 
 ### Baseline
 
-- 5/5 cases passed。
+- 6/6 cases passed。
 - CLI exit `0`。
 
 ### Broken
 
-- 5/5 cases failed。
-- 16 個 per-case deterministic failures。
+- 6/6 cases failed。
+- 20 個 per-case deterministic failures。
 - 8 個 failed blocking aggregates。
-- 共 24 個 blocking reasons。
+- 共 28 個 blocking reasons。
 - CLI exit `1`。
 
 Failure ownership：
@@ -170,15 +172,16 @@ Failure ownership：
 | Multi-agent | extra specialist calls、5 > 3 requests、wrong final state |
 | Memory | Bob model input contains `ALICE-SECRET` |
 | RAG | citation/provenance missing、grounded false |
+| Safety/HITL | prompt-only payment缺approval trajectory/state並回報policy violation |
 
-四個仍有 fluent output 的 broken cases 都得到 scripted judge `5/5`；Agent
-failure 得 `1/5`。平均為 `4.2/5`，judge aggregate 判 pass，但 release
+五個仍有 fluent output 的 broken cases 都得到 scripted judge `5/5`；Agent
+failure 得 `1/5`。平均為 `13/3`，judge aggregate 判 pass，但 release
 仍正確 fail。
 
-完整 evidence bundle 為 73,972 bytes；兩次 render 的 SHA-256 相同：
+完整 evidence bundle 為 90,166 bytes；兩次 render 的 SHA-256 相同：
 
 ```text
-f2cbdbdeb7c5913463a633f3335b2595740224785194a686f8a7630d72bc0061
+b0442bedcb1e32c7a2438b2672addef91bd2faa90f1ac1ed8cdf95e956550fe0
 ```
 
 ## 修正初始思考
@@ -210,11 +213,11 @@ f2cbdbdeb7c5913463a633f3335b2595740224785194a686f8a7630d72bc0061
 ```text
 11 dependency-free engine tests
 6 ADK-backed cross-phase tests
-5 baseline cases
-5 deliberately broken cases
+6 baseline cases
+6 deliberately broken cases
 baseline exit 0
 broken exit 1
-73,972-byte deterministic evidence bundle
+90,166-byte deterministic evidence bundle
 ```
 
 ## Limits

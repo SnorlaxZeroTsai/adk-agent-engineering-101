@@ -4,8 +4,8 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Start Phase 7 by mapping safety enforcement and durable human approval across
-model, tool and side-effect boundaries.
+Start Phase 8 by comparing production lifecycle, deployment, configuration,
+telemetry and rollback contracts across Starter Pack and Agents CLI.
 
 ## Completed
 
@@ -65,6 +65,18 @@ model, tool and side-effect boundaries.
 - Baseline gate exits `0`; broken gate exits `1` with 24 blocking reasons.
 - 11 Lab 06 offline tests and 6 ADK-backed cross-phase tests.
 - Fifth candidate pattern: behavior contract gate.
+- Phase 7 source comparison of App plugins, Agent callbacks, model/tool hooks,
+  FunctionTool confirmation, Workflow `RequestInput` and credential requests.
+- Lab 07 shared vendor payment across prompt-only, plugin and dynamic approval
+  variants.
+- User/model and tool input/output enforcement coverage experiments.
+- Approval envelope with approver, action scope, request hash, policy version,
+  decision and issue/expiry times.
+- Fresh-object tool and Workflow resume, rejection, expiry, unauthorized
+  approver, tampering and later-run replay experiments.
+- 7 Lab 07 offline tests and 15 ADK-backed safety/HITL tests.
+- Phase 6 gate extended to six baseline and six broken architecture cases.
+- Sixth candidate pattern: durable approval boundary.
 
 ## Important Findings
 
@@ -168,8 +180,31 @@ model, tool and side-effect boundaries.
     it does not decide regression or provide a blocking release status.
 43. Local Agents CLI custom metrics compile and execute Python with CLI process
     privileges, making eval configuration a trusted-code boundary.
-44. The deliberately broken cross-phase suite passed its scripted judge mean
-    at `4.2/5` while deterministic metrics correctly blocked all five cases.
+44. The initial five-case broken suite passed its scripted judge mean at
+    `4.2/5` while deterministic metrics correctly blocked all five cases.
+45. App plugins are global across an Agent tree; model/tool plugins run before
+    Agent callbacks, and the first non-None plugin result short-circuits later
+    policy handlers.
+46. `after_tool` can protect later model input but cannot undo an external
+    effect. Consequential-action policy must run before tool execution and at
+    the side-effect service.
+47. In the pinned ADK 2 Agent path, `before_run_callback` was invoked but its
+    returned content did not halt execution; the verified `before_model`
+    replacement produced the hard stop.
+48. `ToolConfirmation` transports confirmed, hint and payload but does not
+    authenticate an approver or enforce scope, request integrity, expiry or
+    idempotency.
+49. The confirmation processor validates the original tool name, arguments,
+    history and requirement before re-execution.
+50. Replaying the same confirmation in a later run re-entered the tool.
+    Action-ID idempotency in the external ledger, not confirmation dedup,
+    prevented a second effect.
+51. Workflow `RequestInput` is a node-level interrupt with payload and response
+    schema; FunctionTool confirmation is a tool-call-level interrupt.
+52. Credential requests require a function-call ID and are not substitutes for
+    business approval.
+53. The expanded broken suite passed its scripted judge mean at `13/3` while
+    deterministic metrics blocked all six cases with 28 blocking failures.
 
 ## Architecture Decisions
 
@@ -230,6 +265,18 @@ model, tool and side-effect boundaries.
 - Separate result comparison from release policy and expose a CI process
   status.
 - Treat local custom metric functions as reviewed executable code.
+- Put global invariants in App plugins and Agent-local adaptations in Agent
+  callbacks.
+- Enforce unsafe transitions at the last boundary that can still prevent them.
+- Bind approval to approver identity, action type, action ID, full request hash,
+  policy version, decision and expiry.
+- Keep raw credentials out of approval payloads.
+- Fail closed on rejected, expired, unauthorized, malformed or tampered
+  approval.
+- Use an external action ID as the side-effect idempotency key.
+- Treat framework resume/dedup and business idempotency as separate contracts.
+- Choose ToolConfirmation for one tool call and `RequestInput` for a
+  deterministic Workflow node.
 
 ## Unresolved Questions
 
@@ -261,9 +308,11 @@ model, tool and side-effect boundaries.
 - Which latency, token and monetary-cost distributions should block a release?
 - Which safety mechanism owns each model-input, model-output, tool-input and
   tool-output boundary?
-- How should approval identity, scope, expiry and revocation survive resume?
-- How should repeated approval responses and side-effect retries share one
-  idempotency key?
+- Which durable store and transaction/outbox design can coordinate an approval
+  checkpoint with the irreversible effect?
+- How should approval revocation and separation of duties survive resume?
+- Which live policy service latency/failure modes require fail-closed versus
+  degraded behavior?
 
 ## Relevant Sources
 
@@ -290,6 +339,9 @@ model, tool and side-effect boundaries.
 - [`docs/evaluation/evaluation-engineering.md`](docs/evaluation/evaluation-engineering.md)
 - [`docs/learning-notes/phase-6-evaluation.md`](docs/learning-notes/phase-6-evaluation.md)
 - [`patterns/behavior-contract-gate.md`](patterns/behavior-contract-gate.md)
+- [`docs/safety/safety-and-hitl.md`](docs/safety/safety-and-hitl.md)
+- [`docs/learning-notes/phase-7-safety-hitl.md`](docs/learning-notes/phase-7-safety-hitl.md)
+- [`patterns/durable-approval-boundary.md`](patterns/durable-approval-boundary.md)
 
 ## Environment Notes
 
@@ -297,8 +349,8 @@ model, tool and side-effect boundaries.
 - `uv` is not installed.
 - Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
   `/tmp/adk-python` commit.
-- `make verify` passes: repository invariants plus 54 offline tests.
-- `make verify-adk` passes: 59 ADK-backed tests plus six trace renderers and
+- `make verify` passes: repository invariants plus 61 offline tests.
+- `make verify-adk` passes: 74 ADK-backed tests plus seven trace renderers and
   baseline/broken evaluation exit checks.
 - `make verify-workflows` passes: 12 ADK-backed tests plus a 79 KB JSON
   evidence bundle.
@@ -309,8 +361,10 @@ model, tool and side-effect boundaries.
 - `make verify-rag` passes: 10 ADK-backed tests plus a deterministic
   20,460-byte JSON evidence bundle.
 - `make verify-evaluation` passes: 6 ADK-backed cross-phase tests, baseline
-  exit `0`, expected broken exit `1` and a deterministic 73,972-byte evidence
+  exit `0`, expected broken exit `1` and a deterministic 90,166-byte evidence
   bundle.
+- `make verify-safety-hitl` passes: 15 ADK-backed tests and a deterministic
+  65,971-byte evidence bundle.
 - Live-model execution remains unverified until credentials are configured.
 - Lab 02 recreates Runner/root objects but retains one
   `InMemorySessionService`; it does not prove durable process recovery.
@@ -319,11 +373,12 @@ model, tool and side-effect boundaries.
 
 ## Next Actions
 
-1. Inventory ADK callbacks, plugins, tool confirmation, auth/credential and
-   HITL resume contracts at the pinned runtime.
-2. Map every mechanism to model input/output and tool input/output coverage.
-3. Build one consequential-action lab with prompt-only, enforced-policy and
-   durable-approval variants.
-4. Inject unsafe inputs/results, rejected/expired approval and replayed
-   function responses.
-5. Add the safety/HITL cases to the Phase 6 behavior-contract gate.
+1. Compare Starter Pack template layering with current Agents CLI lifecycle
+   commands and generated project ownership.
+2. Map configuration, secrets, identity, Session/memory/artifact services and
+   deployment-target overlays.
+3. Build a render/diff lab across local, Cloud Run and Agent Engine targets.
+4. Define telemetry, privacy, rollout and rollback evidence required by the
+   behavior gate.
+5. Inject configuration, deployment and rollback failures without requiring a
+   live cloud project for the local baseline.

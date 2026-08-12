@@ -20,6 +20,7 @@ REQUIRED_PATHS = (
     "docs/learning-notes/phase-4-context-memory.md",
     "docs/learning-notes/phase-5-rag.md",
     "docs/learning-notes/phase-6-evaluation.md",
+    "docs/learning-notes/phase-7-safety-hitl.md",
     "docs/foundations/agent.md",
     "docs/foundations/tools.md",
     "docs/foundations/execution-model.md",
@@ -28,12 +29,14 @@ REQUIRED_PATHS = (
     "docs/context/data-lifecycle.md",
     "docs/rag/rag-engineering.md",
     "docs/evaluation/evaluation-engineering.md",
+    "docs/safety/safety-and-hitl.md",
     "patterns/README.md",
     "patterns/deterministic-workflow.md",
     "patterns/bounded-specialist.md",
     "patterns/data-lifecycle-placement.md",
     "patterns/evidence-preserving-rag.md",
     "patterns/behavior-contract-gate.md",
+    "patterns/durable-approval-boundary.md",
     "labs/README.md",
     "labs/01-agent-basics/README.md",
     "labs/01-agent-basics/agent_basics/runtime_trace.py",
@@ -73,6 +76,14 @@ REQUIRED_PATHS = (
     "labs/06-evaluation/runtime_tests/test_cross_phase_gate.py",
     "labs/06-evaluation/scripts/run_eval_gate.py",
     "labs/06-evaluation/scripts/run_evaluation_traces.py",
+    "labs/07-safety-hitl/README.md",
+    "labs/07-safety-hitl/OBSERVATIONS.md",
+    "labs/07-safety-hitl/safety_hitl_lab/domain.py",
+    "labs/07-safety-hitl/safety_hitl_lab/policy.py",
+    "labs/07-safety-hitl/safety_hitl_lab/runtime.py",
+    "labs/07-safety-hitl/tests/test_domain.py",
+    "labs/07-safety-hitl/runtime_tests/test_safety_hitl.py",
+    "labs/07-safety-hitl/scripts/run_safety_hitl_traces.py",
     "case-studies/README.md",
     "agent-garden/README.md",
     "mini-agent-garden/README.md",
@@ -119,7 +130,7 @@ def main() -> None:
     roadmap = (ROOT / "docs/roadmap.md").read_text(encoding="utf-8")
     if "ADK 1.x" not in roadmap or "ADK 2.0" not in roadmap:
         fail("roadmap must preserve the ADK 1.x/2.0 migration boundary")
-    if "Phase 7 Safety and HITL | Next" not in roadmap:
+    if "Phase 8 Production engineering | Next" not in roadmap:
         fail("roadmap does not point to the next architecture dependency")
 
     workflow_note = (
@@ -177,11 +188,23 @@ def main() -> None:
         if required_concept not in evaluation_note:
             fail(f"evaluation module lacks {required_concept!r}")
 
+    safety_note = (ROOT / "docs/safety/safety-and-hitl.md").read_text(
+        encoding="utf-8"
+    )
+    for required_concept in (
+        "Coverage Matrix",
+        "Approval Envelope",
+        "Replay Behavior",
+        "Credential Boundary",
+    ):
+        if required_concept not in safety_note:
+            fail(f"safety/HITL module lacks {required_concept!r}")
+
     state = (ROOT / "PROJECT_STATE.md").read_text(encoding="utf-8")
     if "Next Actions" not in state or "Unresolved Questions" not in state:
         fail("PROJECT_STATE.md lacks continuation context")
 
-    print("PASS: project structure and Phase 0-6 artifacts verified")
+    print("PASS: project structure and Phase 0-7 artifacts verified")
 
 
 if __name__ == "__main__":

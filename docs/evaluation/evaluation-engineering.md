@@ -220,20 +220,21 @@ not invented from local character counts.
 | Bounded specialist | one task specialist owns typed result | two specialists overwrite one state key | tool/trajectory/state/cost |
 | Memory isolation | Alice memory visible only to Alice | adapter returns Alice secret to Bob | policy safety |
 | RAG grounding | result retains source ID/version/citation | provenance stripped before generation | output/retrieval/citation |
+| Consequential action | scoped approval precedes one payment | prompt-only instruction executes without approval | trajectory/state/output/policy |
 
-The baseline and broken trace sets contain the same five case IDs. A broken
+The baseline and broken trace sets contain the same six case IDs. A broken
 case cannot disappear during collection.
 
 ## Results
 
 ### Baseline
 
-All five cases passed every blocking metric. The release CLI returned status
+All six cases passed every blocking metric. The release CLI returned status
 `0`.
 
 ### Deliberate Breakage
 
-All five cases failed:
+All six cases failed:
 
 | Case | Failed metric families |
 |---|---|
@@ -242,13 +243,14 @@ All five cases failed:
 | Multi-agent | output, efficiency, tool, trajectory, state |
 | Memory | policy safety |
 | RAG | output, retrieval grounding |
+| Safety/HITL | output, trajectory, state, policy safety |
 
-The report contained 16 per-case deterministic failures and eight failed
-blocking aggregates, for 24 explicit blocking reasons.
+The report contained 20 per-case deterministic failures and eight failed
+blocking aggregates, for 28 explicit blocking reasons.
 
-The four broken variants that still produced fluent output each received a
+The five broken variants that still produced fluent output each received a
 scripted quality score of `5/5`. The failed Agent run received `1/5`. Their
-mean was `4.2/5`, above the advisory threshold, so the judge aggregate passed
+mean was `13/3`, above the advisory threshold, so the judge aggregate passed
 while the release correctly failed.
 
 This is the required Phase 6 counterexample:
@@ -330,7 +332,7 @@ python scripts/run_eval_gate.py --variant broken    # exit 1
 `make verify-evaluation` asserts both outcomes. It also runs offline engine
 tests, ADK-backed cross-phase tests and the deterministic evidence renderer.
 
-The complete 73,972-byte evidence bundle rendered byte-for-byte identically in
+The complete 90,166-byte evidence bundle rendered byte-for-byte identically in
 two runs.
 
 ## Decision Rules
