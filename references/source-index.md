@@ -22,6 +22,10 @@ All links are pinned to the commits in `upstream-lock.yaml`.
 | Runtime tool context | [`Context`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/context.py) | Delta-aware state, artifacts, memory, credentials and confirmation actions |
 | Tool base contract | [`BaseTool`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/base_tool.py) | Separates model declaration/request mutation from local execution |
 | Provider built-in tool | [`GoogleSearchTool`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/google_search_tool.py) | Adds provider-native search configuration without local function execution |
+| Native data-store search | [`VertexAiSearchTool`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/vertex_ai_search_tool.py) | Adds data-store/engine retrieval, filters and limits inside the Gemini request |
+| Multi-tool search conversion | [`_convert_tool_union_to_tools`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/llm_agent.py#L140) | Can replace native Vertex AI Search with a local Discovery Engine FunctionTool |
+| Explicit Discovery Engine search | [`DiscoveryEngineSearchTool`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/discovery_engine_search_tool.py) | Owns API calls, chunk/document parsing, errors and structured result serialization |
+| Vertex AI RAG retrieval | [`VertexAiRagRetrieval`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/retrieval/vertex_ai_rag_retrieval.py) | Uses provider-native RAG for Gemini and a query FunctionTool fallback for other models |
 | MCP lifecycle | [`McpToolset`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/mcp_tool/mcp_toolset.py) | Dynamic discovery, filtering, auth, caching and connection cleanup |
 | Invocation contract | [`InvocationContext`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/invocation_context.py) | Defines invocation, agent-call and model-step hierarchy |
 | State delta contract | [`State`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/sessions/state.py) | Tracks current state and pending event delta with optional schema validation |
@@ -63,6 +67,12 @@ All links are pinned to the commits in `upstream-lock.yaml`.
 | Global guardrails | [`safety-plugins/plugins/agent_as_a_judge.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/safety-plugins/safety_plugins/plugins/agent_as_a_judge.py) |
 | Event-driven HITL | [`ambient-expense-agent/expense_agent/agent.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/ambient-expense-agent/expense_agent/agent.py) |
 | Long-horizon interfaces | [`long-horizon-harness/AGENTS.md`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/long-horizon-harness/AGENTS.md) |
+| Managed RAG runtime seam | [`rag-agent-search/app/retrievers.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/rag-agent-search/app/retrievers.py) |
+| Managed connector lifecycle | [`agent_platform_search.tf`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/rag-agent-search/infra/terraform/agent_platform_search.tf) |
+| Explicit vector retrieval | [`rag-vector-search/app/retrievers.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/rag-vector-search/app/retrievers.py) |
+| Explicit chunking and IDs | [`process_data.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/rag-vector-search/data_ingestion/data_ingestion_pipeline/components/process_data.py) |
+| Vector ingestion reconciliation | [`ingest_data.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/rag-vector-search/data_ingestion/data_ingestion_pipeline/components/ingest_data.py) |
+| RAG sample evaluation | [`rag-agent-search/eval_config.yaml`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/rag-agent-search/tests/eval/eval_config.yaml) | Shows generic response-quality and turn-count metrics without retrieval-specific release thresholds |
 
 ## Production Lifecycle
 

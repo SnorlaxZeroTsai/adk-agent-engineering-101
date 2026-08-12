@@ -76,7 +76,7 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | 2. Workflow engineering | When must control flow be deterministic? | Sequential, parallel, loop and ADK 2.0 graph Workflow labs | Equivalent tasks compared for trace, retry, failure and resumability |
 | 3. Multi-agent systems | When is delegation better than a tool or workflow node? | Coordinator, transfer and single-turn specialist experiments | Responsibilities and state contracts remain explicit under failure |
 | 4. State, context and memory | What belongs in prompt, session, artifact or long-term memory? | Context-budget and cross-session recall labs | Retention, isolation, compaction and deletion behavior are testable |
-| 5. RAG engineering | Who owns ingestion, retrieval and citation quality? | Managed Search and explicit Vector Search comparison | Same corpus has retrieval, groundedness, latency and cost evidence |
+| 5. RAG engineering | Who owns ingestion, retrieval and citation quality? | Managed Search and explicit Vector Search comparison | Same corpus has retrieval, groundedness and ownership evidence; live latency/cost is a separate gate |
 | 6. Evaluation | What observable behavior defines success? | Dataset, trajectory, tool-argument, response, safety and regression evals | A deliberately broken Agent fails a CI-style gate |
 | 7. Safety and HITL | Where can policy block, redact, confirm or resume? | Callback/plugin coverage matrix and approval lab | Model/tool I/O and credential boundaries have tested enforcement |
 | 8. Production engineering | How does a working Agent become an operated service? | Starter Pack/Agents CLI render diff, deployment topology, telemetry and rollback notes | Environment/config/secrets/eval/deploy concerns are independently replaceable |
@@ -97,7 +97,8 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | Phase 2 Workflow engineering | Local/runtime baseline complete | Equivalent business rules, routed loop, retry, failure, output and resume traces |
 | Phase 3 Multi-agent systems | Local/scripted baseline complete | Function, single-turn, transfer and task lifecycles under failure and conflict |
 | Phase 4 State, context and memory | Local/scripted baseline complete | Transient context, state scopes, artifact versions and memory isolation/deletion traces |
-| Phase 5 RAG engineering | Next | Same-corpus managed Search versus explicit Vector Search comparison |
+| Phase 5 RAG engineering | Local/scripted baseline complete | Same-corpus retrieval, citation, ACL, version and deletion evidence |
+| Phase 6 Evaluation | Next | Reusable datasets, multi-dimensional metrics and CI regression thresholds |
 
 The Phase 1 live-model gate remains open, but it is not a dependency for
 deterministic Workflow semantics.
@@ -311,7 +312,11 @@ Evidence:
 
 ### Phase 5: RAG Engineering
 
-Next hypothesis:
+Status: complete for deterministic local/scripted scope. Live managed Search,
+Vector Search relevance, latency, token usage, monetary cost and deletion
+propagation remain credentialed integration gates.
+
+Hypothesis:
 
 > Retrieval architecture should be chosen from ingestion ownership, access
 > control, deletion and evaluation requirements; generation quality cannot
@@ -327,6 +332,49 @@ Comparative experiment:
   retrieval misses;
 - identify who owns parsing, chunking, embedding versions, index updates and
   deletion propagation in each architecture.
+
+Observed:
+
+- all five baseline cases passed retrieval, answer, citation, ACL, stale and
+  deletion gates on both paths;
+- native Search used one model request, one grounded Event and two stored
+  Events per case;
+- explicit retrieval used two model requests, a FunctionTool round trip and
+  four stored Events per case;
+- dropping source ID/version/URI preserved the correct answer but reduced
+  citation recall to zero;
+- retaining Atlas v1 produced one stale hit even though the final answer used
+  current v2;
+- removing the native principal filter exposed one internal source to a public
+  user;
+- failing to reconcile deletion resurfaced the retired `ORBIT15` promotion;
+- both pinned sample evals use generic response quality and turn count rather
+  than retrieval-specific gates.
+
+Evidence:
+
+- `docs/rag/rag-engineering.md`
+- `docs/learning-notes/phase-5-rag.md`
+- `labs/05-rag-engineering`
+- `patterns/evidence-preserving-rag.md`
+
+### Phase 6: Evaluation
+
+Next hypothesis:
+
+> Evaluation should model an Agent as an observable trajectory with typed
+> outcomes. Deterministic contract metrics and probabilistic quality judges
+> need separate thresholds, ownership and failure explanations.
+
+Comparative experiment:
+
+- normalize the existing five lab datasets into one eval-case contract;
+- score tool choice/arguments, trajectory, state, retrieval/citation, final
+  response, safety, latency and usage independently;
+- keep deterministic assertions separate from LLM-judge metrics;
+- deliberately break one Agent in each completed architecture phase;
+- produce a CI-style report that blocks the broken variants while preserving
+  explainable per-dimension failures.
 
 ## Later Phase Design Questions
 

@@ -21,3 +21,5 @@ Current candidates:
   coordinator-owned delegation with explicit responsibility and state bounds.
 - [`data-lifecycle-placement.md`](data-lifecycle-placement.md): context, state,
   artifact and memory placement from explicit scope and retention requirements.
+- [`evidence-preserving-rag.md`](evidence-preserving-rag.md): versioned,
+  access-aware retrieval with source-preserving citations and lifecycle gates.

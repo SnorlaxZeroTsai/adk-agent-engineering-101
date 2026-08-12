@@ -4,8 +4,8 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Start Phase 5 by holding one corpus and question set constant while comparing
-managed Search with explicit Vector Search ingestion and retrieval ownership.
+Start Phase 6 by extracting a reusable evaluation contract from the completed
+Agent, Workflow, multi-agent, context/memory and RAG labs.
 
 ## Completed
 
@@ -44,6 +44,15 @@ managed Search with explicit Vector Search ingestion and retrieval ownership.
   retention/deletion and intentional cross-user leakage experiments.
 - 6 Lab 04 offline tests and 13 ADK-backed context/memory tests.
 - Third candidate pattern: data lifecycle placement.
+- Phase 5 source comparison of native `VertexAiSearchTool`, Discovery Engine
+  fallback, managed connector ingestion and explicit Vector Search ingestion.
+- Lab 05 versioned/ACL corpus across native managed Search and explicit
+  FunctionTool retrieval.
+- Retrieval recall/precision, answer, citation, ACL, stale-version and deletion
+  gates over five shared query cases.
+- Provenance-loss, unfiltered-search, stale-index and deletion-lag breakages.
+- 10 Lab 05 offline tests and 10 ADK-backed RAG tests.
+- Fourth candidate pattern: evidence-preserving RAG.
 
 ## Important Findings
 
@@ -114,6 +123,24 @@ managed Search with explicit Vector Search ingestion and retrieval ownership.
 29. Cross-user isolation is a memory-service responsibility. An adapter that
     ignored request identity returned Alice's secret to Bob despite a valid
     Agent and Runner configuration.
+30. Native `VertexAiSearchTool` performs retrieval inside one Gemini request
+    and surfaces provider grounding metadata rather than a local FunctionTool
+    call/response.
+31. With multiple tools and `bypass_multi_tools_limit=True`, ADK can replace
+    native Vertex AI Search with `DiscoveryEngineSearchTool`, changing the
+    execution and observability model.
+32. Managed Search removes custom parsing/chunking code but retains connector,
+    generated-resource, sync and deletion control-plane ownership.
+33. The pinned Vector Search recipe owns parsing, chunk IDs, staging, schema
+    and reconciliation while the service still generates embeddings.
+34. Correct final text is insufficient RAG evidence. Provenance loss and stale
+    versions both produced correct-looking answers that failed retrieval gates.
+35. ACL filtering must happen before model-visible retrieval. Removing one
+    native filter exposed an internal reset code to a public principal.
+36. Stable create IDs and `AlreadyExists` handling do not reconcile obsolete
+    chunks or source deletions.
+37. The pinned managed and vector RAG sample evals are identical generic
+    response-quality/turn-count checks with no enforced retrieval gate.
 
 ## Architecture Decisions
 
@@ -151,6 +178,16 @@ managed Search with explicit Vector Search ingestion and retrieval ownership.
   need their content.
 - Treat memory ingestion, identity isolation and deletion propagation as
   explicit service policies, separate from Session lifecycle.
+- Preserve document ID, version, chunk ID, URI and ACL metadata through every
+  retrieval adapter.
+- Apply trusted authorization filters before ranking and top-k.
+- Evaluate expected retrieved identities separately from final response text.
+- Fail RAG gates on stale/deleted hits even if the selected citation is current.
+- Require citations to reference the exact evidence returned in the current
+  invocation.
+- Treat managed native Search and FunctionTool fallback as distinct runtime
+  trajectories.
+- Separate ingestion success from version/deletion reconciliation.
 
 ## Unresolved Questions
 
@@ -174,6 +211,11 @@ managed Search with explicit Vector Search ingestion and retrieval ownership.
 - How should artifact and memory deletion propagate to cached model context,
   indexes and evaluation fixtures?
 - Which retrieval quality and citation metrics should block a RAG regression?
+- How do live managed Search and Vector Search compare on relevance, latency,
+  token usage and monetary cost for the same corpus?
+- What deletion propagation bounds can each live backend enforce and prove?
+- Which deterministic and probabilistic eval thresholds should be release
+  blockers rather than advisory signals?
 
 ## Relevant Sources
 
@@ -194,6 +236,9 @@ managed Search with explicit Vector Search ingestion and retrieval ownership.
 - [`docs/context/data-lifecycle.md`](docs/context/data-lifecycle.md)
 - [`docs/learning-notes/phase-4-context-memory.md`](docs/learning-notes/phase-4-context-memory.md)
 - [`patterns/data-lifecycle-placement.md`](patterns/data-lifecycle-placement.md)
+- [`docs/rag/rag-engineering.md`](docs/rag/rag-engineering.md)
+- [`docs/learning-notes/phase-5-rag.md`](docs/learning-notes/phase-5-rag.md)
+- [`patterns/evidence-preserving-rag.md`](patterns/evidence-preserving-rag.md)
 
 ## Environment Notes
 
@@ -201,14 +246,16 @@ managed Search with explicit Vector Search ingestion and retrieval ownership.
 - `uv` is not installed.
 - Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
   `/tmp/adk-python` commit.
-- `make verify` passes: repository invariants plus 33 offline tests.
-- `make verify-adk` passes: 43 ADK-backed tests plus four trace renderers.
+- `make verify` passes: repository invariants plus 43 offline tests.
+- `make verify-adk` passes: 53 ADK-backed tests plus five trace renderers.
 - `make verify-workflows` passes: 12 ADK-backed tests plus a 79 KB JSON
   evidence bundle.
 - `make verify-multi-agent` passes: 10 ADK-backed tests plus a 35,991-byte JSON
   evidence bundle.
 - `make verify-context-memory` passes: 13 ADK-backed tests plus a deterministic
   28,792-byte JSON evidence bundle.
+- `make verify-rag` passes: 10 ADK-backed tests plus a deterministic
+  20,460-byte JSON evidence bundle.
 - Live-model execution remains unverified until credentials are configured.
 - Lab 02 recreates Runner/root objects but retains one
   `InMemorySessionService`; it does not prove durable process recovery.
@@ -217,12 +264,10 @@ managed Search with explicit Vector Search ingestion and retrieval ownership.
 
 ## Next Actions
 
-1. Inspect managed Search, Vertex AI Search, Vector Search and retrieval-tool
-   contracts at pinned source versions.
-2. Define one versioned corpus, access policy and question/answer dataset.
-3. Implement managed and explicit ingestion/retrieval variants against the
-   same corpus.
-4. Record retrieved identities, relevance, groundedness, citations, latency
-   and measured cost.
-5. Inject stale documents, access-control violations, deletion lag and
-   retrieval misses before extracting a RAG pattern.
+1. Inspect ADK eval schemas, evaluators and `agents-cli` generate/grade/compare
+   lifecycle at the pinned commits.
+2. Normalize existing lab cases into a reusable typed eval-case/result model.
+3. Separate deterministic contract metrics from LLM-judge quality metrics.
+4. Add deliberately broken variants from Agent, Workflow, delegation, memory
+   and RAG phases to a CI-style regression gate.
+5. Produce per-dimension failure explanations and explicit blocking thresholds.

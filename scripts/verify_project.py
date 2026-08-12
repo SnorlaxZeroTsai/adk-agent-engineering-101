@@ -18,16 +18,19 @@ REQUIRED_PATHS = (
     "docs/learning-notes/phase-2-workflows.md",
     "docs/learning-notes/phase-3-multi-agent.md",
     "docs/learning-notes/phase-4-context-memory.md",
+    "docs/learning-notes/phase-5-rag.md",
     "docs/foundations/agent.md",
     "docs/foundations/tools.md",
     "docs/foundations/execution-model.md",
     "docs/workflows/deterministic-workflows.md",
     "docs/multi-agent/specialist-boundaries.md",
     "docs/context/data-lifecycle.md",
+    "docs/rag/rag-engineering.md",
     "patterns/README.md",
     "patterns/deterministic-workflow.md",
     "patterns/bounded-specialist.md",
     "patterns/data-lifecycle-placement.md",
+    "patterns/evidence-preserving-rag.md",
     "labs/README.md",
     "labs/01-agent-basics/README.md",
     "labs/01-agent-basics/agent_basics/runtime_trace.py",
@@ -49,6 +52,13 @@ REQUIRED_PATHS = (
     "labs/04-context-and-memory/context_memory_lab/runtime.py",
     "labs/04-context-and-memory/runtime_tests/test_context_memory.py",
     "labs/04-context-and-memory/scripts/run_context_memory_traces.py",
+    "labs/05-rag-engineering/README.md",
+    "labs/05-rag-engineering/rag_lab/domain.py",
+    "labs/05-rag-engineering/rag_lab/retrieval.py",
+    "labs/05-rag-engineering/rag_lab/evaluation.py",
+    "labs/05-rag-engineering/rag_lab/runtime.py",
+    "labs/05-rag-engineering/runtime_tests/test_rag_runtime.py",
+    "labs/05-rag-engineering/scripts/run_rag_traces.py",
     "case-studies/README.md",
     "agent-garden/README.md",
     "mini-agent-garden/README.md",
@@ -95,7 +105,7 @@ def main() -> None:
     roadmap = (ROOT / "docs/roadmap.md").read_text(encoding="utf-8")
     if "ADK 1.x" not in roadmap or "ADK 2.0" not in roadmap:
         fail("roadmap must preserve the ADK 1.x/2.0 migration boundary")
-    if "Phase 5 RAG engineering | Next" not in roadmap:
+    if "Phase 6 Evaluation | Next" not in roadmap:
         fail("roadmap does not point to the next architecture dependency")
 
     workflow_note = (
@@ -131,11 +141,22 @@ def main() -> None:
         if required_concept not in context_note:
             fail(f"context module lacks {required_concept!r}")
 
+    rag_note = (ROOT / "docs/rag/rag-engineering.md").read_text(
+        encoding="utf-8"
+    )
+    for required_concept in (
+        "ACL Break",
+        "Stale-Version Break",
+        "Deletion-Lag Break",
+    ):
+        if required_concept not in rag_note:
+            fail(f"RAG module lacks {required_concept!r}")
+
     state = (ROOT / "PROJECT_STATE.md").read_text(encoding="utf-8")
     if "Next Actions" not in state or "Unresolved Questions" not in state:
         fail("PROJECT_STATE.md lacks continuation context")
 
-    print("PASS: project structure and Phase 0-4 artifacts verified")
+    print("PASS: project structure and Phase 0-5 artifacts verified")
 
 
 if __name__ == "__main__":
