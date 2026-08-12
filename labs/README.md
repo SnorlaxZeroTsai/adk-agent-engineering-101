@@ -36,3 +36,6 @@ Current labs:
 - [`11-blueprint-schema`](11-blueprint-schema/): example-first executable
   Blueprint schema, Git/AST/graph semantic validation, invalid combinations
   and identity-preserving migration.
+- [`12-mvp-architecture`](12-mvp-architecture/): authority-separated
+  components, storage/trust/extension boundaries, release/rollback dataflow
+  and three Blueprint lifecycle walkthroughs.

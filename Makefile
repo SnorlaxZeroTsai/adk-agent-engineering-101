@@ -11,6 +11,7 @@ LAB_08 := $(CURDIR)/labs/08-production-engineering
 LAB_09 := $(CURDIR)/labs/09-pattern-catalog
 LAB_10 := $(CURDIR)/labs/10-agent-garden-discovery
 LAB_11 := $(CURDIR)/labs/11-blueprint-schema
+LAB_12 := $(CURDIR)/labs/12-mvp-architecture
 ADK_PYTHON ?= $(LAB_01)/.venv/bin/python
 
 .PHONY: verify verify-project test-lab-01 test-lab-02 test-lab-03 \
@@ -18,11 +19,13 @@ ADK_PYTHON ?= $(LAB_01)/.venv/bin/python
 	verify-workflows verify-multi-agent verify-context-memory verify-rag \
 	verify-evaluation test-lab-07 verify-safety-hitl test-lab-08 \
 	verify-production test-lab-09 verify-pattern-catalog test-lab-10 \
-	verify-agent-garden-discovery test-lab-11 verify-blueprints
+	verify-agent-garden-discovery test-lab-11 verify-blueprints test-lab-12 \
+	verify-mvp-architecture
 
 verify: verify-project test-lab-01 test-lab-02 test-lab-03 test-lab-04 \
 	test-lab-05 test-lab-06 test-lab-07 verify-production \
-	verify-pattern-catalog verify-agent-garden-discovery verify-blueprints
+	verify-pattern-catalog verify-agent-garden-discovery verify-blueprints \
+	verify-mvp-architecture
 
 verify-project:
 	$(PYTHON) scripts/verify_project.py
@@ -101,6 +104,18 @@ verify-blueprints: test-lab-11
 		! $(PYTHON) scripts/run_blueprint_gate.py --variant broken >/dev/null
 	cd labs/11-blueprint-schema && \
 		$(PYTHON) scripts/run_blueprint_traces.py >/dev/null
+
+test-lab-12:
+	cd labs/12-mvp-architecture && \
+		$(PYTHON) -m unittest discover -s tests -v
+
+verify-mvp-architecture: test-lab-12
+	cd labs/12-mvp-architecture && \
+		$(PYTHON) scripts/run_architecture_gate.py --variant baseline >/dev/null
+	cd labs/12-mvp-architecture && \
+		! $(PYTHON) scripts/run_architecture_gate.py --variant broken >/dev/null
+	cd labs/12-mvp-architecture && \
+		$(PYTHON) scripts/run_architecture_traces.py >/dev/null
 
 bootstrap-adk:
 	$(PYTHON) -m venv $(LAB_01)/.venv

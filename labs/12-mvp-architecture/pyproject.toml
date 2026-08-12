@@ -1,0 +1,7 @@
+[project]
+name = "agent-garden-mvp-architecture-lab"
+version = "0.1.0"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 88

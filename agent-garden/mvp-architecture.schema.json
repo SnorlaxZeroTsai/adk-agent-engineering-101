@@ -1,0 +1,563 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/agent-garden/mvp-architecture.schema.json",
+  "title": "Mini Agent Garden MVP Architecture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "principles",
+    "components",
+    "artifacts",
+    "storage_classes",
+    "trust_boundaries",
+    "extension_points",
+    "lifecycle",
+    "blueprint_walkthroughs",
+    "adrs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "principles": {
+      "type": "array",
+      "minItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 10
+      }
+    },
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/component"
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "storage_classes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/storage_class"
+      }
+    },
+    "trust_boundaries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/trust_boundary"
+      }
+    },
+    "extension_points": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/extension_point"
+      }
+    },
+    "lifecycle": {
+      "$ref": "#/$defs/lifecycle"
+    },
+    "blueprint_walkthroughs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/walkthrough"
+      }
+    },
+    "adrs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/adr"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "actor": {
+      "type": "string",
+      "pattern": "^(external:)?[a-z][a-z0-9-]*$"
+    },
+    "repository_ref": {
+      "type": "string",
+      "pattern": "^[^#]+#[^#]+$"
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "responsibility",
+        "capabilities",
+        "owns",
+        "consumes",
+        "produces",
+        "credential_scope",
+        "storage_dependencies",
+        "extension_points",
+        "forbidden_responsibilities",
+        "evidence_refs"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "responsibility": {
+          "type": "string",
+          "minLength": 20
+        },
+        "capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "owns": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "consumes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "produces": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "credential_scope": {
+          "enum": [
+            "none",
+            "source-read",
+            "sandboxed-execution",
+            "target-scoped",
+            "ledger-write"
+          ]
+        },
+        "storage_dependencies": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "extension_points": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "forbidden_responsibilities": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 10
+          }
+        },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/repository_ref"
+          }
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "authority",
+        "owner",
+        "mutability",
+        "storage",
+        "digest_required",
+        "secret_material_allowed",
+        "producers",
+        "consumers"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "authority": {
+          "enum": [
+            "authoritative",
+            "derived",
+            "cache",
+            "external-reference"
+          ]
+        },
+        "owner": {
+          "$ref": "#/$defs/actor"
+        },
+        "mutability": {
+          "enum": [
+            "immutable",
+            "mutable-index",
+            "regenerable",
+            "mutable-cache",
+            "append-only"
+          ]
+        },
+        "storage": {
+          "$ref": "#/$defs/id"
+        },
+        "digest_required": {
+          "type": "boolean"
+        },
+        "secret_material_allowed": {
+          "type": "boolean"
+        },
+        "producers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/actor"
+          }
+        },
+        "consumers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/actor"
+          }
+        }
+      }
+    },
+    "storage_class": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "purpose",
+        "durability",
+        "write_model",
+        "allowed_artifacts",
+        "forbidden_content"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 20
+        },
+        "durability": {
+          "enum": [
+            "versioned",
+            "regenerable",
+            "durable",
+            "external"
+          ]
+        },
+        "write_model": {
+          "enum": [
+            "reviewed-commit",
+            "replaceable-write",
+            "content-addressed",
+            "append-only",
+            "control-plane",
+            "external-api"
+          ]
+        },
+        "allowed_artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "forbidden_content": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 5
+          }
+        }
+      }
+    },
+    "trust_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "from_actor",
+        "to_actor",
+        "artifacts",
+        "controls"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "from_actor": {
+          "$ref": "#/$defs/actor"
+        },
+        "to_actor": {
+          "$ref": "#/$defs/actor"
+        },
+        "artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "controls": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 10
+          }
+        }
+      }
+    },
+    "extension_point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "owner",
+        "contract_ref",
+        "core_change_required",
+        "cannot_override"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "typed-union",
+            "external-adapter"
+          ]
+        },
+        "owner": {
+          "$ref": "#/$defs/id"
+        },
+        "contract_ref": {
+          "$ref": "#/$defs/repository_ref"
+        },
+        "core_change_required": {
+          "type": "boolean"
+        },
+        "cannot_override": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "component",
+        "consumes",
+        "produces",
+        "requires"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "component": {
+          "$ref": "#/$defs/id"
+        },
+        "consumes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "produces": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "requires": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "initial_artifacts",
+        "release_path",
+        "rollback_path"
+      ],
+      "properties": {
+        "initial_artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "release_path": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/stage"
+          }
+        },
+        "rollback_path": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/stage"
+          }
+        }
+      }
+    },
+    "walkthrough": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "blueprint_id",
+        "architecture",
+        "target_adapter",
+        "stages",
+        "required_validators",
+        "required_metrics",
+        "required_extensions",
+        "rollback_supported"
+      ],
+      "properties": {
+        "blueprint_id": {
+          "$ref": "#/$defs/id"
+        },
+        "architecture": {
+          "enum": [
+            "single-agent",
+            "workflow",
+            "multi-agent"
+          ]
+        },
+        "target_adapter": {
+          "enum": [
+            "local",
+            "cloud-run",
+            "agent-runtime"
+          ]
+        },
+        "stages": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "required_validators": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "required_metrics": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]*$"
+          }
+        },
+        "required_extensions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "rollback_supported": {
+          "type": "boolean"
+        }
+      }
+    },
+    "adr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^agent-garden/adrs/[0-9]{4}-.+\\.md$"
+        },
+        "status": {
+          "const": "accepted"
+        }
+      }
+    }
+  }
+}

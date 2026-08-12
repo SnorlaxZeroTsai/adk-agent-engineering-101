@@ -1,0 +1,1030 @@
+{
+  "schema_version": "1.0",
+  "principles": [
+    "Stable discovery identity, executable composition, project instance, behavior evidence and release history have separate authorities.",
+    "Every executable input and promotion artifact is immutable or content-addressed before a credentialed action consumes it.",
+    "Pure validation and rendering remain separate from candidate execution and target credentials.",
+    "Mutable deployment status is operational cache and never substitutes for append-only release evidence.",
+    "New architecture kinds require a typed core change; providers and targets extend through constrained adapters.",
+    "The CLI is a caller of components, not an additional source of catalog, policy or release truth."
+  ],
+  "components": [
+    {
+      "id": "catalog-registry",
+      "responsibility": "Index stable Agent identities and resolve one active immutable Implementation for selection.",
+      "capabilities": [
+        "search-catalog",
+        "resolve-implementation"
+      ],
+      "owns": [
+        "catalog-index",
+        "implementation-selection"
+      ],
+      "consumes": [
+        "catalog-index"
+      ],
+      "produces": [
+        "catalog-index",
+        "implementation-selection"
+      ],
+      "credential_scope": "none",
+      "storage_dependencies": [
+        "version-control",
+        "workspace"
+      ],
+      "extension_points": [],
+      "forbidden_responsibilities": [
+        "Execute implementation or evaluation code.",
+        "Own Blueprint runtime, policy or lifecycle configuration.",
+        "Deploy or record releases."
+      ],
+      "evidence_refs": [
+        "agent-garden/discoverability-contract.md#Catalog Shape",
+        "labs/10-agent-garden-discovery/garden_discovery/validation.py#validate_discovery_bundle"
+      ]
+    },
+    {
+      "id": "contract-validator",
+      "responsibility": "Resolve immutable source and verify Catalog, Blueprint and cross-domain executable invariants.",
+      "capabilities": [
+        "catalog-resolution",
+        "source-assurance",
+        "local-reference",
+        "single-agent-tools",
+        "workflow-graph",
+        "retrieval-provenance",
+        "multi-agent-delegation",
+        "approval-replay",
+        "state-ownership",
+        "common-policy-evaluation-lifecycle"
+      ],
+      "owns": [
+        "validation-report"
+      ],
+      "consumes": [
+        "implementation-selection",
+        "blueprint",
+        "implementation-source"
+      ],
+      "produces": [
+        "validation-report"
+      ],
+      "credential_scope": "source-read",
+      "storage_dependencies": [
+        "version-control",
+        "content-addressed-store"
+      ],
+      "extension_points": [
+        "architecture-kind",
+        "source-resolver"
+      ],
+      "forbidden_responsibilities": [
+        "Mutate CatalogEntry or Blueprint authority.",
+        "Render a project or resolve secret material.",
+        "Execute a deployment."
+      ],
+      "evidence_refs": [
+        "agent-garden/blueprint-schema.md#Semantic Validation",
+        "labs/11-blueprint-schema/blueprint_lab/validation.py#validate_blueprint_bundle"
+      ]
+    },
+    {
+      "id": "project-renderer",
+      "responsibility": "Purely render a validated Implementation and Blueprint into a regenerable Project Instance.",
+      "capabilities": [
+        "render-project-instance",
+        "separate-secret-reference",
+        "target-independent-render"
+      ],
+      "owns": [
+        "project-instance"
+      ],
+      "consumes": [
+        "blueprint",
+        "implementation-source",
+        "validation-report",
+        "secret-reference"
+      ],
+      "produces": [
+        "project-instance"
+      ],
+      "credential_scope": "none",
+      "storage_dependencies": [
+        "version-control",
+        "workspace"
+      ],
+      "extension_points": [
+        "scaffold-renderer",
+        "runtime-service-binding"
+      ],
+      "forbidden_responsibilities": [
+        "Resolve or persist secret material.",
+        "Change Catalog, policy or evaluation authority.",
+        "Build, deploy or promote a release."
+      ],
+      "evidence_refs": [
+        "docs/production/production-engineering.md#Replaceable Ownership",
+        "labs/08-production-engineering/production_lab/rendering.py#render_project"
+      ]
+    },
+    {
+      "id": "deployment-controller",
+      "responsibility": "Build immutable candidates and execute target-specific stage, promote and rollback operations.",
+      "capabilities": [
+        "build-immutable-candidate",
+        "stage-candidate",
+        "promote-candidate",
+        "execute-rollback"
+      ],
+      "owns": [
+        "release-candidate",
+        "deployment-status"
+      ],
+      "consumes": [
+        "project-instance",
+        "validation-report",
+        "secret-reference",
+        "release-candidate",
+        "behavior-report",
+        "rollback-plan"
+      ],
+      "produces": [
+        "release-candidate",
+        "deployment-status"
+      ],
+      "credential_scope": "target-scoped",
+      "storage_dependencies": [
+        "content-addressed-store",
+        "target-control-plane",
+        "external-secret-manager"
+      ],
+      "extension_points": [
+        "deployment-target"
+      ],
+      "forbidden_responsibilities": [
+        "Grade behavior or weaken blocking metric policy.",
+        "Append or rewrite release history.",
+        "Mutate CatalogEntry or Blueprint contracts."
+      ],
+      "evidence_refs": [
+        "docs/production/production-engineering.md#Release and Rollback",
+        "labs/08-production-engineering/production_lab/contracts.py#TargetProfile"
+      ]
+    },
+    {
+      "id": "behavior-gate",
+      "responsibility": "Execute normalized traces and blocking metrics against the exact staged release candidate.",
+      "capabilities": [
+        "run-dataset",
+        "grade-blocking-metrics",
+        "emit-behavior-report"
+      ],
+      "owns": [
+        "behavior-report"
+      ],
+      "consumes": [
+        "release-candidate",
+        "blueprint"
+      ],
+      "produces": [
+        "behavior-report"
+      ],
+      "credential_scope": "sandboxed-execution",
+      "storage_dependencies": [
+        "content-addressed-store"
+      ],
+      "extension_points": [
+        "evaluation-metric"
+      ],
+      "forbidden_responsibilities": [
+        "Deploy or promote a candidate.",
+        "Average away a requested blocking case failure.",
+        "Append or modify release history."
+      ],
+      "evidence_refs": [
+        "docs/evaluation/evaluation-engineering.md#CI Semantics",
+        "labs/06-evaluation/evaluation_lab/engine.py#grade_trace_set"
+      ]
+    },
+    {
+      "id": "release-ledger",
+      "responsibility": "Append immutable promotion evidence and derive rollback targets without target credentials.",
+      "capabilities": [
+        "append-release-record",
+        "plan-rollback"
+      ],
+      "owns": [
+        "release-record",
+        "rollback-plan"
+      ],
+      "consumes": [
+        "release-candidate",
+        "behavior-report",
+        "deployment-status",
+        "release-record"
+      ],
+      "produces": [
+        "release-record",
+        "rollback-plan"
+      ],
+      "credential_scope": "ledger-write",
+      "storage_dependencies": [
+        "append-only-ledger",
+        "workspace"
+      ],
+      "extension_points": [
+        "release-store"
+      ],
+      "forbidden_responsibilities": [
+        "Build or deploy an artifact.",
+        "Store secret material or target credentials.",
+        "Accept a failed behavior report or mutable candidate."
+      ],
+      "evidence_refs": [
+        "docs/production/production-engineering.md#Release and Rollback",
+        "labs/08-production-engineering/production_lab/release.py#ReleaseLedger"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "catalog-index",
+      "authority": "authoritative",
+      "owner": "catalog-registry",
+      "mutability": "mutable-index",
+      "storage": "version-control",
+      "digest_required": true,
+      "secret_material_allowed": false,
+      "producers": [
+        "catalog-registry"
+      ],
+      "consumers": [
+        "catalog-registry"
+      ]
+    },
+    {
+      "id": "implementation-selection",
+      "authority": "derived",
+      "owner": "catalog-registry",
+      "mutability": "immutable",
+      "storage": "workspace",
+      "digest_required": true,
+      "secret_material_allowed": false,
+      "producers": [
+        "catalog-registry"
+      ],
+      "consumers": [
+        "contract-validator"
+      ]
+    },
+    {
+      "id": "blueprint",
+      "authority": "authoritative",
+      "owner": "external:agent-team",
+      "mutability": "immutable",
+      "storage": "version-control",
+      "digest_required": true,
+      "secret_material_allowed": false,
+      "producers": [
+        "external:agent-team"
+      ],
+      "consumers": [
+        "contract-validator",
+        "project-renderer",
+        "behavior-gate"
+      ]
+    },
+    {
+      "id": "implementation-source",
+      "authority": "authoritative",
+      "owner": "external:agent-team",
+      "mutability": "immutable",
+      "storage": "version-control",
+      "digest_required": true,
+      "secret_material_allowed": false,
+      "producers": [
+        "external:agent-team"
+      ],
+      "consumers": [
+        "contract-validator",
+        "project-renderer"
+      ]
+    },
+    {
+      "id": "validation-report",
+      "authority": "derived",
+      "owner": "contract-validator",
+      "mutability": "immutable",
+      "storage": "content-addressed-store",
+      "digest_required": true,
+      "secret_material_allowed": false,
+      "producers": [
+        "contract-validator"
+      ],
+      "consumers": [
+        "project-renderer",
+        "deployment-controller"
+      ]
+    },
+    {
+      "id": "secret-reference",
+      "authority": "external-reference",
+      "owner": "external:secret-manager",
+      "mutability": "immutable",
+      "storage": "external-secret-manager",
+      "digest_required": false,
+      "secret_material_allowed": false,
+      "producers": [
+        "external:secret-manager"
+      ],
+      "consumers": [
+        "project-renderer",
+        "deployment-controller"
+      ]
+    },
+    {
+      "id": "project-instance",
+      "authority": "derived",
+      "owner": "project-renderer",
+      "mutability": "regenerable",
+      "storage": "workspace",
+      "digest_required": true,
+      "secret_material_allowed": false,
+      "producers": [
+        "project-renderer"
+      ],
+      "consumers": [
+        "deployment-controller"
+      ]
+    },
+    {
+      "id": "release-candidate",
+      "authority": "derived",
+      "owner": "deployment-controller",
+      "mutability": "immutable",
+      "storage": "content-addressed-store",
+      "digest_required": true,
+      "secret_material_allowed": false,
+      "producers": [
+        "deployment-controller"
+      ],
+      "consumers": [
+        "behavior-gate",
+        "deployment-controller",
+        "release-ledger"
+      ]
+    },
+    {
+      "id": "behavior-report",
+      "authority": "authoritative",
+      "owner": "behavior-gate",
+      "mutability": "immutable",
+      "storage": "content-addressed-store",
+      "digest_required": true,
+      "secret_material_allowed": false,
+      "producers": [
+        "behavior-gate"
+      ],
+      "consumers": [
+        "deployment-controller",
+        "release-ledger"
+      ]
+    },
+    {
+      "id": "deployment-status",
+      "authority": "cache",
+      "owner": "deployment-controller",
+      "mutability": "mutable-cache",
+      "storage": "target-control-plane",
+      "digest_required": false,
+      "secret_material_allowed": false,
+      "producers": [
+        "deployment-controller"
+      ],
+      "consumers": [
+        "release-ledger",
+        "external:operator"
+      ]
+    },
+    {
+      "id": "release-record",
+      "authority": "authoritative",
+      "owner": "release-ledger",
+      "mutability": "append-only",
+      "storage": "append-only-ledger",
+      "digest_required": true,
+      "secret_material_allowed": false,
+      "producers": [
+        "release-ledger"
+      ],
+      "consumers": [
+        "release-ledger"
+      ]
+    },
+    {
+      "id": "rollback-plan",
+      "authority": "derived",
+      "owner": "release-ledger",
+      "mutability": "immutable",
+      "storage": "workspace",
+      "digest_required": true,
+      "secret_material_allowed": false,
+      "producers": [
+        "release-ledger"
+      ],
+      "consumers": [
+        "deployment-controller"
+      ]
+    }
+  ],
+  "storage_classes": [
+    {
+      "id": "version-control",
+      "purpose": "Review and version human-authored catalog, Blueprint and source contracts.",
+      "durability": "versioned",
+      "write_model": "reviewed-commit",
+      "allowed_artifacts": [
+        "catalog-index",
+        "blueprint",
+        "implementation-source"
+      ],
+      "forbidden_content": [
+        "secret-material",
+        "mutable-deployment-status"
+      ]
+    },
+    {
+      "id": "workspace",
+      "purpose": "Hold regenerable selections, rendered projects and rollback instructions.",
+      "durability": "regenerable",
+      "write_model": "replaceable-write",
+      "allowed_artifacts": [
+        "implementation-selection",
+        "project-instance",
+        "rollback-plan"
+      ],
+      "forbidden_content": [
+        "secret-material",
+        "release-history-authority"
+      ]
+    },
+    {
+      "id": "content-addressed-store",
+      "purpose": "Retain immutable validation, candidate and behavior evidence by digest.",
+      "durability": "durable",
+      "write_model": "content-addressed",
+      "allowed_artifacts": [
+        "validation-report",
+        "release-candidate",
+        "behavior-report"
+      ],
+      "forbidden_content": [
+        "mutable-artifact",
+        "plaintext-secret"
+      ]
+    },
+    {
+      "id": "append-only-ledger",
+      "purpose": "Retain ordered release evidence and previous-release relationships.",
+      "durability": "durable",
+      "write_model": "append-only",
+      "allowed_artifacts": [
+        "release-record"
+      ],
+      "forbidden_content": [
+        "record-overwrite",
+        "secret-material"
+      ]
+    },
+    {
+      "id": "target-control-plane",
+      "purpose": "Expose current platform revision and operation status as replaceable cache.",
+      "durability": "external",
+      "write_model": "control-plane",
+      "allowed_artifacts": [
+        "deployment-status"
+      ],
+      "forbidden_content": [
+        "catalog-authority",
+        "release-history-authority"
+      ]
+    },
+    {
+      "id": "external-secret-manager",
+      "purpose": "Own versioned secret material while the Garden transports references only.",
+      "durability": "external",
+      "write_model": "external-api",
+      "allowed_artifacts": [
+        "secret-reference"
+      ],
+      "forbidden_content": [
+        "plaintext-secret-export",
+        "unversioned-production-secret"
+      ]
+    }
+  ],
+  "trust_boundaries": [
+    {
+      "id": "registry-to-validation",
+      "from_actor": "catalog-registry",
+      "to_actor": "contract-validator",
+      "artifacts": [
+        "implementation-selection"
+      ],
+      "controls": [
+        "Resolve exact CatalogEntry and Implementation IDs.",
+        "Require active lifecycle and immutable source revision."
+      ]
+    },
+    {
+      "id": "source-to-validation",
+      "from_actor": "external:agent-team",
+      "to_actor": "contract-validator",
+      "artifacts": [
+        "blueprint",
+        "implementation-source"
+      ],
+      "controls": [
+        "Verify schema, source revision, path and assurance digest.",
+        "Treat referenced Python and evaluation code as reviewed executable input."
+      ]
+    },
+    {
+      "id": "validation-to-render",
+      "from_actor": "contract-validator",
+      "to_actor": "project-renderer",
+      "artifacts": [
+        "validation-report"
+      ],
+      "controls": [
+        "Require a passing report bound to Blueprint and source digests.",
+        "Reject stale or mismatched validation evidence."
+      ]
+    },
+    {
+      "id": "render-to-deployment",
+      "from_actor": "project-renderer",
+      "to_actor": "deployment-controller",
+      "artifacts": [
+        "project-instance"
+      ],
+      "controls": [
+        "Require a deterministic render digest and validation report reference.",
+        "Reject rendered secret material and mutable source references."
+      ]
+    },
+    {
+      "id": "secret-to-deployment",
+      "from_actor": "external:secret-manager",
+      "to_actor": "deployment-controller",
+      "artifacts": [
+        "secret-reference"
+      ],
+      "controls": [
+        "Resolve material only with target-scoped runtime identity.",
+        "Keep secret values out of project, trace and release artifacts."
+      ]
+    },
+    {
+      "id": "candidate-to-evaluation",
+      "from_actor": "deployment-controller",
+      "to_actor": "behavior-gate",
+      "artifacts": [
+        "release-candidate"
+      ],
+      "controls": [
+        "Execute the exact immutable candidate digest.",
+        "Sandbox untrusted Agent and custom evaluator code."
+      ]
+    },
+    {
+      "id": "evaluation-to-promotion",
+      "from_actor": "behavior-gate",
+      "to_actor": "deployment-controller",
+      "artifacts": [
+        "behavior-report"
+      ],
+      "controls": [
+        "Require all requested blocking metrics to pass.",
+        "Bind report digest to the exact candidate artifact."
+      ]
+    },
+    {
+      "id": "deployment-to-ledger",
+      "from_actor": "deployment-controller",
+      "to_actor": "release-ledger",
+      "artifacts": [
+        "release-candidate",
+        "behavior-report",
+        "deployment-status"
+      ],
+      "controls": [
+        "Record exact artifact, report and platform revision identities.",
+        "Never treat current deployment status as prior release history."
+      ]
+    },
+    {
+      "id": "ledger-to-rollback",
+      "from_actor": "release-ledger",
+      "to_actor": "deployment-controller",
+      "artifacts": [
+        "rollback-plan"
+      ],
+      "controls": [
+        "Choose an existing previous immutable release in the same target scope.",
+        "Execute rollback with target credentials outside the ledger."
+      ]
+    }
+  ],
+  "extension_points": [
+    {
+      "id": "architecture-kind",
+      "kind": "typed-union",
+      "owner": "contract-validator",
+      "contract_ref": "agent-garden/blueprints/schema/blueprint.schema.json#/$defs",
+      "core_change_required": true,
+      "cannot_override": [
+        "catalog-identity",
+        "state-ownership",
+        "policy-gate",
+        "evaluation-gate"
+      ]
+    },
+    {
+      "id": "source-resolver",
+      "kind": "external-adapter",
+      "owner": "contract-validator",
+      "contract_ref": "agent-garden/catalog-entry.schema.json#/$defs/source",
+      "core_change_required": false,
+      "cannot_override": [
+        "immutable-revision",
+        "assurance-digest",
+        "trust-policy"
+      ]
+    },
+    {
+      "id": "scaffold-renderer",
+      "kind": "external-adapter",
+      "owner": "project-renderer",
+      "contract_ref": "labs/08-production-engineering/production_lab/rendering.py#render_project",
+      "core_change_required": false,
+      "cannot_override": [
+        "catalog-authority",
+        "policy-gate",
+        "evaluation-gate"
+      ]
+    },
+    {
+      "id": "runtime-service-binding",
+      "kind": "external-adapter",
+      "owner": "project-renderer",
+      "contract_ref": "agent-garden/blueprints/schema/blueprint.schema.json#/$defs/services",
+      "core_change_required": false,
+      "cannot_override": [
+        "state-ownership",
+        "secret-policy",
+        "durability-declaration"
+      ]
+    },
+    {
+      "id": "evaluation-metric",
+      "kind": "external-adapter",
+      "owner": "behavior-gate",
+      "contract_ref": "labs/06-evaluation/evaluation_lab/contracts.py#MetricPolicy",
+      "core_change_required": false,
+      "cannot_override": [
+        "case-completeness",
+        "blocking-semantics",
+        "report-candidate-binding"
+      ]
+    },
+    {
+      "id": "deployment-target",
+      "kind": "external-adapter",
+      "owner": "deployment-controller",
+      "contract_ref": "labs/08-production-engineering/production_lab/contracts.py#TargetProfile",
+      "core_change_required": false,
+      "cannot_override": [
+        "artifact-digest",
+        "behavior-gate",
+        "secret-policy",
+        "release-evidence"
+      ]
+    },
+    {
+      "id": "release-store",
+      "kind": "external-adapter",
+      "owner": "release-ledger",
+      "contract_ref": "labs/08-production-engineering/production_lab/contracts.py#ReleaseRecord",
+      "core_change_required": false,
+      "cannot_override": [
+        "append-only-history",
+        "promotion-evidence",
+        "previous-release"
+      ]
+    }
+  ],
+  "lifecycle": {
+    "initial_artifacts": [
+      "catalog-index",
+      "blueprint",
+      "implementation-source",
+      "secret-reference",
+      "release-record"
+    ],
+    "release_path": [
+      {
+        "id": "discover",
+        "component": "catalog-registry",
+        "consumes": [
+          "catalog-index"
+        ],
+        "produces": [
+          "implementation-selection"
+        ],
+        "requires": []
+      },
+      {
+        "id": "validate",
+        "component": "contract-validator",
+        "consumes": [
+          "implementation-selection",
+          "blueprint",
+          "implementation-source"
+        ],
+        "produces": [
+          "validation-report"
+        ],
+        "requires": [
+          "active-implementation",
+          "immutable-source"
+        ]
+      },
+      {
+        "id": "render",
+        "component": "project-renderer",
+        "consumes": [
+          "blueprint",
+          "implementation-source",
+          "validation-report",
+          "secret-reference"
+        ],
+        "produces": [
+          "project-instance"
+        ],
+        "requires": [
+          "validation-pass"
+        ]
+      },
+      {
+        "id": "stage",
+        "component": "deployment-controller",
+        "consumes": [
+          "project-instance",
+          "validation-report",
+          "secret-reference"
+        ],
+        "produces": [
+          "release-candidate",
+          "deployment-status"
+        ],
+        "requires": [
+          "validation-pass",
+          "immutable-artifact"
+        ]
+      },
+      {
+        "id": "evaluate",
+        "component": "behavior-gate",
+        "consumes": [
+          "release-candidate",
+          "blueprint"
+        ],
+        "produces": [
+          "behavior-report"
+        ],
+        "requires": [
+          "candidate-staged",
+          "case-completeness"
+        ]
+      },
+      {
+        "id": "promote",
+        "component": "deployment-controller",
+        "consumes": [
+          "release-candidate",
+          "behavior-report",
+          "secret-reference"
+        ],
+        "produces": [
+          "deployment-status"
+        ],
+        "requires": [
+          "behavior-pass",
+          "candidate-report-match"
+        ]
+      },
+      {
+        "id": "record",
+        "component": "release-ledger",
+        "consumes": [
+          "release-candidate",
+          "behavior-report",
+          "deployment-status"
+        ],
+        "produces": [
+          "release-record"
+        ],
+        "requires": [
+          "promotion-succeeded",
+          "platform-revision-known"
+        ]
+      }
+    ],
+    "rollback_path": [
+      {
+        "id": "plan-rollback",
+        "component": "release-ledger",
+        "consumes": [
+          "release-record"
+        ],
+        "produces": [
+          "rollback-plan"
+        ],
+        "requires": [
+          "previous-release-exists",
+          "same-target-scope"
+        ]
+      },
+      {
+        "id": "execute-rollback",
+        "component": "deployment-controller",
+        "consumes": [
+          "rollback-plan",
+          "secret-reference"
+        ],
+        "produces": [
+          "deployment-status"
+        ],
+        "requires": [
+          "target-scoped-credential",
+          "immutable-rollback-artifact"
+        ]
+      }
+    ]
+  },
+  "blueprint_walkthroughs": [
+    {
+      "blueprint_id": "order-support-read-only",
+      "architecture": "single-agent",
+      "target_adapter": "cloud-run",
+      "stages": [
+        "discover",
+        "validate",
+        "render",
+        "stage",
+        "evaluate",
+        "promote",
+        "record"
+      ],
+      "required_validators": [
+        "catalog-resolution",
+        "source-assurance",
+        "local-reference",
+        "single-agent-tools",
+        "state-ownership",
+        "common-policy-evaluation-lifecycle"
+      ],
+      "required_metrics": [
+        "runtime_success",
+        "tool_contract",
+        "trajectory_contract",
+        "state_contract",
+        "output_contract"
+      ],
+      "required_extensions": [
+        "architecture-kind",
+        "source-resolver",
+        "scaffold-renderer",
+        "runtime-service-binding",
+        "evaluation-metric",
+        "deployment-target",
+        "release-store"
+      ],
+      "rollback_supported": true
+    },
+    {
+      "blueprint_id": "research-workflow-rag",
+      "architecture": "workflow",
+      "target_adapter": "agent-runtime",
+      "stages": [
+        "discover",
+        "validate",
+        "render",
+        "stage",
+        "evaluate",
+        "promote",
+        "record"
+      ],
+      "required_validators": [
+        "catalog-resolution",
+        "source-assurance",
+        "local-reference",
+        "workflow-graph",
+        "retrieval-provenance",
+        "state-ownership",
+        "common-policy-evaluation-lifecycle"
+      ],
+      "required_metrics": [
+        "runtime_success",
+        "trajectory_contract",
+        "state_contract",
+        "output_contract",
+        "retrieval_grounding"
+      ],
+      "required_extensions": [
+        "architecture-kind",
+        "source-resolver",
+        "scaffold-renderer",
+        "runtime-service-binding",
+        "evaluation-metric",
+        "deployment-target",
+        "release-store"
+      ],
+      "rollback_supported": true
+    },
+    {
+      "blueprint_id": "case-triage-with-approval",
+      "architecture": "multi-agent",
+      "target_adapter": "cloud-run",
+      "stages": [
+        "discover",
+        "validate",
+        "render",
+        "stage",
+        "evaluate",
+        "promote",
+        "record"
+      ],
+      "required_validators": [
+        "catalog-resolution",
+        "source-assurance",
+        "local-reference",
+        "multi-agent-delegation",
+        "approval-replay",
+        "state-ownership",
+        "common-policy-evaluation-lifecycle"
+      ],
+      "required_metrics": [
+        "runtime_success",
+        "tool_contract",
+        "trajectory_contract",
+        "state_contract",
+        "output_contract",
+        "policy_safety"
+      ],
+      "required_extensions": [
+        "architecture-kind",
+        "source-resolver",
+        "scaffold-renderer",
+        "runtime-service-binding",
+        "evaluation-metric",
+        "deployment-target",
+        "release-store"
+      ],
+      "rollback_supported": true
+    }
+  ],
+  "adrs": [
+    {
+      "id": "authority-separated-components",
+      "path": "agent-garden/adrs/0001-authority-separated-components.md",
+      "status": "accepted"
+    },
+    {
+      "id": "git-first-artifacts",
+      "path": "agent-garden/adrs/0002-git-first-artifacts.md",
+      "status": "accepted"
+    },
+    {
+      "id": "pure-project-renderer",
+      "path": "agent-garden/adrs/0003-pure-project-renderer.md",
+      "status": "accepted"
+    },
+    {
+      "id": "evaluation-before-promotion",
+      "path": "agent-garden/adrs/0004-evaluation-before-promotion.md",
+      "status": "accepted"
+    },
+    {
+      "id": "deployment-ledger-separation",
+      "path": "agent-garden/adrs/0005-deployment-ledger-separation.md",
+      "status": "accepted"
+    },
+    {
+      "id": "typed-core-external-adapters",
+      "path": "agent-garden/adrs/0006-typed-core-external-adapters.md",
+      "status": "accepted"
+    }
+  ]
+}

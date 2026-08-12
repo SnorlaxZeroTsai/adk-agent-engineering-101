@@ -1,0 +1,195 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "id": "catalog-owns-blueprint",
+      "operation": "append",
+      "path": [
+        "components",
+        0,
+        "owns"
+      ],
+      "value": "blueprint",
+      "expected_code": "artifact_owner_component_mismatch"
+    },
+    {
+      "id": "validator-has-target-credentials",
+      "operation": "set",
+      "path": [
+        "components",
+        1,
+        "credential_scope"
+      ],
+      "value": "target-scoped",
+      "expected_code": "credential_scope_violation"
+    },
+    {
+      "id": "project-instance-allows-secret-material",
+      "operation": "set",
+      "path": [
+        "artifacts",
+        6,
+        "secret_material_allowed"
+      ],
+      "value": true,
+      "expected_code": "secret_material_forbidden"
+    },
+    {
+      "id": "candidate-is-mutable",
+      "operation": "set",
+      "path": [
+        "artifacts",
+        7,
+        "mutability"
+      ],
+      "value": "mutable-cache",
+      "expected_code": "candidate_not_immutable"
+    },
+    {
+      "id": "behavior-report-has-no-digest",
+      "operation": "set",
+      "path": [
+        "artifacts",
+        8,
+        "digest_required"
+      ],
+      "value": false,
+      "expected_code": "behavior_report_digest_missing"
+    },
+    {
+      "id": "deployment-status-claims-authority",
+      "operation": "set",
+      "path": [
+        "artifacts",
+        9,
+        "authority"
+      ],
+      "value": "authoritative",
+      "expected_code": "deployment_status_must_be_cache"
+    },
+    {
+      "id": "release-record-is-overwritable",
+      "operation": "set",
+      "path": [
+        "artifacts",
+        10,
+        "mutability"
+      ],
+      "value": "mutable-cache",
+      "expected_code": "release_record_not_append_only"
+    },
+    {
+      "id": "ledger-has-target-credentials",
+      "operation": "set",
+      "path": [
+        "components",
+        5,
+        "credential_scope"
+      ],
+      "value": "target-scoped",
+      "expected_code": "credential_scope_violation"
+    },
+    {
+      "id": "architecture-kind-is-untyped-plugin",
+      "operation": "set",
+      "path": [
+        "extension_points",
+        0,
+        "kind"
+      ],
+      "value": "external-adapter",
+      "expected_code": "architecture_extension_not_typed"
+    },
+    {
+      "id": "deployment-adapter-overrides-behavior-gate",
+      "operation": "set",
+      "path": [
+        "extension_points",
+        5,
+        "cannot_override"
+      ],
+      "value": [
+        "artifact-digest",
+        "secret-policy",
+        "release-evidence"
+      ],
+      "expected_code": "extension_guard_incomplete"
+    },
+    {
+      "id": "promotion-skips-behavior-report",
+      "operation": "set",
+      "path": [
+        "lifecycle",
+        "release_path",
+        5,
+        "consumes"
+      ],
+      "value": [
+        "release-candidate",
+        "secret-reference"
+      ],
+      "expected_code": "promotion_behavior_report_missing"
+    },
+    {
+      "id": "release-record-skips-platform-status",
+      "operation": "set",
+      "path": [
+        "lifecycle",
+        "release_path",
+        6,
+        "consumes"
+      ],
+      "value": [
+        "release-candidate",
+        "behavior-report"
+      ],
+      "expected_code": "release_record_evidence_incomplete"
+    },
+    {
+      "id": "workflow-skips-retrieval-validator",
+      "operation": "set",
+      "path": [
+        "blueprint_walkthroughs",
+        1,
+        "required_validators"
+      ],
+      "value": [
+        "catalog-resolution",
+        "source-assurance",
+        "local-reference",
+        "workflow-graph",
+        "state-ownership",
+        "common-policy-evaluation-lifecycle"
+      ],
+      "expected_code": "walkthrough_validator_missing"
+    },
+    {
+      "id": "approval-skips-policy-metric",
+      "operation": "set",
+      "path": [
+        "blueprint_walkthroughs",
+        2,
+        "required_metrics"
+      ],
+      "value": [
+        "runtime_success",
+        "tool_contract",
+        "trajectory_contract",
+        "state_contract",
+        "output_contract"
+      ],
+      "expected_code": "walkthrough_metric_mismatch"
+    },
+    {
+      "id": "adr-file-is-missing",
+      "operation": "set",
+      "path": [
+        "adrs",
+        0,
+        "path"
+      ],
+      "value": "agent-garden/adrs/0001-missing.md",
+      "expected_code": "adr_file_missing"
+    }
+  ]
+}
