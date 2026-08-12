@@ -37,9 +37,14 @@ identity。
 
 ### Blueprint
 
-Blueprint是Phase 11才要建立的executable contract。它需要描述architecture、
-model、tools、workflow、state、policy、evaluation與lifecycle，但不應重複
-CatalogEntry的stable identity與human discovery目的。
+Blueprint是versioned executable composition contract。它引用一個
+CatalogEntry Implementation，並描述architecture、model slots、tools或
+workflow、state、policy、evaluation與lifecycle；display、owner、source與
+compatibility仍由Catalog擁有。
+
+Blueprint中的executable表示entrypoint與contract refs可解析、implementation
+固定於immutable revision且有behavior evidence，不等於每份Blueprint已在
+cloud deployment通過live gate。
 
 ### Release
 

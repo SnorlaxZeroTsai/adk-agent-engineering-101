@@ -4,9 +4,10 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Start Phase 11 by writing three materially different executable Blueprint
-examples, then extract a versioned schema that references the stable Phase 10
-CatalogEntry instead of duplicating catalog authority.
+Start Phase 12 by deriving the smallest MVP component model and ADR set from
+the completed CatalogEntry, executable Blueprint, behavior-gate and release
+contracts. Do not choose storage or distributed services before an observed
+ownership boundary requires them.
 
 ## Completed
 
@@ -117,6 +118,22 @@ CatalogEntry instead of duplicating catalog authority.
   owner, lifecycle, assurance and authority violations.
 - 16 Lab 10 dependency-free tests with baseline exit `0`, broken exit `1` and
   deterministic 5,578-byte evidence bundle.
+- Phase 11 example-first executable Blueprint contract.
+- Three CatalogEntries and immutable implementations pinned to repository
+  commit `9702a79d15f81a9a44a8d40af3ca038196746c46`.
+- Single-Agent typed-tool, deterministic Workflow/RAG and
+  multi-agent/durable-approval Blueprint examples.
+- Draft 2020-12 schema with strict common top-level domains and three typed
+  architecture branches.
+- Git object, assurance digest, Python AST, graph, retrieval, delegation,
+  state, policy, evaluation and lifecycle semantic validation.
+- 38 local contract refs resolving to 26 unique Python symbols.
+- 15 deliberate invalid Blueprint mutations with baseline exit `0` and broken
+  exit `1`.
+- Flat single-Agent v0.1 to v1.0 exact migration with Blueprint,
+  CatalogEntry and Implementation identities preserved.
+- 19 Lab 11 dependency-free tests and deterministic 4,383-byte evidence
+  bundle.
 
 ## Important Findings
 
@@ -415,6 +432,19 @@ CatalogEntry instead of duplicating catalog authority.
   evaluation, secret, deployment and release configuration.
 - Derive the executable Blueprint schema from three materially different
   examples rather than unioning current manifest fields.
+- Let CatalogEntry own stable identity and immutable implementation
+  provenance; let Blueprint own executable composition.
+- Keep only catalog reference, architecture, runtime, policy, evaluation,
+  lifecycle, version and extensions as common Blueprint domains.
+- Use a strict typed union for single-Agent, Workflow and multi-agent
+  architecture payloads.
+- Separate Garden IDs from runtime-owned snake_case names.
+- Use JSON Schema for shape and Git/AST/graph/cross-domain validation for
+  executable semantics.
+- Require RAG provenance/grounding and consequential-action approval/safety as
+  blocking contracts.
+- Auto-migrate only shape changes that preserve identity, behavior and
+  ownership; require a new Implementation or review for semantic changes.
 
 ## Unresolved Questions
 
@@ -458,16 +488,18 @@ CatalogEntry instead of duplicating catalog authority.
   traffic rollback?
 - How should Terraform desired state and imperative Agents CLI deploy avoid
   dual ownership and undetected drift?
-- Which fields are truly common across single-Agent, Workflow/RAG and
-  multi-agent/HITL executable Blueprints?
-- Which Blueprint extension points should be typed unions versus external
-  plugin references?
-- How should a Blueprint reference one CatalogEntry Implementation without
-  duplicating source, compatibility or lifecycle authority?
-- Which schema-version changes can migrate automatically, and which require a
-  new Implementation identity or human review?
-- How should Blueprint validation compose architecture, state, policy, eval
-  and production contracts without one field silently owning two lifecycles?
+- Which minimum components are required to resolve Catalog identity, validate
+  Blueprint composition, render projects, run behavior gates and retain
+  release evidence?
+- Which component owns registry indexing, trust policy and access control?
+- Which MVP state belongs in Git, a local content-addressed cache or a durable
+  service?
+- Which architecture extensions require new typed schema branches, and which
+  can remain external contract references?
+- How should validator, scaffold renderer, evaluation adapter and release
+  ledger communicate without sharing mutable internal models?
+- What is the smallest upgrade plan that distinguishes Blueprint schema
+  migration, Implementation change and Project Instance regeneration?
 
 ## Relevant Sources
 
@@ -511,6 +543,10 @@ CatalogEntry instead of duplicating catalog authority.
 - [`agent-garden/discovery-catalog.json`](agent-garden/discovery-catalog.json)
 - [`docs/learning-notes/phase-10-agent-garden.md`](docs/learning-notes/phase-10-agent-garden.md)
 - [`labs/10-agent-garden-discovery`](labs/10-agent-garden-discovery/)
+- [`agent-garden/blueprint-schema.md`](agent-garden/blueprint-schema.md)
+- [`agent-garden/blueprints`](agent-garden/blueprints/)
+- [`docs/learning-notes/phase-11-blueprints.md`](docs/learning-notes/phase-11-blueprints.md)
+- [`labs/11-blueprint-schema`](labs/11-blueprint-schema/)
 
 ## Environment Notes
 
@@ -518,7 +554,7 @@ CatalogEntry instead of duplicating catalog authority.
 - `uv` is not installed.
 - Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
   `/tmp/adk-python` commit.
-- `make verify` passes: repository invariants plus 109 offline tests.
+- `make verify` passes: repository invariants plus 128 offline tests.
 - `make verify-adk` passes: 74 ADK-backed tests plus seven trace renderers and
   baseline/broken evaluation exit checks.
 - `make verify-workflows` passes: 12 ADK-backed tests plus a 79 KB JSON
@@ -542,6 +578,9 @@ CatalogEntry instead of duplicating catalog authority.
 - `make verify-agent-garden-discovery` passes: 16 dependency-free tests,
   baseline exit `0`, expected broken exit `1` and a deterministic 5,578-byte
   evidence bundle.
+- `make verify-blueprints` passes: 19 dependency-free tests, baseline exit
+  `0`, expected broken exit `1` and a deterministic 4,383-byte evidence
+  bundle.
 - Live-model execution remains unverified until credentials are configured.
 - Lab 02 recreates Runner/root objects but retains one
   `InMemorySessionService`; it does not prove durable process recovery.
@@ -550,12 +589,13 @@ CatalogEntry instead of duplicating catalog authority.
 
 ## Next Actions
 
-1. Write a single-Agent typed-tool Blueprint example referencing the Phase 10
-   CatalogEntry Implementation.
-2. Write a deterministic Workflow plus RAG Blueprint example.
-3. Write a multi-agent specialist plus durable-approval Blueprint example.
-4. Extract only common required fields and explicit architecture-specific
-   extension points into a versioned schema.
-5. Add invalid examples for authority duplication, missing behavior gates,
-   unsafe state ownership and incompatible lifecycle combinations.
-6. Test schema-version migration without changing CatalogEntry identity.
+1. Write ADRs for Catalog registry, Blueprint validator, scaffold renderer,
+   evaluation adapter and release ledger ownership.
+2. Draw the component/data-flow model from selection through validate,
+   scaffold, test, promote and rollback.
+3. Define which artifacts are immutable, content-addressed or mutable indexes.
+4. Define trust, access-control and extension boundaries without selecting a
+   distributed runtime prematurely.
+5. Walk all three Phase 11 Blueprints through the proposed lifecycle and
+   remove any component not required by all relevant paths.
+6. Record the Phase 13 CLI surface only after component ownership is stable.

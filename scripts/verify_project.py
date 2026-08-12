@@ -25,6 +25,7 @@ REQUIRED_PATHS = (
     "docs/learning-notes/phase-8-production.md",
     "docs/learning-notes/phase-9-pattern-catalog.md",
     "docs/learning-notes/phase-10-agent-garden.md",
+    "docs/learning-notes/phase-11-blueprints.md",
     "docs/foundations/agent.md",
     "docs/foundations/tools.md",
     "docs/foundations/execution-model.md",
@@ -136,6 +137,21 @@ REQUIRED_PATHS = (
     "labs/10-agent-garden-discovery/tests/test_discovery_contract.py",
     "labs/10-agent-garden-discovery/scripts/run_discovery_gate.py",
     "labs/10-agent-garden-discovery/scripts/run_discovery_traces.py",
+    "labs/11-blueprint-schema/README.md",
+    "labs/11-blueprint-schema/OBSERVATIONS.md",
+    "labs/11-blueprint-schema/blueprint_lab/contracts.py",
+    "labs/11-blueprint-schema/blueprint_lab/loader.py",
+    "labs/11-blueprint-schema/blueprint_lab/schema_validation.py",
+    "labs/11-blueprint-schema/blueprint_lab/references.py",
+    "labs/11-blueprint-schema/blueprint_lab/validation.py",
+    "labs/11-blueprint-schema/blueprint_lab/migration.py",
+    "labs/11-blueprint-schema/blueprint_lab/fixtures.py",
+    "labs/11-blueprint-schema/blueprint_lab/gate.py",
+    "labs/11-blueprint-schema/fixtures/invalid_cases.json",
+    "labs/11-blueprint-schema/fixtures/order-support-v0.1.json",
+    "labs/11-blueprint-schema/tests/test_blueprint_schema.py",
+    "labs/11-blueprint-schema/scripts/run_blueprint_gate.py",
+    "labs/11-blueprint-schema/scripts/run_blueprint_traces.py",
     "case-studies/README.md",
     "agent-garden/README.md",
     "agent-garden/concepts.md",
@@ -143,6 +159,13 @@ REQUIRED_PATHS = (
     "agent-garden/metadata-surfaces.json",
     "agent-garden/catalog-entry.schema.json",
     "agent-garden/discovery-catalog.json",
+    "agent-garden/blueprint-schema.md",
+    "agent-garden/blueprints/README.md",
+    "agent-garden/blueprints/catalog-snapshot.json",
+    "agent-garden/blueprints/schema/blueprint.schema.json",
+    "agent-garden/blueprints/examples/order-support.blueprint.json",
+    "agent-garden/blueprints/examples/research-workflow.blueprint.json",
+    "agent-garden/blueprints/examples/case-triage.blueprint.json",
     "mini-agent-garden/README.md",
     "references/upstream-lock.yaml",
     "references/source-index.md",
@@ -187,7 +210,7 @@ def main() -> None:
     roadmap = (ROOT / "docs/roadmap.md").read_text(encoding="utf-8")
     if "ADK 1.x" not in roadmap or "ADK 2.0" not in roadmap:
         fail("roadmap must preserve the ADK 1.x/2.0 migration boundary")
-    if "Phase 11 Blueprint schema | Next" not in roadmap:
+    if "Phase 12 MVP architecture | Next" not in roadmap:
         fail("roadmap does not point to the next architecture dependency")
 
     workflow_note = (
@@ -350,11 +373,96 @@ def main() -> None:
     if forbidden_blueprint_fields & discovery_entries[0].keys():
         fail("discovery catalog contains executable Blueprint fields")
 
+    blueprint_note = (
+        ROOT / "agent-garden" / "blueprint-schema.md"
+    ).read_text(encoding="utf-8")
+    for required_concept in (
+        "Catalog Boundary",
+        "Architecture Union",
+        "Semantic Validation",
+        "Migration",
+    ):
+        if required_concept not in blueprint_note:
+            fail(f"Blueprint module lacks {required_concept!r}")
+
+    blueprint_schema = json.loads(
+        (
+            ROOT
+            / "agent-garden"
+            / "blueprints"
+            / "schema"
+            / "blueprint.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    common_fields = {
+        "schema_version",
+        "id",
+        "catalog_ref",
+        "architecture",
+        "runtime",
+        "policy",
+        "evaluation",
+        "lifecycle",
+        "extensions",
+    }
+    if set(blueprint_schema.get("required", [])) != common_fields:
+        fail("Blueprint schema common required fields drifted")
+    if set(blueprint_schema.get("properties", {})) != common_fields:
+        fail("Blueprint schema contains non-common top-level fields")
+    architecture_union = blueprint_schema["properties"]["architecture"].get(
+        "oneOf",
+        [],
+    )
+    if len(architecture_union) != 3:
+        fail("Blueprint schema must retain three typed architecture branches")
+
+    example_root = ROOT / "agent-garden" / "blueprints" / "examples"
+    examples = [
+        json.loads(path.read_text(encoding="utf-8"))
+        for path in sorted(example_root.glob("*.json"))
+    ]
+    if len(examples) != 3:
+        fail("Phase 11 must retain exactly three Blueprint examples")
+    architecture_kinds = {
+        item.get("architecture", {}).get("kind")
+        for item in examples
+    }
+    if architecture_kinds != {"single-agent", "workflow", "multi-agent"}:
+        fail("Blueprint examples do not cover all three architecture branches")
+    catalog_authority = {
+        "display_name",
+        "summary",
+        "ownership",
+        "classification",
+        "implementations",
+        "assurance",
+    }
+    if any(catalog_authority & item.keys() for item in examples):
+        fail("Blueprint example duplicates CatalogEntry authority")
+    if any(
+        set(item.get("catalog_ref", {}))
+        != {"entry_id", "implementation_id"}
+        for item in examples
+    ):
+        fail("Blueprint catalog_ref must contain only two stable IDs")
+
+    invalid_blueprints = json.loads(
+        (
+            ROOT
+            / "labs"
+            / "11-blueprint-schema"
+            / "fixtures"
+            / "invalid_cases.json"
+        ).read_text(encoding="utf-8")
+    )
+    if len(invalid_blueprints.get("cases", [])) != 15:
+        fail("Phase 11 must retain exactly 15 invalid Blueprint cases")
+
     state = (ROOT / "PROJECT_STATE.md").read_text(encoding="utf-8")
     if "Next Actions" not in state or "Unresolved Questions" not in state:
         fail("PROJECT_STATE.md lacks continuation context")
 
-    print("PASS: project structure and Phase 0-10 artifacts verified")
+    print("PASS: project structure and Phase 0-11 artifacts verified")
 
 
 if __name__ == "__main__":

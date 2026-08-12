@@ -26,7 +26,8 @@
 | Production engineering | Offline render, promotion and rollback baseline complete | [`docs/production/production-engineering.md`](docs/production/production-engineering.md) |
 | Pattern catalog | Seven patterns normalized and mechanically validated | [`docs/patterns/pattern-catalog.md`](docs/patterns/pattern-catalog.md) |
 | Agent Garden discoverability | Catalog/scaffold/runtime/governance ownership baseline complete | [`agent-garden/discoverability-contract.md`](agent-garden/discoverability-contract.md) |
-| Executable labs | 109 offline + 74 ADK runtime tests passing | [`labs/`](labs/) |
+| Executable Blueprint schema | Three architecture branches, semantic validation and v0.1 migration complete | [`agent-garden/blueprint-schema.md`](agent-garden/blueprint-schema.md) |
+| Executable labs | 128 offline + 74 ADK runtime tests passing | [`labs/`](labs/) |
 | Mini Agent Garden | Planned | [`mini-agent-garden/README.md`](mini-agent-garden/README.md) |
 
 Research snapshot: 2026-08-12. Exact upstream commits are pinned in
@@ -47,9 +48,10 @@ Research snapshot: 2026-08-12. Exact upstream commits are pinned in
 10. Validate the normalized pattern catalog in Lab 09.
 11. Reverse engineer catalog, scaffold, runtime and governance metadata in
     Lab 10.
-12. Build three materially different executable blueprint examples before
-    designing their shared schema.
-13. Use the accumulated evidence to implement the mini Agent Garden.
+12. Validate three materially different executable Blueprints and their shared
+    schema in Lab 11.
+13. Derive the MVP platform architecture from the accumulated contracts.
+14. Use that architecture to implement the mini Agent Garden.
 
 The detailed dependency order and phase exit criteria live in
 [`docs/roadmap.md`](docs/roadmap.md).
@@ -59,7 +61,7 @@ The detailed dependency order and phase exit criteria live in
 | Module | Required |
 |---|---|
 | Documentation and source-reading exercises | Git, a text editor |
-| Lab 01/02/03/04/05/06/07/08/09/10 deterministic tests | Python 3.10+ |
+| Lab 01/02/03/04/05/06/07/08/09/10/11 deterministic tests | Python 3.10+ |
 | Scripted ADK runtime tests | Python 3.10+, Git and network access for one-time bootstrap |
 | Live-model lab execution | Python 3.10+, `uv` or venv, Gemini API key or Google Cloud ADC |
 | Deployment modules | Google Cloud project, `gcloud`, Terraform |
@@ -91,6 +93,7 @@ Cloud credentials are not required for offline or scripted-model tests.
 | `08-production-engineering` | Render target-independent Agent/eval contracts with replaceable runtime, deployment, telemetry, promotion and rollback ownership | Stdlib-only policy, release and deterministic render tests; no cloud credentials required |
 | `09-pattern-catalog` | Validate normalized pattern manifests, claim evidence, relation boundaries and invalid catalog cases | Stdlib-only schema and repository evidence checks; no ADK install required |
 | `10-agent-garden-discovery` | Separate recipe, template and project metadata; validate stable identity, immutable source, compatibility, lifecycle and assurance | Stdlib-only catalog and source-ownership checks; no ADK install required |
+| `11-blueprint-schema` | Validate single-Agent, Workflow/RAG and multi-agent/HITL Blueprints, semantic references and v0.1 migration | Stdlib-only schema, Git object and Python AST checks; no ADK install required |
 
 ## Run
 
@@ -223,6 +226,12 @@ Run the normalized pattern catalog gate:
 
 ```bash
 make verify-pattern-catalog
+```
+
+Run the executable Blueprint gate:
+
+```bash
+make verify-blueprints
 ```
 
 After configuring credentials, run the interactive Agent:

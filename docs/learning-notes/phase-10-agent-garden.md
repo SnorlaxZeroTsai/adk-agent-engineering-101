@@ -147,4 +147,5 @@ SHA-256：
 - Compatibility尚未執行cross-version migration。
 - Assurance只有runnability。
 - Controlled capability taxonomy、search ranking與access control尚未設計。
-- Executable Blueprint examples與schema屬於Phase 11。
+- Executable Blueprint examples與schema已在Phase 11建立；本lab仍只驗證
+  discoverability contract。

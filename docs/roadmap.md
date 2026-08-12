@@ -103,7 +103,8 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | Phase 8 Production engineering | Offline baseline complete | Replaceable target renders, config/secret/telemetry policy, release promotion and rollback evidence |
 | Phase 9 Pattern catalog | Complete | Seven normalized manifests, claim evidence, relations, decision boundaries and invalid-case gate |
 | Phase 10 Agent Garden reverse engineering | Complete | Three metadata contracts, 33 field rows, nine discovery facts and 13 misleading-entry gates |
-| Phase 11 Blueprint schema | Next | Three materially different executable examples before a shared versioned schema |
+| Phase 11 Blueprint schema | Complete | Three architecture branches, 15 invalid cases and identity-preserving v0.1 migration |
+| Phase 12 MVP architecture | Next | Derive components and extension boundaries from Catalog, Blueprint and release contracts |
 
 The Phase 1 live-model gate remains open, but it is not a dependency for
 deterministic Workflow semantics.
@@ -591,7 +592,7 @@ Evidence:
 
 ### Phase 11: Blueprint Schema
 
-Status: next.
+Status: complete.
 
 Hypothesis:
 
@@ -600,7 +601,7 @@ Hypothesis:
 > materially different Agents; a union of existing manifest fields will encode
 > accidental tooling details.
 
-Next experiment:
+Experiment:
 
 - write a single-Agent typed-tool blueprint example;
 - write a deterministic Workflow plus RAG blueprint example;
@@ -610,6 +611,55 @@ Next experiment:
 - add invalid examples for authority duplication, missing behavior gates,
   unsafe state ownership and incompatible lifecycle combinations;
 - validate schema migration without changing CatalogEntry identity.
+
+Observed:
+
+- three Blueprint examples reference immutable Catalog implementations rather
+  than duplicating display, owner, source or compatibility authority;
+- common top-level fields are limited to identity/reference, architecture,
+  runtime, policy, evaluation, lifecycle, schema version and extensions;
+- architecture is a strict single-Agent, Workflow or multi-agent union;
+- the Workflow example composes explicit RAG provenance and grounding
+  contracts without changing its core implementation provenance;
+- the multi-agent example composes typed task delegation with durable approval
+  and replay contracts;
+- 38 local references resolve to 26 unique Python symbols, and all three
+  implementation entrypoints resolve inside commit `9702a79`;
+- all 15 invalid combinations failed by their expected issue code;
+- flat single-Agent v0.1 migrates exactly to canonical v1.0 while preserving
+  Blueprint, CatalogEntry and Implementation identities;
+- baseline exits `0`, broken exits `1`.
+
+Evidence:
+
+- `agent-garden/blueprint-schema.md`
+- `agent-garden/blueprints`
+- `docs/learning-notes/phase-11-blueprints.md`
+- `labs/11-blueprint-schema`
+- 19 dependency-free tests
+- deterministic 4,383-byte evidence bundle
+
+### Phase 12: MVP Architecture
+
+Status: next.
+
+Hypothesis:
+
+> The MVP should contain only components required to resolve Catalog identity,
+> validate Blueprint composition, render a project, run behavior gates and
+> retain release evidence; every additional service needs repeated evidence.
+
+Next experiment:
+
+- derive component boundaries from Phase 10 Catalog, Phase 11 Blueprint and
+  Phase 8 release contracts;
+- write ADRs for registry, validator, scaffold renderer, evaluation adapter
+  and release ledger ownership;
+- define storage and trust boundaries without choosing a distributed system
+  prematurely;
+- map extension points to typed architecture unions or external contract refs;
+- prove that single-Agent, Workflow/RAG and multi-agent/HITL use the same
+  platform lifecycle without sharing one runtime implementation.
 
 ## Later Phase Design Questions
 
@@ -691,9 +741,11 @@ and one executable lab artifact. Candidate patterns are not promoted to
    `agents-cli-manifest.yaml`. Complete in Phase 10.
 2. Identify catalog-only, scaffold-time, runtime and governance fields.
    Complete in Phase 10.
-3. Write three materially different blueprint examples.
-4. Design schema only after examples expose common fields.
+3. Write three materially different blueprint examples. Complete in Phase 11.
+4. Design schema only after examples expose common fields. Complete in Phase
+   11.
 5. Validate invalid blueprints and migration between schema versions.
+   Complete in Phase 11.
 6. Implement registry discovery, scaffold rendering and project validation.
 7. Add eval-gate and upgrade commands.
 8. Test whether a new architecture can be added without modifying core CLI
@@ -718,6 +770,8 @@ and one executable lab artifact. Candidate patterns are not promoted to
 | 2026-08-12 | A source list at the bottom of a card is sufficient evidence | Link every observable contract and failure mode to named pinned source and executable lab evidence |
 | 2026-08-12 | A repository-valid recipe is automatically visible to scaffold consumers | Current Agents CLI still scans the frozen legacy root; give discovery a versioned catalog contract |
 | 2026-08-12 | Recipe, template and project manifest fields can be unioned into one Blueprint | Separate stable catalog identity from scaffold/project metadata, then derive executable schema from three different examples |
+| 2026-08-12 | One generic architecture options map can cover every Agent | Use a strict single-Agent, Workflow or multi-agent union and keep cross-cutting runtime/policy/eval/lifecycle fields common |
+| 2026-08-12 | JSON Schema alone proves a Blueprint is executable | Add Git object, assurance digest, Python AST, graph, state, retrieval, policy and lifecycle semantic validation |
 
 ## Milestone Tracking
 

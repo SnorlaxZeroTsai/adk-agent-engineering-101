@@ -90,6 +90,21 @@ All links are pinned to the commits in `upstream-lock.yaml`.
 | Remote template precedence | [`load_remote_template_config`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/scaffold/utils/remote_template.py#L368) | Merges defaults, project metadata and CLI overrides, so project/template fields are not stable catalog authority |
 | Legacy-root ADK discovery | [`discover_adk_agents`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/scaffold/utils/remote_template.py#L531) | Scans only `python/agents`, demonstrating that repository-valid current recipes can remain invisible to a stale consumer |
 
+## Executable Blueprint Inputs
+
+| Contract concern | Source | Blueprint implication |
+|---|---|---|
+| Agent topology and typed I/O | [`LlmAgent`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/llm_agent.py) | Model, tool, child mode and input/output contracts require explicit typed bindings rather than one generic options map |
+| Tool contract | [`FunctionTool`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/function_tool.py) | Handler and model-visible input/output contracts are independently resolvable Blueprint refs |
+| Workflow graph | [`Workflow`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/workflow/_workflow.py) | Nodes, edges, terminals, loops and replay semantics need an architecture-specific schema branch |
+| Graph invariants | [`_graph_validation.py`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/workflow/utils/_graph_validation.py) | Reachability and cycle/route checks belong to semantic validation beyond JSON shape |
+| Typed task delegation | [`FinishTaskTool`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/llm/task/_finish_task_tool.py) | Task specialists require typed input/output and delegation lifecycle contracts |
+| State ownership | [`State`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/sessions/state.py) | State keys need owner, scope, schema and conflict policy instead of implicit shared mutation |
+| Global policy | [`BasePlugin`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/plugins/base_plugin.py) | Enforcement is a first-class Blueprint domain independent from Agent implementation source |
+| Runtime services | [`Runner`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/runners.py) | Session, artifact, memory and credential services are replaceable runtime bindings |
+| Behavior gate | [`LocalEvalService`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/evaluation/local_eval_service.py) | Dataset, gate and blocking metrics remain explicit executable contracts |
+| Project lifecycle | [`ProjectConfig`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/_project.py) | Project instance metadata is referenced by later scaffold lifecycle and is not Catalog or Blueprint identity |
+
 ## Representative Architecture Evidence
 
 | Pattern | Source |

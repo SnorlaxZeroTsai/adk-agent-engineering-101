@@ -151,8 +151,8 @@ Lab 10以同一個`cross-session-memory` implementation建立13個反例：
   top-level Agent identity。
 - Assurance綁implementation，不能只在catalog頁面放一個generic badge。
 - Source consumer與producer需要同一個versioned discovery contract。
-- Blueprint schema不從現有manifest欄位做union；下一phase先建立三個
-  materially different executable examples。
+- Blueprint schema不從現有manifest欄位做union；Phase 11已從三個
+  materially different executable examples推導typed contract。
 
 ## Limits
 
@@ -161,5 +161,6 @@ Lab 10以同一個`cross-session-memory` implementation建立13個反例：
 - Catalog tags仍是curated labels，尚未建立controlled capability taxonomy。
 - GitHub full commit是本lab的source locator；其他artifact registries需要
   等價的immutable digest。
-- Phase 11仍需決定Blueprint如何引用CatalogEntry與Implementation，而不
-  複製其authority。
+- Phase 11以`catalog_ref.entry_id`與`implementation_id`完成authority
+  separation；完整contract見
+  [`blueprint-schema.md`](blueprint-schema.md)。
