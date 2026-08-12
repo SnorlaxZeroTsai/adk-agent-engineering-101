@@ -5,14 +5,16 @@ LAB_02 := $(CURDIR)/labs/02-workflow-engineering
 LAB_03 := $(CURDIR)/labs/03-multi-agent
 LAB_04 := $(CURDIR)/labs/04-context-and-memory
 LAB_05 := $(CURDIR)/labs/05-rag-engineering
+LAB_06 := $(CURDIR)/labs/06-evaluation
 ADK_PYTHON ?= $(LAB_01)/.venv/bin/python
 
 .PHONY: verify verify-project test-lab-01 test-lab-02 test-lab-03 \
-	test-lab-04 test-lab-05 bootstrap-adk verify-adk verify-workflows \
-	verify-multi-agent verify-context-memory verify-rag
+	test-lab-04 test-lab-05 test-lab-06 bootstrap-adk verify-adk \
+	verify-workflows verify-multi-agent verify-context-memory verify-rag \
+	verify-evaluation
 
 verify: verify-project test-lab-01 test-lab-02 test-lab-03 test-lab-04 \
-	test-lab-05
+	test-lab-05 test-lab-06
 
 verify-project:
 	$(PYTHON) scripts/verify_project.py
@@ -36,11 +38,16 @@ test-lab-05:
 	cd labs/05-rag-engineering && \
 		$(PYTHON) -m unittest discover -s tests -v
 
+test-lab-06:
+	cd labs/06-evaluation && \
+		$(PYTHON) -m unittest discover -s tests -v
+
 bootstrap-adk:
 	$(PYTHON) -m venv $(LAB_01)/.venv
 	$(ADK_PYTHON) -m pip install "google-adk @ git+https://github.com/google/adk-python.git@$(ADK_COMMIT)"
 
-verify-adk: verify-workflows verify-multi-agent verify-context-memory verify-rag
+verify-adk: verify-workflows verify-multi-agent verify-context-memory verify-rag \
+	verify-evaluation
 	test -x $(ADK_PYTHON)
 	cd labs/01-agent-basics && .venv/bin/python -m unittest discover -s runtime_tests -v
 	cd labs/01-agent-basics && .venv/bin/python scripts/run_runtime_trace.py >/dev/null
@@ -80,3 +87,18 @@ verify-rag:
 	cd labs/05-rag-engineering && \
 		../01-agent-basics/.venv/bin/python \
 		scripts/run_rag_traces.py >/dev/null
+
+verify-evaluation:
+	test -x $(ADK_PYTHON)
+	cd labs/06-evaluation && \
+		../01-agent-basics/.venv/bin/python \
+		-m unittest discover -s runtime_tests -v
+	cd labs/06-evaluation && \
+		../01-agent-basics/.venv/bin/python \
+		scripts/run_eval_gate.py --variant baseline >/dev/null
+	cd labs/06-evaluation && \
+		! ../01-agent-basics/.venv/bin/python \
+		scripts/run_eval_gate.py --variant broken >/dev/null
+	cd labs/06-evaluation && \
+		../01-agent-basics/.venv/bin/python \
+		scripts/run_evaluation_traces.py >/dev/null
