@@ -24,3 +24,6 @@ Current labs:
   gate.
 - [`07-safety-hitl`](07-safety-hitl/): global policy boundaries, tool and
   Workflow approval, credential scope and side-effect replay.
+- [`08-production-engineering`](08-production-engineering/): replaceable
+  runtime/deployment renders, secret and telemetry policy, release promotion,
+  drift and target-specific rollback.
