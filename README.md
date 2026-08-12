@@ -14,8 +14,10 @@
 |---|---|---|
 | Phase 0 repository reconnaissance | Complete | [`docs/repo-map.md`](docs/repo-map.md) |
 | Learning roadmap | Complete, expected to evolve | [`docs/roadmap.md`](docs/roadmap.md) |
-| ADK foundations: Agent boundary | Offline baseline complete; runtime trace pending | [`docs/foundations/agent.md`](docs/foundations/agent.md) |
-| First executable lab | 13 offline tests passing | [`labs/01-agent-basics/`](labs/01-agent-basics/) |
+| ADK foundations: Agent boundary | Scripted runtime complete; live model pending | [`docs/foundations/agent.md`](docs/foundations/agent.md) |
+| ADK foundations: Tool boundary | Complete for local/runtime scope | [`docs/foundations/tools.md`](docs/foundations/tools.md) |
+| ADK foundations: Execution model | Complete for in-memory scripted scope | [`docs/foundations/execution-model.md`](docs/foundations/execution-model.md) |
+| First executable lab | 13 offline + 8 ADK runtime tests passing | [`labs/01-agent-basics/`](labs/01-agent-basics/) |
 | Pattern catalog | Planned | [`patterns/README.md`](patterns/README.md) |
 | Mini Agent Garden | Planned | [`mini-agent-garden/README.md`](mini-agent-garden/README.md) |
 
@@ -26,12 +28,11 @@ Research snapshot: 2026-08-12. Exact upstream commits are pinned in
 
 1. Read [`docs/repo-map.md`](docs/repo-map.md) to understand the source landscape
    and the ADK 1.x versus 2.0 boundary.
-2. Study [`docs/foundations/agent.md`](docs/foundations/agent.md), then run Lab 01.
-3. Continue with tools and the Runner/Event/Session execution model.
-4. Compare deterministic workflow with LLM-driven routing.
-5. Add state, memory, multi-agent decomposition, RAG, evaluation and safety.
-6. Study production packaging only after the Agent architecture is understood.
-7. Use the accumulated evidence to design and implement the mini Agent Garden.
+2. Study Agent, Tool and execution-model foundations, then run Lab 01.
+3. Compare deterministic workflow with LLM-driven routing.
+4. Add state, memory, multi-agent decomposition, RAG, evaluation and safety.
+5. Study production packaging only after the Agent architecture is understood.
+6. Use the accumulated evidence to design and implement the mini Agent Garden.
 
 The detailed dependency order and phase exit criteria live in
 [`docs/roadmap.md`](docs/roadmap.md).
@@ -42,10 +43,11 @@ The detailed dependency order and phase exit criteria live in
 |---|---|
 | Documentation and source-reading exercises | Git, a text editor |
 | Lab 01 deterministic tests | Python 3.10+ |
-| ADK-backed lab execution | Python 3.10+, `uv`, Gemini API key or Google Cloud ADC |
+| Scripted ADK runtime tests | Python 3.10+, Git and network access for one-time bootstrap |
+| Live-model lab execution | Python 3.10+, `uv` or venv, Gemini API key or Google Cloud ADC |
 | Deployment modules | Google Cloud project, `gcloud`, Terraform |
 
-Cloud credentials are not required for the offline tests.
+Cloud credentials are not required for offline or scripted-model tests.
 
 ## Important Modules
 
@@ -62,11 +64,11 @@ Cloud credentials are not required for the offline tests.
 
 | Lab | Learning objective | Runtime requirement |
 |---|---|---|
-| `01-agent-basics` | Build a small Agent with narrow, structured tool contracts and inspect the resulting source contract | Offline tests use only stdlib; interactive ADK run needs dependencies and credentials |
+| `01-agent-basics` | Build a small Agent, inspect generated tool schema, trace Runner events/state and compare failure recovery | Offline tests use stdlib; scripted runtime needs pinned ADK; live run needs credentials |
 
 ## Run
 
-Run all checks currently available:
+Run all dependency-free checks:
 
 ```bash
 make verify
@@ -86,7 +88,14 @@ cd labs/01-agent-basics
 python3 scripts/inspect_contract.py
 ```
 
-After installing the lab dependencies and configuring credentials:
+Bootstrap and verify the deterministic ADK runtime:
+
+```bash
+make bootstrap-adk
+make verify-adk
+```
+
+After configuring credentials, run the interactive Agent:
 
 ```bash
 cd labs/01-agent-basics

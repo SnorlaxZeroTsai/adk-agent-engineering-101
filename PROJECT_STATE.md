@@ -4,8 +4,8 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Complete ADK foundations using the pinned ADK 2.0 runtime source, then validate
-tool boundaries and execution semantics with small offline-first labs.
+Start Phase 2 by comparing deterministic ADK 1.x composite-agent patterns with
+the pinned ADK 2.0 graph Workflow runtime.
 
 ## Completed
 
@@ -17,6 +17,10 @@ tool boundaries and execution semantics with small offline-first labs.
 - Initial project structure and reproducible upstream source lock.
 - First foundations module and Agent basics lab offline baseline.
 - Project verifier, contract inspector and all 13 Lab 01 tests pass.
+- Tool boundary and Runner/Session/Event execution-model modules.
+- Pinned ADK 2.6.3 scripted runtime harness with 8 passing tests.
+- Success, same-session continuation, missing-session, unhandled failure,
+  recovered failure and callback failure traces.
 
 ## Important Findings
 
@@ -36,6 +40,14 @@ tool boundaries and execution semantics with small offline-first labs.
    lifecycle commands.
 6. Official samples contain demo limitations and implementation debt. They are
    evidence, not unquestionable reference architectures.
+7. `FunctionTool` turns signature, type hints and the full docstring into the
+   model-visible contract; runtime `ToolContext` is excluded.
+8. A stateful tool mutation is first observable as a function-response event
+   delta, then materialized by the Session service.
+9. Unhandled tool and callback exceptions emit and persist error events before
+   propagating to the Runner caller.
+10. Conversation continuation on a Session is not interrupted-invocation
+    resumption.
 
 ## Architecture Decisions
 
@@ -47,6 +59,9 @@ tool boundaries and execution semantics with small offline-first labs.
   metadata and source links.
 - Teach current ADK 2.0 semantics first, then use 1.x samples comparatively.
 - Keep labs offline-testable. Live model and cloud tests are separate gates.
+- Keep pure domain functions separate from ToolContext-aware wrappers.
+- Assert yielded events, persisted events and materialized state independently.
+- Use explicit error callbacks only for approved recovery policy.
 
 ## Unresolved Questions
 
@@ -59,6 +74,8 @@ tool boundaries and execution semantics with small offline-first labs.
 - Which recipe manifest fields are catalog metadata versus runtime-enforceable
   blueprint contracts?
 - What minimum governance metadata is justified for the mini Agent Garden?
+- How should partial streaming events be consolidated and evaluated?
+- Which state scopes need optimistic concurrency in a durable Session service?
 
 ## Relevant Sources
 
@@ -67,25 +84,27 @@ tool boundaries and execution semantics with small offline-first labs.
 - [`docs/repo-map.md`](docs/repo-map.md)
 - [`docs/roadmap.md`](docs/roadmap.md)
 - [`docs/foundations/agent.md`](docs/foundations/agent.md)
+- [`docs/foundations/tools.md`](docs/foundations/tools.md)
+- [`docs/foundations/execution-model.md`](docs/foundations/execution-model.md)
+- [`docs/learning-notes/phase-1-foundations.md`](docs/learning-notes/phase-1-foundations.md)
 
 ## Environment Notes
 
 - Local Python: 3.10.12.
-- `uv` and `google-adk` are not installed in the current environment.
-- Offline stdlib checks and Lab 01 tests are available.
-- Live ADK execution remains unverified until dependencies and credentials are
-  configured.
-- `make verify` currently passes: repository invariants plus 13 Lab 01 tests.
+- `uv` is not installed.
+- Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
+  `/tmp/adk-python` commit.
+- `make verify` passes: repository invariants plus 13 offline tests.
+- `make verify-adk` passes: 8 ADK-backed runtime tests plus trace rendering.
+- Live-model execution remains unverified until credentials are configured.
 - Upstream clones used for Phase 0 are under `/tmp` and may disappear between
   sessions; re-clone at the pinned commits when needed.
 
 ## Next Actions
 
-1. Finish `docs/foundations/tools.md` with FunctionTool, built-in tool, MCP,
-   agent-as-tool, ToolContext and async/error contracts.
-2. Finish `docs/foundations/execution-model.md` from Runner, InvocationContext,
-   Session and Event source.
-3. Extend Lab 01 with a fake-model Runner trace after installing ADK dependencies.
-4. Add the deterministic workflow lab and compare ADK 1.x composite agents with
-   ADK 2.0 Workflow.
-5. Update this file, the roadmap and README at each major milestone.
+1. Inspect pinned ADK 2.0 `Workflow`, graph/node APIs and legacy composite
+   implementations.
+2. Build Lab 02 with equivalent sequential, parallel and loop tasks.
+3. Force child failure, missing state, loop-limit and resume conditions.
+4. Compare event paths, determinism, retry and resumability.
+5. Update roadmap, README, learning note and pattern candidates.

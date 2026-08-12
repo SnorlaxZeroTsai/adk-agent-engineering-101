@@ -1,6 +1,7 @@
 # Foundation: The Agent Boundary
 
-Status: baseline implemented; live ADK execution pending dependency installation.
+Status: offline and scripted ADK runtime baselines complete; live-model gate
+pending.
 
 ## Question
 
@@ -193,22 +194,24 @@ Before adding a responsibility to an Agent:
 
 ## Evidence and Limits
 
-Offline evidence currently proves:
+Current evidence proves:
 
 - deterministic tool behavior;
 - explicit success/error contracts;
 - Agent source contains the expected tools and configuration;
-- broken variants expose a wider, less testable boundary.
+- broken variants expose a wider, less testable boundary;
+- actual `FunctionTool` declarations from the pinned runtime;
+- a scripted model can call a tool through `Runner`;
+- function call, function response, state delta and final response are persisted
+  as distinct events;
+- callback and tool failures produce error events before propagation.
 
 It does not yet prove:
 
-- actual model tool selection;
-- `FunctionTool` generated schema;
-- callback ordering in a real invocation;
-- event trace, session persistence, latency, token usage or cost.
-
-Those require the fake-model Runner trace and live-model gate in the next
-foundation steps.
+- live-model semantic tool selection;
+- production session persistence;
+- partial streaming behavior;
+- latency, token usage or cost.
 
 ## Sources
 

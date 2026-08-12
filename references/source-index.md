@@ -14,6 +14,13 @@ All links are pinned to the commits in `upstream-lock.yaml`.
 | Durable conversation | [`Session`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/sessions/session.py) | Persisted state plus ordered event history |
 | Function tool adapter | [`FunctionTool`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/function_tool.py) | Converts Python signatures/docstrings into model-visible contracts |
 | Agent as tool | [`AgentTool`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/agent_tool.py) | Shows isolation and state forwarding; source now discourages direct use |
+| Runtime tool context | [`Context`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/context.py) | Delta-aware state, artifacts, memory, credentials and confirmation actions |
+| Tool base contract | [`BaseTool`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/base_tool.py) | Separates model declaration/request mutation from local execution |
+| Provider built-in tool | [`GoogleSearchTool`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/google_search_tool.py) | Adds provider-native search configuration without local function execution |
+| MCP lifecycle | [`McpToolset`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/mcp_tool/mcp_toolset.py) | Dynamic discovery, filtering, auth, caching and connection cleanup |
+| Invocation contract | [`InvocationContext`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/invocation_context.py) | Defines invocation, agent-call and model-step hierarchy |
+| State delta contract | [`State`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/sessions/state.py) | Tracks current state and pending event delta with optional schema validation |
+| Test session service | [`InMemorySessionService`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/sessions/in_memory_session_service.py) | Makes persistence behavior observable while documenting production limits |
 
 ## Recipe Productization
 

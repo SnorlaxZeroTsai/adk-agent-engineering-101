@@ -86,9 +86,24 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | 12. MVP architecture | What platform components are justified? | ADRs, component model, storage and extension boundaries | Every component traces to observed repeated need |
 | 13. Mini Agent Garden | Can the abstractions create, validate and evolve real Agents? | CLI, registry, scaffold, validate, test and upgrade flow | At least three different blueprints scaffold and pass contract tests |
 
+## Current Progress
+
+| Module | Status | Evidence |
+|---|---|---|
+| Phase 0 | Complete | Repo map, source lock, 15 study units and reconnaissance note |
+| Phase 1A Agent boundary | Complete for offline/scripted scope | Agent note and deterministic counterexamples |
+| Phase 1B Tool boundary | Complete for local/source scope | Generated schemas, ToolContext state and failure recovery |
+| Phase 1C Execution model | Local baseline complete | Success, continuation, missing-session and failure traces; invocation resumption deferred |
+| Phase 2 Workflow engineering | Next | Legacy composite versus ADK 2.0 Workflow lab |
+
+The Phase 1 live-model gate remains open, but it is not a dependency for
+deterministic Workflow semantics.
+
 ## Near-Term Modules
 
 ### Phase 1A: Agent Boundary
+
+Status: complete for offline and scripted-model scope.
 
 Sources:
 
@@ -117,6 +132,10 @@ Exit evidence:
 
 ### Phase 1B: Tool Boundary
 
+Status: complete for FunctionTool and source-level tool-family scope. MCP,
+built-in provider behavior and credential/confirmation recovery remain later
+integration gates.
+
 Sources:
 
 - `FunctionTool`, built-in tools, MCP tooling, `ToolContext`
@@ -140,6 +159,9 @@ Required breakages:
 - hidden import-time network or configuration side effect.
 
 ### Phase 1C: Execution Model
+
+Status: complete for non-streaming in-memory conversation behavior. Interrupted
+invocation resumption remains a Workflow/HITL experiment.
 
 Sources:
 
@@ -268,6 +290,7 @@ They require at least one local implementation and one intentional break.
 | 2026-08-12 | `adk-samples` is one homogeneous gallery | Separate active recipes, frozen legacy samples, skills contract and transitional duplicates |
 | 2026-08-12 | Workflow samples share one runtime model | Teach ADK 2.0 first and preserve an explicit ADK 1.x comparative track |
 | 2026-08-12 | Existing manifest can seed the full blueprint directly | Treat manifest as minimal catalog/ownership metadata; derive runtime and governance fields experimentally |
+| 2026-08-12 | Every yielded Event can be treated as message content | Error events may have no content; consumers must inspect event kind, error and action fields first |
 
 ## Milestone Tracking
 

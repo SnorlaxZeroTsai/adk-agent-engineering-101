@@ -14,10 +14,16 @@ REQUIRED_PATHS = (
     "docs/roadmap.md",
     "docs/repo-map.md",
     "docs/learning-notes/phase-0-reconnaissance.md",
+    "docs/learning-notes/phase-1-foundations.md",
     "docs/foundations/agent.md",
+    "docs/foundations/tools.md",
+    "docs/foundations/execution-model.md",
     "patterns/README.md",
     "labs/README.md",
     "labs/01-agent-basics/README.md",
+    "labs/01-agent-basics/agent_basics/runtime_trace.py",
+    "labs/01-agent-basics/runtime_tests/test_runtime_trace.py",
+    "labs/01-agent-basics/scripts/run_runtime_trace.py",
     "case-studies/README.md",
     "agent-garden/README.md",
     "mini-agent-garden/README.md",
@@ -69,7 +75,9 @@ def main() -> None:
     if "Next Actions" not in state or "Unresolved Questions" not in state:
         fail("PROJECT_STATE.md lacks continuation context")
 
-    print("PASS: project structure, source lock and Phase 0 artifacts verified")
+    print(
+        "PASS: project structure, source lock and Phase 0/1 artifacts verified"
+    )
 
 
 if __name__ == "__main__":

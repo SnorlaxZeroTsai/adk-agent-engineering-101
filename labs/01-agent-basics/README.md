@@ -8,8 +8,8 @@ deterministic lookup and pricing       -> typed Python tools
 application/runtime services           -> outside this lab
 ```
 
-The offline path uses only Python stdlib. ADK and model credentials are required
-only for interactive execution.
+The offline path uses only Python stdlib. The deterministic runtime path uses a
+pinned ADK source commit and scripted model, but no cloud credentials.
 
 ## Hypothesis
 
@@ -22,9 +22,13 @@ than one catch-all tool that accepts a free-form query.
 |---|---|
 | `agent_basics/agent.py` | ADK `Agent` and `App` definition |
 | `agent_basics/tools.py` | Deterministic baseline tools |
+| `agent_basics/scripted_model.py` | Fixed-response `BaseLlm` test double |
+| `agent_basics/runtime_trace.py` | Runner success, continuation and failure experiments |
 | `experiments/broken_tools.py` | Intentional catch-all and exception variants |
 | `scripts/inspect_contract.py` | AST/signature inspection without importing ADK |
+| `scripts/run_runtime_trace.py` | Stable JSON rendering of all runtime traces |
 | `tests/` | Baseline behavior and broken-boundary observations |
+| `runtime_tests/` | ADK-backed declaration, event and persistence tests |
 | `OBSERVATIONS.md` | Current evidence and unverified claims |
 
 ## Offline Baseline
@@ -42,6 +46,34 @@ The tests check:
 - the Agent source exposes exactly the two intended tools;
 - the broken lookup raises while the baseline returns data;
 - the catch-all signature removes explicit business inputs.
+
+## Pinned Runtime
+
+From the repository root:
+
+```bash
+make bootstrap-adk
+make verify-adk
+```
+
+`bootstrap-adk` creates the ignored lab `.venv` and installs ADK from the exact
+commit in `references/upstream-lock.yaml`.
+
+The runtime suite checks:
+
+- generated `FunctionTool` JSON schema;
+- `ToolContext` is hidden from the model declaration;
+- call/response ID correlation;
+- state delta and Session persistence;
+- same-session continuation;
+- missing-session behavior;
+- unhandled tool failure, callback recovery and callback failure.
+
+Render the evidence directly:
+
+```bash
+.venv/bin/python scripts/run_runtime_trace.py
+```
 
 ## Interactive ADK Run
 
@@ -74,7 +106,9 @@ contract inspector output.
    hidden inside natural language.
 2. The raising lookup treats a normal "not found" outcome like a program
    failure.
-3. Tests record these differences without making the project test suite fail.
+3. The runtime harness compares an unhandled backend exception with explicit
+   `on_tool_error_callback` recovery.
+4. Tests record these differences without making the project test suite fail.
 
 Do not "fix" the broken variants. They are controlled counterexamples.
 
@@ -87,4 +121,4 @@ This lab is complete only after:
 - a fake-model ADK Runner trace verifies tool-call and event behavior;
 - a live model is tested separately and its model/version is recorded.
 
-The first two are implemented. Runtime gates remain pending.
+The first three are implemented. Live-model selection remains a separate gate.
