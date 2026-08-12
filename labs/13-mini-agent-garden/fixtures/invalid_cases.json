@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "id": "unknown-blueprint",
+      "expected_code": "unknown_blueprint"
+    },
+    {
+      "id": "missing-blocking-metric",
+      "expected_code": "contract_validation"
+    },
+    {
+      "id": "tampered-managed-file",
+      "expected_code": "project_integrity"
+    },
+    {
+      "id": "forged-candidate-digest",
+      "expected_code": "project_integrity"
+    },
+    {
+      "id": "failing-behavior-command",
+      "expected_code": "behavior_gate_failed"
+    },
+    {
+      "id": "implementation-change-without-review",
+      "expected_code": "upgrade_review_required"
+    },
+    {
+      "id": "duplicate-release-record",
+      "expected_code": "duplicate_release"
+    },
+    {
+      "id": "secret-bearing-release-record",
+      "expected_code": "secret_release"
+    },
+    {
+      "id": "unknown-architecture-handler",
+      "expected_code": "unknown_handler"
+    },
+    {
+      "id": "create-over-existing-output",
+      "expected_code": "existing_output"
+    },
+    {
+      "id": "untyped-architecture-extension",
+      "expected_code": "architecture_extension_rejected"
+    }
+  ]
+}

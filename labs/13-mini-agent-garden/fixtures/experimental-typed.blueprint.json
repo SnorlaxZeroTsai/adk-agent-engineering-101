@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0",
+  "id": "experimental-order-support",
+  "catalog_ref": {
+    "entry_id": "order-support",
+    "implementation_id": "python-adk-2x"
+  },
+  "architecture": {
+    "kind": "experimental-typed",
+    "pipeline_id": "order-batch",
+    "steps": [
+      "normalize",
+      "lookup",
+      "respond"
+    ]
+  },
+  "runtime": {
+    "entrypoint": {
+      "path": "agent_basics/agent.py",
+      "symbol": "app"
+    },
+    "model_slots": [
+      {
+        "id": "reasoning",
+        "purpose": "Intent interpretation, tool selection and response synthesis.",
+        "provider": "google",
+        "model_env": "ADK_MODEL",
+        "default_model": "gemini-3.5-flash"
+      }
+    ],
+    "services": {
+      "session": {
+        "provider": "in-memory",
+        "durability": "ephemeral"
+      },
+      "artifact": null,
+      "memory": null
+    },
+    "state_contracts": [
+      {
+        "key": "last_order_id",
+        "owner": "order_support_agent",
+        "scope": "session",
+        "schema_ref": "labs/01-agent-basics/agent_basics/runtime_trace.py#tracked_get_order_status",
+        "conflict_policy": "single-writer"
+      }
+    ],
+    "retrieval_contracts": []
+  },
+  "policy": {
+    "enforcement_refs": [
+      "labs/01-agent-basics/agent_basics/agent.py#root_agent"
+    ],
+    "approval": {
+      "actions": [],
+      "contract_ref": null,
+      "replay_key": null
+    },
+    "credentials": {
+      "mode": "none",
+      "contract_ref": null
+    }
+  },
+  "evaluation": {
+    "dataset_ref": "labs/06-evaluation/evaluation_lab/dataset.py#build_dataset",
+    "gate_ref": "labs/06-evaluation/evaluation_lab/gate.py#evaluate_variant",
+    "blocking_metrics": [
+      "runtime_success",
+      "tool_contract",
+      "trajectory_contract",
+      "state_contract",
+      "output_contract"
+    ]
+  },
+  "lifecycle": {
+    "production_profile_ref": "labs/08-production-engineering/production_lab/contracts.py#TargetProfile",
+    "upgrade_policy": "compatible-schema",
+    "rollback_contract_ref": "labs/08-production-engineering/production_lab/release.py#ReleaseLedger"
+  },
+  "extensions": {
+    "com.adk-engineering": {
+      "typed_contract_fixture": true
+    }
+  }
+}

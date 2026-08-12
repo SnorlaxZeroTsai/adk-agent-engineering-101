@@ -39,3 +39,6 @@ Current labs:
 - [`12-mvp-architecture`](12-mvp-architecture/): authority-separated
   components, storage/trust/extension boundaries, release/rollback dataflow
   and three Blueprint lifecycle walkthroughs.
+- [`13-mini-agent-garden`](13-mini-agent-garden/): local Catalog discovery,
+  Blueprint validation, pinned-source scaffolding, candidate behavior tests,
+  managed upgrades and typed architecture dispatch.

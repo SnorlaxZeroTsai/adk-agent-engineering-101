@@ -1,0 +1,15 @@
+[project]
+name = "mini-agent-garden"
+version = "0.1.0"
+description = "Dependency-free reference implementation of the Agent Garden contracts."
+requires-python = ">=3.10"
+
+[project.scripts]
+mini-agent-garden = "mini_agent_garden.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["mini_agent_garden"]
