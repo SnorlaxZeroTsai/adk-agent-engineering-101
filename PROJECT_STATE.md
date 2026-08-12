@@ -4,8 +4,9 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Start Phase 8 by comparing production lifecycle, deployment, configuration,
-telemetry and rollback contracts across Starter Pack and Agents CLI.
+Start Phase 9 by normalizing the seven source-backed candidate patterns into
+one mechanically verifiable catalog contract before designing Agent Garden
+blueprints.
 
 ## Completed
 
@@ -57,12 +58,12 @@ telemetry and rollback contracts across Starter Pack and Agents CLI.
   dataset/generate/grade/compare lifecycle.
 - Lab 06 typed `EvalDataset`, verdict-free `TraceSet` and CI-consumable
   `SuiteReport`.
-- Five cross-phase cases covering Agent, Workflow, specialist, memory and RAG
-  behavior.
+- Six cross-phase cases covering Agent, Workflow, specialist, memory, RAG and
+  consequential-action behavior.
 - Exact tool/argument, trajectory, state, output, policy, retrieval and
   model-request budget metrics.
-- Five passing baselines and five deliberately broken variants.
-- Baseline gate exits `0`; broken gate exits `1` with 24 blocking reasons.
+- Six passing baselines and six deliberately broken variants.
+- Baseline gate exits `0`; broken gate exits `1` with 28 blocking reasons.
 - 11 Lab 06 offline tests and 6 ADK-backed cross-phase tests.
 - Fifth candidate pattern: behavior contract gate.
 - Phase 7 source comparison of App plugins, Agent callbacks, model/tool hooks,
@@ -77,6 +78,18 @@ telemetry and rollback contracts across Starter Pack and Agents CLI.
 - 7 Lab 07 offline tests and 15 ADK-backed safety/HITL tests.
 - Phase 6 gate extended to six baseline and six broken architecture cases.
 - Sixth candidate pattern: durable approval boundary.
+- Phase 8 source comparison of Starter Pack rendered-project ownership and
+  current Agents CLI scaffold, deploy, metadata and observability lifecycle.
+- Lab 08 target-independent Agent/behavior contracts rendered across local,
+  Cloud Run and Agent Runtime production envelopes.
+- Typed plain configuration, secret references, stateful services, identity,
+  telemetry, deployment and immutable release evidence.
+- Append-only promotion and previous-release history with target-specific
+  rollback plans.
+- Seven passing baseline scenarios and eight broken variants with 23 blocking
+  failures.
+- 18 Lab 08 dependency-free production-contract tests.
+- Seventh candidate pattern: replaceable production envelope.
 
 ## Important Findings
 
@@ -205,6 +218,30 @@ telemetry and rollback contracts across Starter Pack and Agents CLI.
     business approval.
 53. The expanded broken suite passed its scripted judge mean at `13/3` while
     deterministic metrics blocked all six cases with 28 blocking failures.
+54. Starter Pack and Agents CLI both layer shared, language, target and Agent
+    templates, but rendered files become application-owned source after
+    generation.
+55. `agents-cli-manifest.yaml` records project and scaffold metadata; deploy
+    flags, runtime sizing, secrets, identity and rollback remain separate
+    authorities.
+56. Agents CLI copies project `.env` values into runtime configuration while
+    structured secret bindings use a different path. Output redaction does not
+    turn plain configuration into a secret boundary.
+57. Agent Runtime update preserves unspecified live plain environment values,
+    which can retain out-of-band drift as well as intentional configuration.
+58. No-content trace spans and full prompt-response completion uploads are
+    independent telemetry paths with separate governance requirements.
+59. `deployment_metadata.json` is mutable current/pending operation state, not
+    an append-only record of source, artifact, behavior evidence, promotion and
+    previous release.
+60. Rollback capability is target-specific: Cloud Run shifts revision traffic,
+    GKE rolls out a prior revision, and Agent Runtime requires restoring an
+    immutable bundle and redeploying.
+61. Lab 08 changed runtime, deployment, lifecycle and derived release artifacts
+    across targets while keeping Agent and behavior contracts byte-equivalent.
+62. Seven production baseline scenarios passed; eight broken variants produced
+    23 blocking failures for secrets, telemetry, eval, artifact immutability,
+    target drift, metadata and rollback history.
 
 ## Architecture Decisions
 
@@ -277,6 +314,22 @@ telemetry and rollback contracts across Starter Pack and Agents CLI.
 - Treat framework resume/dedup and business idempotency as separate contracts.
 - Choose ToolConfirmation for one tool call and `RequestInput` for a
   deterministic Workflow node.
+- Keep Agent source and behavior expectations independent from deployment
+  target.
+- Model scaffold metadata, runtime desired state and release evidence as
+  different types with named owners.
+- Keep secret references out of plain environment configuration and pin their
+  provider versions.
+- Block unmanaged live drift before merge-style updates; adopt or delete it
+  explicitly.
+- Require remote targets to name durable Session, artifact and memory services
+  plus runtime identity.
+- Govern trace content and full prompt-response capture independently.
+- Promote the exact immutable artifact and behavior report tested in staging.
+- Store release history append-only and treat current-resource metadata as a
+  replaceable cache.
+- Standardize release evidence while leaving rollback execution to the real
+  target adapter.
 
 ## Unresolved Questions
 
@@ -313,6 +366,16 @@ telemetry and rollback contracts across Starter Pack and Agents CLI.
 - How should approval revocation and separation of duties survive resume?
 - Which live policy service latency/failure modes require fail-closed versus
   degraded behavior?
+- How should the release ledger be signed, retained and transactionally linked
+  to platform deployment success?
+- Which production identity and secret manager contracts should be portable
+  across Cloud Run, Agent Runtime and GKE?
+- How should database, Session, artifact, memory and index migrations constrain
+  application rollback?
+- Which health, behavior, latency and cost signals should trigger automatic
+  traffic rollback?
+- How should Terraform desired state and imperative Agents CLI deploy avoid
+  dual ownership and undetected drift?
 
 ## Relevant Sources
 
@@ -342,6 +405,9 @@ telemetry and rollback contracts across Starter Pack and Agents CLI.
 - [`docs/safety/safety-and-hitl.md`](docs/safety/safety-and-hitl.md)
 - [`docs/learning-notes/phase-7-safety-hitl.md`](docs/learning-notes/phase-7-safety-hitl.md)
 - [`patterns/durable-approval-boundary.md`](patterns/durable-approval-boundary.md)
+- [`docs/production/production-engineering.md`](docs/production/production-engineering.md)
+- [`docs/learning-notes/phase-8-production.md`](docs/learning-notes/phase-8-production.md)
+- [`patterns/replaceable-production-envelope.md`](patterns/replaceable-production-envelope.md)
 
 ## Environment Notes
 
@@ -349,7 +415,7 @@ telemetry and rollback contracts across Starter Pack and Agents CLI.
 - `uv` is not installed.
 - Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
   `/tmp/adk-python` commit.
-- `make verify` passes: repository invariants plus 61 offline tests.
+- `make verify` passes: repository invariants plus 79 offline tests.
 - `make verify-adk` passes: 74 ADK-backed tests plus seven trace renderers and
   baseline/broken evaluation exit checks.
 - `make verify-workflows` passes: 12 ADK-backed tests plus a 79 KB JSON
@@ -365,6 +431,8 @@ telemetry and rollback contracts across Starter Pack and Agents CLI.
   bundle.
 - `make verify-safety-hitl` passes: 15 ADK-backed tests and a deterministic
   65,971-byte evidence bundle.
+- `make verify-production` passes: 18 dependency-free tests, baseline exit `0`,
+  expected broken exit `1` and a deterministic 43,765-byte evidence bundle.
 - Live-model execution remains unverified until credentials are configured.
 - Lab 02 recreates Runner/root objects but retains one
   `InMemorySessionService`; it does not prove durable process recovery.
@@ -373,12 +441,10 @@ telemetry and rollback contracts across Starter Pack and Agents CLI.
 
 ## Next Actions
 
-1. Compare Starter Pack template layering with current Agents CLI lifecycle
-   commands and generated project ownership.
-2. Map configuration, secrets, identity, Session/memory/artifact services and
-   deployment-target overlays.
-3. Build a render/diff lab across local, Cloud Run and Agent Engine targets.
-4. Define telemetry, privacy, rollout and rollback evidence required by the
-   behavior gate.
-5. Inject configuration, deployment and rollback failures without requiring a
-   live cloud project for the local baseline.
+1. Normalize all seven candidate patterns to the roadmap catalog schema.
+2. Assign each pattern a portable, version-specific or rejected status.
+3. Link every observable invariant and failure mode to primary source and lab
+   evidence.
+4. Identify overlapping decisions, contradictions and missing counterexamples.
+5. Add a mechanical pattern-catalog verifier before using the patterns as
+   Agent Garden blueprint inputs.

@@ -100,7 +100,8 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | Phase 5 RAG engineering | Local/scripted baseline complete | Same-corpus retrieval, citation, ACL, version and deletion evidence |
 | Phase 6 Evaluation | Local/scripted gate complete | Six cross-phase cases, per-dimension failures and enforceable baseline/broken exit status |
 | Phase 7 Safety and HITL | Local/scripted baseline complete | Enforcement coverage, confirmation lifecycle, approval envelope and replay-safe side effect |
-| Phase 8 Production engineering | Next | Template/lifecycle layering, deployment topology, telemetry and rollback evidence |
+| Phase 8 Production engineering | Offline baseline complete | Replaceable target renders, config/secret/telemetry policy, release promotion and rollback evidence |
+| Phase 9 Pattern catalog | Next | Normalize seven candidate patterns and their counterexamples into one enforceable contract |
 
 The Phase 1 live-model gate remains open, but it is not a dependency for
 deterministic Workflow semantics.
@@ -454,7 +455,10 @@ Evidence:
 
 ### Phase 8: Production Engineering
 
-Next hypothesis:
+Status: complete for dependency-free render, policy and release evidence.
+Real cloud deploy, migration and rollback remain integration gates.
+
+Hypothesis:
 
 > Production readiness is a replaceable set of lifecycle, deployment,
 > configuration, secret, telemetry and rollback contracts around the Agent,
@@ -462,14 +466,56 @@ Next hypothesis:
 
 Comparative experiment:
 
-- render equivalent projects through Starter Pack layering and current
-  Agents CLI lifecycle surfaces;
-- separate Agent code, environment configuration, secrets, infrastructure,
-  deployment target and eval assets;
-- map local, Cloud Run and Agent Engine topology and identity boundaries;
+- compare Starter Pack rendered-project ownership with current Agents CLI
+  scaffold, deploy, metadata and observability surfaces;
+- hold Agent source and the Phase 6 behavior report constant while rendering
+  local, Cloud Run and Agent Runtime targets;
+- separate Agent contract, behavior evidence, runtime config, secret
+  references, deployment spec, lifecycle manifest and release candidate;
 - inject configuration, deploy, telemetry and rollback failures;
-- define which generated files are authoritative, replaceable or derived;
-- retain the Phase 6 behavior gate as a pre-deploy and rollback signal.
+- record immutable artifacts, promotion evidence and previous releases;
+- generate target-native rollback plans from one shared evidence contract.
+
+Observed:
+
+- target changes left Agent and behavior-gate artifacts byte-equivalent;
+- only runtime, deployment, lifecycle and derived release artifacts changed;
+- plain `.env` propagation and merge-style updates require explicit secret and
+  drift policy;
+- trace no-content settings did not govern a separate full-completion upload;
+- current-resource metadata lacked artifact, eval, promotion and rollback
+  history;
+- Cloud Run used revision traffic shifting, while Agent Runtime required
+  restore-and-redeploy orchestration;
+- seven baseline scenarios passed;
+- all eight deliberate breakages failed with 23 blocking reasons;
+- baseline exited `0`, broken exited `1`.
+
+Evidence:
+
+- `docs/production/production-engineering.md`
+- `docs/learning-notes/phase-8-production.md`
+- `labs/08-production-engineering`
+- `patterns/replaceable-production-envelope.md`
+- 18 dependency-free tests
+- deterministic 43,765-byte evidence bundle
+
+### Phase 9: Pattern Catalog
+
+Status: next.
+
+Hypothesis:
+
+> A reusable pattern is a normalized decision contract with observable
+> invariants and counterexamples, not a renamed sample implementation.
+
+Next experiment:
+
+- normalize the seven candidate files to the roadmap pattern schema;
+- distinguish portable, version-specific and rejected decisions;
+- cross-link each invariant to source and lab evidence;
+- identify overlaps, contradictions and missing counterexamples;
+- validate the catalog mechanically before using it as Agent Garden input.
 
 ## Later Phase Design Questions
 
@@ -567,7 +613,9 @@ They require at least one local implementation and one intentional break.
 | 2026-08-12 | Legacy composites have no resume semantics | They persist agent-state checkpoints; the migration issue is different replay/routing and parent-continuation behavior |
 | 2026-08-12 | Replayed output proves a side effect ran twice | Graph replay can re-surface prior output while an external side-effect ledger remains unchanged |
 | 2026-08-12 | `max_iterations` is a failed/successful outcome | It is only a technical bound; exhaustion needs an explicit domain route |
-| 2026-08-12 | One aggregate quality score can serve as a release gate | Preserve per-case deterministic blockers; the broken suite passed its `4.2/5` judge mean while failing architecture contracts |
+| 2026-08-12 | One aggregate quality score can serve as a release gate | Preserve per-case deterministic blockers; the six-case broken suite passed its `13/3` scripted judge threshold while failing architecture contracts |
+| 2026-08-12 | A project manifest and successful deploy identify a recoverable release | Keep scaffold metadata, desired runtime config and append-only release evidence as separate contracts |
+| 2026-08-12 | One rollback abstraction can hide target differences | Standardize immutable evidence, then use Cloud Run traffic shift, GKE rollout undo or Agent Runtime restore-and-redeploy |
 
 ## Milestone Tracking
 

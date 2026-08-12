@@ -1,5 +1,5 @@
 # Production Module
 
-Planned: project templates, configuration, deployment, CI/CD, telemetry,
-secrets, versioning and the boundary between Agent Architecture and Agent
-Platform Engineering.
+- [`production-engineering.md`](production-engineering.md): Starter Pack and
+  Agents CLI lifecycle ownership, target topology, configuration/secrets,
+  telemetry privacy, immutable release evidence and rollback.

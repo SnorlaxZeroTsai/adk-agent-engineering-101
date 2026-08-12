@@ -27,3 +27,6 @@ Current candidates:
   trace and grade stages with per-case deterministic release blockers.
 - [`durable-approval-boundary.md`](durable-approval-boundary.md): scoped,
   expiring authorization plus external side-effect idempotency.
+- [`replaceable-production-envelope.md`](replaceable-production-envelope.md):
+  target-independent Agent/eval contracts plus replaceable runtime,
+  deployment, telemetry and target-native rollback.
