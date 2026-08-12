@@ -33,3 +33,6 @@ Current labs:
 - [`10-agent-garden-discovery`](10-agent-garden-discovery/): recipe, template
   and project metadata ownership, stable catalog identity, immutable
   implementation provenance and misleading-entry gates.
+- [`11-blueprint-schema`](11-blueprint-schema/): example-first executable
+  Blueprint schema, Git/AST/graph semantic validation, invalid combinations
+  and identity-preserving migration.

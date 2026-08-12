@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0",
+  "entries": [
+    {
+      "id": "order-support",
+      "display_name": "Order Support",
+      "summary": "Read-only order status and deterministic shipping-estimate Agent.",
+      "lifecycle": {
+        "status": "active",
+        "replacement_id": null
+      },
+      "ownership": {
+        "team": "ADK Agent Engineering 101",
+        "contacts": [
+          "SnorlaxZeroTsai"
+        ]
+      },
+      "classification": {
+        "kind": "standalone",
+        "tags": [
+          "order-support",
+          "read-only",
+          "typed-tools"
+        ]
+      },
+      "implementations": [
+        {
+          "id": "python-adk-2x",
+          "status": "active",
+          "language": "python",
+          "framework": {
+            "package": "google-adk",
+            "version_constraint": "==2.6.3"
+          },
+          "source": {
+            "repository": "https://github.com/SnorlaxZeroTsai/adk-agent-engineering-101",
+            "revision": "9702a79d15f81a9a44a8d40af3ca038196746c46",
+            "path": "labs/01-agent-basics"
+          },
+          "reuse": {
+            "mode": "reference",
+            "template_ref": null
+          }
+        }
+      ],
+      "assurance": [
+        {
+          "kind": "behavior",
+          "implementation_id": "python-adk-2x",
+          "ref": "https://github.com/SnorlaxZeroTsai/adk-agent-engineering-101/blob/9702a79d15f81a9a44a8d40af3ca038196746c46/labs/01-agent-basics/runtime_tests/test_runtime_trace.py",
+          "digest": "sha256:eaff363f9d1fec8b5ea539690e3cfb8ee10ea2d53f1f6c49dc00a1067d7e8bae"
+        }
+      ]
+    },
+    {
+      "id": "research-workflow",
+      "display_name": "Research Workflow",
+      "summary": "Deterministic fan-out, join, review-loop, retry and terminal-routing workflow.",
+      "lifecycle": {
+        "status": "active",
+        "replacement_id": null
+      },
+      "ownership": {
+        "team": "ADK Agent Engineering 101",
+        "contacts": [
+          "SnorlaxZeroTsai"
+        ]
+      },
+      "classification": {
+        "kind": "standalone",
+        "tags": [
+          "deterministic-workflow",
+          "rag",
+          "review-loop"
+        ]
+      },
+      "implementations": [
+        {
+          "id": "python-adk-2x",
+          "status": "active",
+          "language": "python",
+          "framework": {
+            "package": "google-adk",
+            "version_constraint": "==2.6.3"
+          },
+          "source": {
+            "repository": "https://github.com/SnorlaxZeroTsai/adk-agent-engineering-101",
+            "revision": "9702a79d15f81a9a44a8d40af3ca038196746c46",
+            "path": "labs/02-workflow-engineering"
+          },
+          "reuse": {
+            "mode": "reference",
+            "template_ref": null
+          }
+        }
+      ],
+      "assurance": [
+        {
+          "kind": "behavior",
+          "implementation_id": "python-adk-2x",
+          "ref": "https://github.com/SnorlaxZeroTsai/adk-agent-engineering-101/blob/9702a79d15f81a9a44a8d40af3ca038196746c46/labs/02-workflow-engineering/runtime_tests/test_workflow_comparison.py",
+          "digest": "sha256:018c412f9c848af0d68a86ffc5c160d9ce519d12ca6da2f97dafb6f47ba3b989"
+        }
+      ]
+    },
+    {
+      "id": "case-triage",
+      "display_name": "Case Triage",
+      "summary": "Coordinator and typed task specialist for bounded support-case decisions.",
+      "lifecycle": {
+        "status": "active",
+        "replacement_id": null
+      },
+      "ownership": {
+        "team": "ADK Agent Engineering 101",
+        "contacts": [
+          "SnorlaxZeroTsai"
+        ]
+      },
+      "classification": {
+        "kind": "standalone",
+        "tags": [
+          "approval",
+          "multi-agent",
+          "task-specialist"
+        ]
+      },
+      "implementations": [
+        {
+          "id": "python-adk-2x",
+          "status": "active",
+          "language": "python",
+          "framework": {
+            "package": "google-adk",
+            "version_constraint": "==2.6.3"
+          },
+          "source": {
+            "repository": "https://github.com/SnorlaxZeroTsai/adk-agent-engineering-101",
+            "revision": "9702a79d15f81a9a44a8d40af3ca038196746c46",
+            "path": "labs/03-multi-agent"
+          },
+          "reuse": {
+            "mode": "reference",
+            "template_ref": null
+          }
+        }
+      ],
+      "assurance": [
+        {
+          "kind": "behavior",
+          "implementation_id": "python-adk-2x",
+          "ref": "https://github.com/SnorlaxZeroTsai/adk-agent-engineering-101/blob/9702a79d15f81a9a44a8d40af3ca038196746c46/labs/03-multi-agent/runtime_tests/test_multi_agent.py",
+          "digest": "sha256:6f98091c3b6fc369df3609f0dc38fac86c96bac6f0b488e25e0c6d8886931952"
+        }
+      ]
+    }
+  ]
+}

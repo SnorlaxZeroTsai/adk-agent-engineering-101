@@ -1,0 +1,804 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/agent-garden/blueprint.schema.json",
+  "title": "Agent Garden Executable Blueprint",
+  "description": "Versioned architecture, runtime, policy, evaluation, and lifecycle contract. Catalog identity and implementation provenance are referenced, not duplicated.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "catalog_ref",
+    "architecture",
+    "runtime",
+    "policy",
+    "evaluation",
+    "lifecycle",
+    "extensions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "id": {
+      "$ref": "#/$defs/id"
+    },
+    "catalog_ref": {
+      "$ref": "#/$defs/catalog_ref"
+    },
+    "architecture": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/single_agent_architecture"
+        },
+        {
+          "$ref": "#/$defs/workflow_architecture"
+        },
+        {
+          "$ref": "#/$defs/multi_agent_architecture"
+        }
+      ]
+    },
+    "runtime": {
+      "$ref": "#/$defs/runtime"
+    },
+    "policy": {
+      "$ref": "#/$defs/policy"
+    },
+    "evaluation": {
+      "$ref": "#/$defs/evaluation"
+    },
+    "lifecycle": {
+      "$ref": "#/$defs/lifecycle"
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9.-]+$"
+      },
+      "additionalProperties": {
+        "type": "object"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "runtime_name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*$"
+    },
+    "local_ref": {
+      "type": "string",
+      "pattern": "^.+\\.py#[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "catalog_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entry_id",
+        "implementation_id"
+      ],
+      "properties": {
+        "entry_id": {
+          "$ref": "#/$defs/id"
+        },
+        "implementation_id": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "handler_ref",
+        "effect",
+        "input_contract_ref",
+        "output_contract_ref"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "handler_ref": {
+          "$ref": "#/$defs/local_ref"
+        },
+        "effect": {
+          "enum": [
+            "read",
+            "write"
+          ]
+        },
+        "input_contract_ref": {
+          "$ref": "#/$defs/local_ref"
+        },
+        "output_contract_ref": {
+          "$ref": "#/$defs/local_ref"
+        }
+      }
+    },
+    "single_agent_architecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "root_agent",
+        "model_slot",
+        "tools"
+      ],
+      "properties": {
+        "kind": {
+          "const": "single-agent"
+        },
+        "root_agent": {
+          "$ref": "#/$defs/runtime_name"
+        },
+        "model_slot": {
+          "$ref": "#/$defs/id"
+        },
+        "tools": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/tool"
+          }
+        }
+      }
+    },
+    "workflow_node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "contract_ref",
+        "model_slot",
+        "retrieval_id"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "function",
+            "agent",
+            "retrieval",
+            "join",
+            "approval",
+            "terminal"
+          ]
+        },
+        "contract_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/local_ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "model_slot": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retrieval_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "workflow_edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "to",
+        "route"
+      ],
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/id"
+        },
+        "to": {
+          "$ref": "#/$defs/id"
+        },
+        "route": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "workflow_loop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "to",
+        "max_iterations",
+        "exhaustion_node"
+      ],
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/id"
+        },
+        "to": {
+          "$ref": "#/$defs/id"
+        },
+        "max_iterations": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "exhaustion_node": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "workflow_architecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "entry_node",
+        "nodes",
+        "edges",
+        "terminal_nodes",
+        "loops"
+      ],
+      "properties": {
+        "kind": {
+          "const": "workflow"
+        },
+        "entry_node": {
+          "$ref": "#/$defs/id"
+        },
+        "nodes": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/workflow_node"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/workflow_edge"
+          }
+        },
+        "terminal_nodes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "loops": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/workflow_loop"
+          }
+        }
+      }
+    },
+    "specialist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "mode",
+        "responsibility",
+        "model_slot",
+        "input_schema_ref",
+        "output_schema_ref",
+        "state_namespace"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "mode": {
+          "enum": [
+            "chat",
+            "single-turn",
+            "task"
+          ]
+        },
+        "responsibility": {
+          "type": "string",
+          "minLength": 10
+        },
+        "model_slot": {
+          "$ref": "#/$defs/id"
+        },
+        "input_schema_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/local_ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "output_schema_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/local_ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state_namespace": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "delegation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "to",
+        "mode",
+        "contract_ref"
+      ],
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/id"
+        },
+        "to": {
+          "$ref": "#/$defs/id"
+        },
+        "mode": {
+          "enum": [
+            "chat",
+            "single-turn",
+            "task"
+          ]
+        },
+        "contract_ref": {
+          "$ref": "#/$defs/local_ref"
+        }
+      }
+    },
+    "shared_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "writer",
+        "merge_policy"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "writer": {
+          "$ref": "#/$defs/id"
+        },
+        "merge_policy": {
+          "enum": [
+            "single-writer",
+            "validated-replace",
+            "explicit-merge"
+          ]
+        }
+      }
+    },
+    "multi_agent_architecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "coordinator",
+        "agents",
+        "delegations",
+        "shared_state"
+      ],
+      "properties": {
+        "kind": {
+          "const": "multi-agent"
+        },
+        "coordinator": {
+          "$ref": "#/$defs/id"
+        },
+        "agents": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/specialist"
+          }
+        },
+        "delegations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/delegation"
+          }
+        },
+        "shared_state": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/shared_state"
+          }
+        }
+      }
+    },
+    "entrypoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "symbol"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^[^/].+\\.py$"
+        },
+        "symbol": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+        }
+      }
+    },
+    "model_slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "purpose",
+        "provider",
+        "model_env",
+        "default_model"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 10
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_env": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "default_model": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "service_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "durability"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "durability": {
+          "enum": [
+            "ephemeral",
+            "durable",
+            "external"
+          ]
+        }
+      }
+    },
+    "services": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session",
+        "artifact",
+        "memory"
+      ],
+      "properties": {
+        "session": {
+          "$ref": "#/$defs/service_binding"
+        },
+        "artifact": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/service_binding"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "memory": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/service_binding"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "state_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "owner",
+        "scope",
+        "schema_ref",
+        "conflict_policy"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "enum": [
+            "invocation",
+            "session",
+            "user",
+            "app"
+          ]
+        },
+        "schema_ref": {
+          "$ref": "#/$defs/local_ref"
+        },
+        "conflict_policy": {
+          "enum": [
+            "single-writer",
+            "validated-merge",
+            "append-only"
+          ]
+        }
+      }
+    },
+    "retrieval_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "adapter_ref",
+        "provenance_fields",
+        "authorization_stage",
+        "deletion_policy"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "adapter_ref": {
+          "$ref": "#/$defs/local_ref"
+        },
+        "provenance_fields": {
+          "type": "array",
+          "minItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "authorization_stage": {
+          "const": "before-ranking"
+        },
+        "deletion_policy": {
+          "enum": [
+            "source-reconciled",
+            "explicit-delete",
+            "ttl"
+          ]
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entrypoint",
+        "model_slots",
+        "services",
+        "state_contracts",
+        "retrieval_contracts"
+      ],
+      "properties": {
+        "entrypoint": {
+          "$ref": "#/$defs/entrypoint"
+        },
+        "model_slots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/model_slot"
+          }
+        },
+        "services": {
+          "$ref": "#/$defs/services"
+        },
+        "state_contracts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/state_contract"
+          }
+        },
+        "retrieval_contracts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/retrieval_contract"
+          }
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actions",
+        "contract_ref",
+        "replay_key"
+      ],
+      "properties": {
+        "actions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/runtime_name"
+          }
+        },
+        "contract_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/local_ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "replay_key": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "credentials": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "contract_ref"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "none",
+            "tool-scoped",
+            "delegated"
+          ]
+        },
+        "contract_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/local_ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enforcement_refs",
+        "approval",
+        "credentials"
+      ],
+      "properties": {
+        "enforcement_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/local_ref"
+          }
+        },
+        "approval": {
+          "$ref": "#/$defs/approval"
+        },
+        "credentials": {
+          "$ref": "#/$defs/credentials"
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset_ref",
+        "gate_ref",
+        "blocking_metrics"
+      ],
+      "properties": {
+        "dataset_ref": {
+          "$ref": "#/$defs/local_ref"
+        },
+        "gate_ref": {
+          "$ref": "#/$defs/local_ref"
+        },
+        "blocking_metrics": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/runtime_name"
+          }
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "production_profile_ref",
+        "upgrade_policy",
+        "rollback_contract_ref"
+      ],
+      "properties": {
+        "production_profile_ref": {
+          "$ref": "#/$defs/local_ref"
+        },
+        "upgrade_policy": {
+          "enum": [
+            "compatible-schema",
+            "new-implementation"
+          ]
+        },
+        "rollback_contract_ref": {
+          "$ref": "#/$defs/local_ref"
+        }
+      }
+    }
+  }
+}

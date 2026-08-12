@@ -1,0 +1,213 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "id": "unknown-catalog-entry",
+      "scope": "blueprint",
+      "target": "order-support-read-only",
+      "operation": "set",
+      "path": [
+        "catalog_ref",
+        "entry_id"
+      ],
+      "value": "missing-agent",
+      "expected_code": "catalog_entry_unknown"
+    },
+    {
+      "id": "unknown-implementation",
+      "scope": "blueprint",
+      "target": "order-support-read-only",
+      "operation": "set",
+      "path": [
+        "catalog_ref",
+        "implementation_id"
+      ],
+      "value": "missing-runtime",
+      "expected_code": "implementation_unknown"
+    },
+    {
+      "id": "duplicated-catalog-authority",
+      "scope": "blueprint",
+      "target": "order-support-read-only",
+      "operation": "set",
+      "path": [
+        "display_name"
+      ],
+      "value": "Order Support",
+      "expected_code": "schema_additional_property"
+    },
+    {
+      "id": "missing-evaluation-gate",
+      "scope": "blueprint",
+      "target": "order-support-read-only",
+      "operation": "remove",
+      "path": [
+        "evaluation",
+        "gate_ref"
+      ],
+      "expected_code": "schema_required"
+    },
+    {
+      "id": "missing-pinned-entrypoint",
+      "scope": "blueprint",
+      "target": "order-support-read-only",
+      "operation": "set",
+      "path": [
+        "runtime",
+        "entrypoint",
+        "path"
+      ],
+      "value": "agent_basics/missing.py",
+      "expected_code": "entrypoint_blob_missing"
+    },
+    {
+      "id": "write-tool-without-approval",
+      "scope": "blueprint",
+      "target": "order-support-read-only",
+      "operation": "set",
+      "path": [
+        "architecture",
+        "tools",
+        0,
+        "effect"
+      ],
+      "value": "write",
+      "expected_code": "approval_required_for_write_tool"
+    },
+    {
+      "id": "dangling-workflow-edge",
+      "scope": "blueprint",
+      "target": "research-workflow-rag",
+      "operation": "set",
+      "path": [
+        "architecture",
+        "edges",
+        0,
+        "to"
+      ],
+      "value": "missing-node",
+      "expected_code": "workflow_edge_to_unknown"
+    },
+    {
+      "id": "unknown-loop-exhaustion",
+      "scope": "blueprint",
+      "target": "research-workflow-rag",
+      "operation": "set",
+      "path": [
+        "architecture",
+        "loops",
+        0,
+        "exhaustion_node"
+      ],
+      "value": "missing-terminal",
+      "expected_code": "workflow_loop_exhaustion_unknown"
+    },
+    {
+      "id": "retrieval-provenance-incomplete",
+      "scope": "blueprint",
+      "target": "research-workflow-rag",
+      "operation": "set",
+      "path": [
+        "runtime",
+        "retrieval_contracts",
+        0,
+        "provenance_fields"
+      ],
+      "value": [
+        "document_id",
+        "version",
+        "chunk_id",
+        "uri"
+      ],
+      "expected_code": "retrieval_provenance_incomplete"
+    },
+    {
+      "id": "retrieval-gate-missing",
+      "scope": "blueprint",
+      "target": "research-workflow-rag",
+      "operation": "set",
+      "path": [
+        "evaluation",
+        "blocking_metrics"
+      ],
+      "value": [
+        "runtime_success",
+        "trajectory_contract",
+        "state_contract",
+        "output_contract"
+      ],
+      "expected_code": "retrieval_metric_missing"
+    },
+    {
+      "id": "unknown-coordinator",
+      "scope": "blueprint",
+      "target": "case-triage-with-approval",
+      "operation": "set",
+      "path": [
+        "architecture",
+        "coordinator"
+      ],
+      "value": "missing-coordinator",
+      "expected_code": "coordinator_unknown"
+    },
+    {
+      "id": "task-schema-missing",
+      "scope": "blueprint",
+      "target": "case-triage-with-approval",
+      "operation": "set",
+      "path": [
+        "architecture",
+        "agents",
+        1,
+        "input_schema_ref"
+      ],
+      "value": null,
+      "expected_code": "task_schema_missing"
+    },
+    {
+      "id": "duplicate-state-namespace",
+      "scope": "blueprint",
+      "target": "case-triage-with-approval",
+      "operation": "append",
+      "path": [
+        "architecture",
+        "agents"
+      ],
+      "value": {
+        "id": "task-audit",
+        "mode": "task",
+        "responsibility": "Audit one typed support-case decision without owning shared state.",
+        "model_slot": "specialist",
+        "input_schema_ref": "labs/03-multi-agent/multi_agent_lab/builders.py#CaseInput",
+        "output_schema_ref": "labs/03-multi-agent/multi_agent_lab/builders.py#DecisionOutput",
+        "state_namespace": "specialist.task-triage"
+      },
+      "expected_code": "state_namespace_duplicate"
+    },
+    {
+      "id": "approval-replay-key-missing",
+      "scope": "blueprint",
+      "target": "case-triage-with-approval",
+      "operation": "set",
+      "path": [
+        "policy",
+        "approval",
+        "replay_key"
+      ],
+      "value": null,
+      "expected_code": "approval_replay_key_missing"
+    },
+    {
+      "id": "lifecycle-contract-missing",
+      "scope": "blueprint",
+      "target": "order-support-read-only",
+      "operation": "set",
+      "path": [
+        "lifecycle",
+        "production_profile_ref"
+      ],
+      "value": "labs/08-production-engineering/production_lab/missing.py#TargetProfile",
+      "expected_code": "local_ref_file_missing"
+    }
+  ]
+}

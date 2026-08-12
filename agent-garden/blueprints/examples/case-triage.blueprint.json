@@ -1,0 +1,126 @@
+{
+  "schema_version": "1.0",
+  "id": "case-triage-with-approval",
+  "catalog_ref": {
+    "entry_id": "case-triage",
+    "implementation_id": "python-adk-2x"
+  },
+  "architecture": {
+    "kind": "multi-agent",
+    "coordinator": "task-coordinator",
+    "agents": [
+      {
+        "id": "task-coordinator",
+        "mode": "chat",
+        "responsibility": "Select a bounded specialist and own the final user response.",
+        "model_slot": "coordinator",
+        "input_schema_ref": null,
+        "output_schema_ref": null,
+        "state_namespace": "coordinator"
+      },
+      {
+        "id": "task-triage",
+        "mode": "task",
+        "responsibility": "Classify exactly one support case and return a typed decision.",
+        "model_slot": "specialist",
+        "input_schema_ref": "labs/03-multi-agent/multi_agent_lab/builders.py#CaseInput",
+        "output_schema_ref": "labs/03-multi-agent/multi_agent_lab/builders.py#DecisionOutput",
+        "state_namespace": "specialist.task-triage"
+      }
+    ],
+    "delegations": [
+      {
+        "from": "task-coordinator",
+        "to": "task-triage",
+        "mode": "task",
+        "contract_ref": "labs/03-multi-agent/multi_agent_lab/builders.py#build_task_scenario"
+      }
+    ],
+    "shared_state": [
+      {
+        "key": "triage_result",
+        "writer": "task-triage",
+        "merge_policy": "validated-replace"
+      }
+    ]
+  },
+  "runtime": {
+    "entrypoint": {
+      "path": "multi_agent_lab/builders.py",
+      "symbol": "build_task_scenario"
+    },
+    "model_slots": [
+      {
+        "id": "coordinator",
+        "purpose": "Specialist selection and final response synthesis.",
+        "provider": "google",
+        "model_env": "ADK_COORDINATOR_MODEL",
+        "default_model": "gemini-3.5-flash"
+      },
+      {
+        "id": "specialist",
+        "purpose": "Bounded typed support-case classification.",
+        "provider": "google",
+        "model_env": "ADK_SPECIALIST_MODEL",
+        "default_model": "gemini-3.5-flash"
+      }
+    ],
+    "services": {
+      "session": {
+        "provider": "in-memory",
+        "durability": "ephemeral"
+      },
+      "artifact": null,
+      "memory": null
+    },
+    "state_contracts": [
+      {
+        "key": "triage_result",
+        "owner": "task-triage",
+        "scope": "session",
+        "schema_ref": "labs/03-multi-agent/multi_agent_lab/builders.py#DecisionOutput",
+        "conflict_policy": "single-writer"
+      }
+    ],
+    "retrieval_contracts": []
+  },
+  "policy": {
+    "enforcement_refs": [
+      "labs/07-safety-hitl/safety_hitl_lab/domain.py#validate_approval",
+      "labs/07-safety-hitl/safety_hitl_lab/domain.py#PaymentLedger"
+    ],
+    "approval": {
+      "actions": [
+        "vendor_payment"
+      ],
+      "contract_ref": "labs/07-safety-hitl/safety_hitl_lab/domain.py#ApprovalEnvelope",
+      "replay_key": "action_id"
+    },
+    "credentials": {
+      "mode": "tool-scoped",
+      "contract_ref": "labs/07-safety-hitl/runtime_tests/test_safety_hitl.py#CredentialBoundaryTests"
+    }
+  },
+  "evaluation": {
+    "dataset_ref": "labs/06-evaluation/evaluation_lab/dataset.py#build_dataset",
+    "gate_ref": "labs/06-evaluation/evaluation_lab/gate.py#evaluate_variant",
+    "blocking_metrics": [
+      "runtime_success",
+      "tool_contract",
+      "trajectory_contract",
+      "state_contract",
+      "output_contract",
+      "policy_safety"
+    ]
+  },
+  "lifecycle": {
+    "production_profile_ref": "labs/08-production-engineering/production_lab/contracts.py#TargetProfile",
+    "upgrade_policy": "new-implementation",
+    "rollback_contract_ref": "labs/08-production-engineering/production_lab/release.py#ReleaseLedger"
+  },
+  "extensions": {
+    "com.adk-engineering": {
+      "composition_note": "Lab 03 task delegation is composed with the Lab 07 durable approval and idempotency contract."
+    }
+  }
+}

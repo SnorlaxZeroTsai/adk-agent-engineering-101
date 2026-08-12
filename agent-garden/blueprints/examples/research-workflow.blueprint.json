@@ -1,0 +1,215 @@
+{
+  "schema_version": "1.0",
+  "id": "research-workflow-rag",
+  "catalog_ref": {
+    "entry_id": "research-workflow",
+    "implementation_id": "python-adk-2x"
+  },
+  "architecture": {
+    "kind": "workflow",
+    "entry_node": "intake",
+    "nodes": [
+      {
+        "id": "intake",
+        "kind": "function",
+        "contract_ref": "labs/02-workflow-engineering/workflow_lab/domain.py#normalize_topic",
+        "model_slot": null,
+        "retrieval_id": null
+      },
+      {
+        "id": "facts",
+        "kind": "retrieval",
+        "contract_ref": null,
+        "model_slot": null,
+        "retrieval_id": "research-evidence"
+      },
+      {
+        "id": "risks",
+        "kind": "function",
+        "contract_ref": "labs/02-workflow-engineering/workflow_lab/domain.py#collect_risks",
+        "model_slot": null,
+        "retrieval_id": null
+      },
+      {
+        "id": "analysis-join",
+        "kind": "join",
+        "contract_ref": null,
+        "model_slot": null,
+        "retrieval_id": null
+      },
+      {
+        "id": "compose",
+        "kind": "function",
+        "contract_ref": "labs/02-workflow-engineering/workflow_lab/domain.py#compose_draft",
+        "model_slot": null,
+        "retrieval_id": null
+      },
+      {
+        "id": "review",
+        "kind": "function",
+        "contract_ref": "labs/02-workflow-engineering/workflow_lab/domain.py#review_draft",
+        "model_slot": null,
+        "retrieval_id": null
+      },
+      {
+        "id": "revise",
+        "kind": "function",
+        "contract_ref": "labs/02-workflow-engineering/workflow_lab/domain.py#revise_draft",
+        "model_slot": null,
+        "retrieval_id": null
+      },
+      {
+        "id": "finalize",
+        "kind": "terminal",
+        "contract_ref": "labs/02-workflow-engineering/workflow_lab/domain.py#finalize_brief",
+        "model_slot": null,
+        "retrieval_id": null
+      },
+      {
+        "id": "reject",
+        "kind": "terminal",
+        "contract_ref": "labs/02-workflow-engineering/workflow_lab/graph_pipeline.py#build_graph_pipeline",
+        "model_slot": null,
+        "retrieval_id": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "intake",
+        "to": "facts",
+        "route": null
+      },
+      {
+        "from": "intake",
+        "to": "risks",
+        "route": null
+      },
+      {
+        "from": "facts",
+        "to": "analysis-join",
+        "route": null
+      },
+      {
+        "from": "risks",
+        "to": "analysis-join",
+        "route": null
+      },
+      {
+        "from": "analysis-join",
+        "to": "compose",
+        "route": null
+      },
+      {
+        "from": "compose",
+        "to": "review",
+        "route": null
+      },
+      {
+        "from": "review",
+        "to": "revise",
+        "route": "revise"
+      },
+      {
+        "from": "review",
+        "to": "finalize",
+        "route": "approved"
+      },
+      {
+        "from": "review",
+        "to": "reject",
+        "route": "exhausted"
+      },
+      {
+        "from": "revise",
+        "to": "review",
+        "route": null
+      }
+    ],
+    "terminal_nodes": [
+      "finalize",
+      "reject"
+    ],
+    "loops": [
+      {
+        "from": "review",
+        "to": "revise",
+        "max_iterations": 3,
+        "exhaustion_node": "reject"
+      }
+    ]
+  },
+  "runtime": {
+    "entrypoint": {
+      "path": "workflow_lab/graph_pipeline.py",
+      "symbol": "build_graph_pipeline"
+    },
+    "model_slots": [],
+    "services": {
+      "session": {
+        "provider": "in-memory",
+        "durability": "ephemeral"
+      },
+      "artifact": null,
+      "memory": null
+    },
+    "state_contracts": [
+      {
+        "key": "brief",
+        "owner": "research-workflow-rag",
+        "scope": "session",
+        "schema_ref": "labs/02-workflow-engineering/workflow_lab/graph_pipeline.py#BriefState",
+        "conflict_policy": "validated-merge"
+      }
+    ],
+    "retrieval_contracts": [
+      {
+        "id": "research-evidence",
+        "adapter_ref": "labs/05-rag-engineering/rag_lab/retrieval.py#ExplicitVectorIndex",
+        "provenance_fields": [
+          "document_id",
+          "version",
+          "chunk_id",
+          "uri",
+          "acl"
+        ],
+        "authorization_stage": "before-ranking",
+        "deletion_policy": "source-reconciled"
+      }
+    ]
+  },
+  "policy": {
+    "enforcement_refs": [
+      "labs/02-workflow-engineering/workflow_lab/domain.py#finalize_brief"
+    ],
+    "approval": {
+      "actions": [],
+      "contract_ref": null,
+      "replay_key": null
+    },
+    "credentials": {
+      "mode": "none",
+      "contract_ref": null
+    }
+  },
+  "evaluation": {
+    "dataset_ref": "labs/06-evaluation/evaluation_lab/dataset.py#build_dataset",
+    "gate_ref": "labs/06-evaluation/evaluation_lab/gate.py#evaluate_variant",
+    "blocking_metrics": [
+      "runtime_success",
+      "trajectory_contract",
+      "state_contract",
+      "output_contract",
+      "retrieval_grounding"
+    ]
+  },
+  "lifecycle": {
+    "production_profile_ref": "labs/08-production-engineering/production_lab/contracts.py#TargetProfile",
+    "upgrade_policy": "new-implementation",
+    "rollback_contract_ref": "labs/08-production-engineering/production_lab/release.py#ReleaseLedger"
+  },
+  "extensions": {
+    "com.adk-engineering": {
+      "composition_note": "The retrieval node binds Lab 05 evidence ownership into the Lab 02 deterministic graph."
+    }
+  }
+}
