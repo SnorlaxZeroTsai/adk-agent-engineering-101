@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "entries": [
+    {
+      "id": "cross-session-memory",
+      "display_name": "Cross-Session Memory",
+      "summary": "ADK agent with Memory Bank integration, deployable to Agent Engine or Cloud Run.",
+      "lifecycle": {
+        "status": "active",
+        "replacement_id": null
+      },
+      "ownership": {
+        "team": "GS&I AI Apps and Platforms",
+        "contacts": [
+          "allen-stephen"
+        ]
+      },
+      "classification": {
+        "kind": "standalone",
+        "tags": [
+          "cross-session",
+          "memory",
+          "stateful"
+        ]
+      },
+      "implementations": [
+        {
+          "id": "python-adk-1x",
+          "status": "active",
+          "language": "python",
+          "framework": {
+            "package": "google-adk",
+            "version_constraint": ">=1.15.0,<2.0.0"
+          },
+          "source": {
+            "repository": "https://github.com/google/adk-samples",
+            "revision": "4b5dd7705750dafbd987aa83efc323c3691d45fc",
+            "path": "core/python/cross-session-memory"
+          },
+          "reuse": {
+            "mode": "remote-template",
+            "template_ref": "https://github.com/google/adk-samples/tree/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/cross-session-memory"
+          }
+        }
+      ],
+      "assurance": [
+        {
+          "kind": "runnability",
+          "implementation_id": "python-adk-1x",
+          "ref": "https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/cross-session-memory/tests/test_runnability.py",
+          "digest": "sha256:aa72287c0b19e9700fa13bb2f6b6940fdc76261675c97fb114c4add5ca500ca8"
+        }
+      ]
+    }
+  ]
+}

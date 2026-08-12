@@ -1,0 +1,406 @@
+{
+  "schema_version": "1.0",
+  "planes": [
+    {
+      "id": "catalog",
+      "purpose": "Search, compare, identify, and select a reusable Agent."
+    },
+    {
+      "id": "scaffold",
+      "purpose": "Render or upgrade a project from a selected implementation."
+    },
+    {
+      "id": "runtime",
+      "purpose": "Locate code and supply runtime or deployment defaults."
+    },
+    {
+      "id": "governance",
+      "purpose": "Assign accountability, validation, lifecycle, and policy."
+    }
+  ],
+  "required_discovery_facts": [
+    "stable_identity",
+    "display",
+    "lifecycle",
+    "ownership",
+    "classification",
+    "immutable_source",
+    "compatibility",
+    "reuse_locator",
+    "assurance"
+  ],
+  "frozen_source_prefixes": [
+    "python/agents",
+    "java/agents",
+    "go/agents",
+    "kotlin/agents",
+    "typescript/agents"
+  ],
+  "consumer_observations": [
+    {
+      "id": "recipe-schema-enforcement",
+      "source": "https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/tools/validate_manifest.py",
+      "finding": "Recipe manifests are parsed as YAML, checked with Draft 7 JSON Schema, then supplemented by placeholder and repository-policy checks."
+    },
+    {
+      "id": "starter-built-in-discovery",
+      "source": "https://github.com/GoogleCloudPlatform/agent-starter-pack/blob/659f047742457bd55e5db0edd088cf678b6f0669/agent_starter_pack/cli/utils/template.py",
+      "finding": "Built-in templates are discovered by folder and templateconfig.yaml; known fields are consumed permissively for list filtering and scaffold choices."
+    },
+    {
+      "id": "agents-cli-legacy-adk-discovery",
+      "source": "https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/scaffold/utils/remote_template.py",
+      "finding": "ADK sample discovery scans python/agents only and does not consume the current core/contrib recipe manifests."
+    },
+    {
+      "id": "agents-cli-project-defaults",
+      "source": "https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/_project.py",
+      "finding": "ProjectConfig reads known keys with defaults, ignores unknown keys, and treats scaffold version mismatch as non-blocking guidance."
+    }
+  ],
+  "source_contracts": [
+    {
+      "id": "adk-recipe-manifest",
+      "source": "https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/.github/schemas/manifest-schema.json",
+      "authority": "recipe repository metadata and governance",
+      "identity_model": "The recipe directory is the implicit identity.",
+      "validation": "Draft 7 JSON Schema plus repository structure, placement, README, and canary policy.",
+      "provides": [
+        "display",
+        "lifecycle",
+        "ownership",
+        "classification"
+      ],
+      "gaps": [
+        "No stable ID independent of path.",
+        "No immutable repository revision.",
+        "Dependency names do not form a runtime compatibility contract.",
+        "No deprecation replacement or assurance artifact."
+      ],
+      "fields": [
+        {
+          "field": "type",
+          "planes": [
+            "catalog"
+          ],
+          "semantics": "Standalone runnable recipe or importable module."
+        },
+        {
+          "field": "deployable",
+          "planes": [
+            "catalog",
+            "scaffold"
+          ],
+          "semantics": "One-click deployment claim, default false."
+        },
+        {
+          "field": "large",
+          "planes": [
+            "governance"
+          ],
+          "semantics": "Selects repository file and size policy tier."
+        },
+        {
+          "field": "status",
+          "planes": [
+            "catalog",
+            "governance"
+          ],
+          "semantics": "Active or inactive recipe health state."
+        },
+        {
+          "field": "language",
+          "planes": [
+            "catalog",
+            "governance"
+          ],
+          "semantics": "Primary language and language-specific validation selector."
+        },
+        {
+          "field": "description",
+          "planes": [
+            "catalog"
+          ],
+          "semantics": "Human-facing recipe summary."
+        },
+        {
+          "field": "architecture",
+          "planes": [
+            "catalog"
+          ],
+          "semantics": "Coarse single/multi, stateful, and datasource classification."
+        },
+        {
+          "field": "dependencies",
+          "planes": [
+            "catalog"
+          ],
+          "semantics": "Unversioned library and service discovery hints."
+        },
+        {
+          "field": "ownership",
+          "planes": [
+            "catalog",
+            "governance"
+          ],
+          "semantics": "Accountable team, point of contact, and contributors."
+        },
+        {
+          "field": "license",
+          "planes": [
+            "catalog",
+            "governance"
+          ],
+          "semantics": "Optional SPDX license identifier."
+        },
+        {
+          "field": "tags",
+          "planes": [
+            "catalog"
+          ],
+          "semantics": "Free-form classification labels."
+        }
+      ]
+    },
+    {
+      "id": "starter-template-config",
+      "source": "https://github.com/GoogleCloudPlatform/agent-starter-pack/blob/659f047742457bd55e5db0edd088cf678b6f0669/agent_starter_pack/agents/adk/.template/templateconfig.yaml",
+      "authority": "template selection and scaffold rendering",
+      "identity_model": "The template folder name is the implicit identity.",
+      "validation": "Consumers load YAML permissively; selection code reads known keys and logs or defaults on malformed or unsupported values.",
+      "provides": [
+        "display",
+        "classification",
+        "compatibility"
+      ],
+      "gaps": [
+        "No owner or lifecycle status.",
+        "No immutable implementation source.",
+        "Deployment targets are scaffold choices, not proof of a deployed runtime.",
+        "The folder identity is not stable across catalog moves."
+      ],
+      "fields": [
+        {
+          "field": "description",
+          "planes": [
+            "catalog"
+          ],
+          "semantics": "Selection-list description."
+        },
+        {
+          "field": "example_question",
+          "planes": [
+            "catalog",
+            "scaffold"
+          ],
+          "semantics": "Demo prompt rendered into the generated experience."
+        },
+        {
+          "field": "hidden",
+          "planes": [
+            "catalog"
+          ],
+          "semantics": "Suppresses a built-in template from normal selection."
+        },
+        {
+          "field": "settings.language",
+          "planes": [
+            "catalog",
+            "scaffold"
+          ],
+          "semantics": "Selection grouping and language overlay."
+        },
+        {
+          "field": "settings.requires_session",
+          "planes": [
+            "scaffold"
+          ],
+          "semantics": "Selects generated Session support."
+        },
+        {
+          "field": "settings.deployment_targets",
+          "planes": [
+            "scaffold"
+          ],
+          "semantics": "Filters target choices available during generation."
+        },
+        {
+          "field": "settings.extra_dependencies",
+          "planes": [
+            "scaffold"
+          ],
+          "semantics": "Adds versioned dependencies to the rendered project."
+        },
+        {
+          "field": "settings.tags",
+          "planes": [
+            "catalog",
+            "scaffold"
+          ],
+          "semantics": "Infers framework and selection grouping."
+        },
+        {
+          "field": "settings.frontend_type",
+          "planes": [
+            "scaffold"
+          ],
+          "semantics": "Selects an optional frontend overlay."
+        },
+        {
+          "field": "settings.agent_directory",
+          "planes": [
+            "scaffold",
+            "runtime"
+          ],
+          "semantics": "Controls the generated code location."
+        }
+      ]
+    },
+    {
+      "id": "agents-cli-project-manifest",
+      "source": "https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/_project.py",
+      "authority": "generated project instance and lifecycle command defaults",
+      "identity_model": "The project name identifies one generated instance, not the reusable Agent.",
+      "validation": "Known keys are read with defaults; unknown keys are ignored and CLI version mismatch only warns.",
+      "provides": [
+        "classification"
+      ],
+      "gaps": [
+        "Project name is not a stable catalog identity.",
+        "No description, owner, lifecycle, immutable source, or assurance.",
+        "Target and region are mutable command defaults, not complete desired state.",
+        "Scaffold version is not Agent runtime compatibility."
+      ],
+      "fields": [
+        {
+          "field": "name",
+          "planes": [
+            "scaffold"
+          ],
+          "semantics": "Generated project instance name."
+        },
+        {
+          "field": "acli_version",
+          "planes": [
+            "scaffold",
+            "governance"
+          ],
+          "semantics": "Scaffold tool version used for upgrade guidance."
+        },
+        {
+          "field": "agent_directory",
+          "planes": [
+            "scaffold",
+            "runtime"
+          ],
+          "semantics": "Project-relative Agent code location."
+        },
+        {
+          "field": "region",
+          "planes": [
+            "runtime"
+          ],
+          "semantics": "Default region for lifecycle commands."
+        },
+        {
+          "field": "base_template",
+          "planes": [
+            "scaffold"
+          ],
+          "semantics": "Template overlay selected during generation and upgrade."
+        },
+        {
+          "field": "generated_at",
+          "planes": [
+            "governance"
+          ],
+          "semantics": "Generation provenance written by the template but ignored by ProjectConfig."
+        },
+        {
+          "field": "language",
+          "planes": [
+            "catalog",
+            "scaffold"
+          ],
+          "semantics": "Generated project language."
+        },
+        {
+          "field": "create_params.deployment_target",
+          "planes": [
+            "scaffold",
+            "runtime"
+          ],
+          "semantics": "Selected target default; deploy flags can override it."
+        },
+        {
+          "field": "create_params.session_type",
+          "planes": [
+            "scaffold",
+            "runtime"
+          ],
+          "semantics": "Generated Session implementation choice."
+        },
+        {
+          "field": "create_params.cicd_runner",
+          "planes": [
+            "scaffold"
+          ],
+          "semantics": "Generated CI/CD overlay choice."
+        },
+        {
+          "field": "create_params.is_a2a",
+          "planes": [
+            "scaffold",
+            "runtime"
+          ],
+          "semantics": "Generated A2A transport surface."
+        },
+        {
+          "field": "create_params.agent_guidance_filename",
+          "planes": [
+            "scaffold"
+          ],
+          "semantics": "Generated coding-agent guidance filename."
+        }
+      ]
+    }
+  ],
+  "implementation_facts": [
+    {
+      "catalog_id": "cross-session-memory",
+      "implementation_id": "python-adk-1x",
+      "display_name": "Cross-Session Memory",
+      "summary": "ADK agent with Memory Bank integration, deployable to Agent Engine or Cloud Run.",
+      "lifecycle_status": "active",
+      "owner_team": "GS&I AI Apps and Platforms",
+      "owner_contacts": [
+        "allen-stephen"
+      ],
+      "kind": "standalone",
+      "tags": [
+        "cross-session",
+        "memory",
+        "stateful"
+      ],
+      "language": "python",
+      "framework": {
+        "package": "google-adk",
+        "version_constraint": ">=1.15.0,<2.0.0"
+      },
+      "source": {
+        "repository": "https://github.com/google/adk-samples",
+        "revision": "4b5dd7705750dafbd987aa83efc323c3691d45fc",
+        "path": "core/python/cross-session-memory"
+      },
+      "reuse": {
+        "mode": "remote-template",
+        "template_ref": "https://github.com/google/adk-samples/tree/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/cross-session-memory"
+      },
+      "assurance": {
+        "kind": "runnability",
+        "ref": "https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/cross-session-memory/tests/test_runnability.py",
+        "digest": "sha256:aa72287c0b19e9700fa13bb2f6b6940fdc76261675c97fb114c4add5ca500ca8"
+      }
+    }
+  ]
+}

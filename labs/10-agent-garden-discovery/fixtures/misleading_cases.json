@@ -1,0 +1,216 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "id": "missing-stable-catalog-id",
+      "operation": "set",
+      "path": [
+        "entries",
+        0,
+        "id"
+      ],
+      "value": "",
+      "expected_code": "catalog_id_invalid"
+    },
+    {
+      "id": "project-instance-name-as-catalog-id",
+      "operation": "set",
+      "path": [
+        "entries",
+        0,
+        "id"
+      ],
+      "value": "cross-session-memory-prod-us-east1",
+      "expected_code": "catalog_identity_mismatch"
+    },
+    {
+      "id": "mutable-source-revision",
+      "operation": "set",
+      "path": [
+        "entries",
+        0,
+        "implementations",
+        0,
+        "source",
+        "revision"
+      ],
+      "value": "main",
+      "expected_code": "source_revision_unpinned"
+    },
+    {
+      "id": "active-entry-on-frozen-legacy-path",
+      "operation": "set",
+      "path": [
+        "entries",
+        0,
+        "implementations",
+        0,
+        "source",
+        "path"
+      ],
+      "value": "python/agents/cross-session-memory",
+      "expected_code": "active_source_frozen"
+    },
+    {
+      "id": "adk-two-compatibility-overclaim",
+      "operation": "set",
+      "path": [
+        "entries",
+        0,
+        "implementations",
+        0,
+        "framework",
+        "version_constraint"
+      ],
+      "value": ">=2.5.0,<3.0.0",
+      "expected_code": "framework_constraint_mismatch"
+    },
+    {
+      "id": "language-overclaim",
+      "operation": "set",
+      "path": [
+        "entries",
+        0,
+        "implementations",
+        0,
+        "language"
+      ],
+      "value": "typescript",
+      "expected_code": "implementation_language_mismatch"
+    },
+    {
+      "id": "status-drift-from-recipe",
+      "operation": "set",
+      "path": [
+        "entries",
+        0,
+        "lifecycle",
+        "status"
+      ],
+      "value": "deprecated",
+      "expected_code": "lifecycle_status_mismatch"
+    },
+    {
+      "id": "missing-accountable-contact",
+      "operation": "set",
+      "path": [
+        "entries",
+        0,
+        "ownership",
+        "contacts"
+      ],
+      "value": [],
+      "expected_code": "owner_contacts_empty"
+    },
+    {
+      "id": "scaffold-target-promoted-to-catalog-authority",
+      "operation": "set",
+      "path": [
+        "entries",
+        0,
+        "deployment_targets"
+      ],
+      "value": [
+        "agent_runtime",
+        "cloud_run"
+      ],
+      "expected_code": "unknown_field"
+    },
+    {
+      "id": "missing-assurance-evidence",
+      "operation": "set",
+      "path": [
+        "entries",
+        0,
+        "assurance"
+      ],
+      "value": [],
+      "expected_code": "assurance_empty"
+    },
+    {
+      "id": "mutable-remote-template-ref",
+      "operation": "set",
+      "path": [
+        "entries",
+        0,
+        "implementations",
+        0,
+        "reuse",
+        "template_ref"
+      ],
+      "value": "https://github.com/google/adk-samples/tree/main/core/python/cross-session-memory",
+      "expected_code": "source_not_pinned"
+    },
+    {
+      "id": "deprecated-without-replacement",
+      "operation": "set",
+      "path": [
+        "entries",
+        0,
+        "lifecycle",
+        "status"
+      ],
+      "value": "deprecated",
+      "expected_code": "replacement_required"
+    },
+    {
+      "id": "same-implementation-under-second-catalog-id",
+      "operation": "append",
+      "path": [
+        "entries"
+      ],
+      "value": {
+        "id": "cross-session-memory-copy",
+        "display_name": "Cross-Session Memory Copy",
+        "summary": "Duplicate catalog identity for the same immutable Agent implementation.",
+        "lifecycle": {
+          "status": "active",
+          "replacement_id": null
+        },
+        "ownership": {
+          "team": "GS&I AI Apps and Platforms",
+          "contacts": [
+            "allen-stephen"
+          ]
+        },
+        "classification": {
+          "kind": "standalone",
+          "tags": [
+            "cross-session",
+            "memory",
+            "stateful"
+          ]
+        },
+        "implementations": [
+          {
+            "id": "python-adk-1x",
+            "status": "active",
+            "language": "python",
+            "framework": {
+              "package": "google-adk",
+              "version_constraint": ">=1.15.0,<2.0.0"
+            },
+            "source": {
+              "repository": "https://github.com/google/adk-samples",
+              "revision": "4b5dd7705750dafbd987aa83efc323c3691d45fc",
+              "path": "core/python/cross-session-memory"
+            },
+            "reuse": {
+              "mode": "remote-template",
+              "template_ref": "https://github.com/google/adk-samples/tree/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/cross-session-memory"
+            }
+          }
+        ],
+        "assurance": [
+          {
+            "kind": "runnability",
+            "implementation_id": "python-adk-1x",
+            "ref": "https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/cross-session-memory/tests/test_runnability.py",
+            "digest": "sha256:aa72287c0b19e9700fa13bb2f6b6940fdc76261675c97fb114c4add5ca500ca8"
+          }
+        ]
+      },
+      "expected_code": "implementation_source_duplicate"
+    }
+  ]
+}

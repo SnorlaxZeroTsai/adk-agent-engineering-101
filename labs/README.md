@@ -30,3 +30,6 @@ Current labs:
 - [`09-pattern-catalog`](09-pattern-catalog/): canonical pattern manifests,
   claim-level evidence, relation boundaries and deliberate invalid catalog
   gates.
+- [`10-agent-garden-discovery`](10-agent-garden-discovery/): recipe, template
+  and project metadata ownership, stable catalog identity, immutable
+  implementation provenance and misleading-entry gates.
