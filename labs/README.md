@@ -15,3 +15,5 @@ Current labs:
   graph Workflow control, failure and resume semantics.
 - [`03-multi-agent`](03-multi-agent/): function, single-turn, transfer and task
   specialist boundaries under failure, overlap and state conflict.
+- [`04-context-and-memory`](04-context-and-memory/): transient context, state,
+  artifacts and memory under staleness, isolation and deletion failures.
