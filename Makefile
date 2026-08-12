@@ -2,12 +2,13 @@ PYTHON ?= python3
 ADK_COMMIT := a56f6e13ae38296b608808c7a3b37efe4b8c862e
 LAB_01 := $(CURDIR)/labs/01-agent-basics
 LAB_02 := $(CURDIR)/labs/02-workflow-engineering
+LAB_03 := $(CURDIR)/labs/03-multi-agent
 ADK_PYTHON ?= $(LAB_01)/.venv/bin/python
 
-.PHONY: verify verify-project test-lab-01 test-lab-02 bootstrap-adk \
-	verify-adk verify-workflows
+.PHONY: verify verify-project test-lab-01 test-lab-02 test-lab-03 \
+	bootstrap-adk verify-adk verify-workflows verify-multi-agent
 
-verify: verify-project test-lab-01 test-lab-02
+verify: verify-project test-lab-01 test-lab-02 test-lab-03
 
 verify-project:
 	$(PYTHON) scripts/verify_project.py
@@ -19,11 +20,15 @@ test-lab-02:
 	cd labs/02-workflow-engineering && \
 		$(PYTHON) -m unittest discover -s tests -v
 
+test-lab-03:
+	cd labs/03-multi-agent && \
+		$(PYTHON) -m unittest discover -s tests -v
+
 bootstrap-adk:
 	$(PYTHON) -m venv $(LAB_01)/.venv
 	$(ADK_PYTHON) -m pip install "google-adk @ git+https://github.com/google/adk-python.git@$(ADK_COMMIT)"
 
-verify-adk: verify-workflows
+verify-adk: verify-workflows verify-multi-agent
 	test -x $(ADK_PYTHON)
 	cd labs/01-agent-basics && .venv/bin/python -m unittest discover -s runtime_tests -v
 	cd labs/01-agent-basics && .venv/bin/python scripts/run_runtime_trace.py >/dev/null
@@ -36,3 +41,12 @@ verify-workflows:
 	cd labs/02-workflow-engineering && \
 		../01-agent-basics/.venv/bin/python \
 		scripts/run_workflow_traces.py >/dev/null
+
+verify-multi-agent:
+	test -x $(ADK_PYTHON)
+	cd labs/03-multi-agent && \
+		../01-agent-basics/.venv/bin/python \
+		-m unittest discover -s runtime_tests -v
+	cd labs/03-multi-agent && \
+		../01-agent-basics/.venv/bin/python \
+		scripts/run_multi_agent_traces.py >/dev/null

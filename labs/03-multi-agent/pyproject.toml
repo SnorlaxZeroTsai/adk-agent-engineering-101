@@ -1,0 +1,20 @@
+[project]
+name = "adk-multi-agent-lab"
+version = "0.1.0"
+description = "Deterministic comparison of ADK specialist execution modes"
+requires-python = ">=3.10"
+dependencies = [
+  "google-adk @ git+https://github.com/google/adk-python.git@a56f6e13ae38296b608808c7a3b37efe4b8c862e",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8,<10",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["multi_agent_lab"]
