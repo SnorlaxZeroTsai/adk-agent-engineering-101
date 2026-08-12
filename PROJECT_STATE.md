@@ -4,9 +4,8 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Start Phase 3 by holding one specialist capability constant and comparing a
-deterministic function/node, single-turn Agent, conversational transfer and
-coordinator-selected delegation.
+Start Phase 4 by holding one support task constant and comparing prompt
+context, typed Session state, artifacts and cross-session memory.
 
 ## Completed
 
@@ -29,6 +28,14 @@ coordinator-selected delegation.
   and fresh-object resume experiments.
 - 7 Lab 02 offline tests and 12 ADK-backed Workflow tests.
 - First candidate pattern: deterministic Workflow.
+- Phase 3 source comparison of `chat`, `single_turn` and `task` Agent modes.
+- Lab 03 typed case-triage capability across function, single-turn, transfer
+  and task-delegation boundaries.
+- Transfer continuation, task validation recovery and hard specialist failure
+  experiments.
+- Overlapping-responsibility and shared-state conflict experiments.
+- 7 Lab 03 offline tests and 10 ADK-backed multi-agent tests.
+- Second candidate pattern: bounded specialist.
 
 ## Important Findings
 
@@ -69,6 +76,16 @@ coordinator-selected delegation.
     interrupted leaf but did not naturally continue the parent sequence tail.
 16. Dynamic child output needs explicit `use_as_output=True` delegation to
     avoid duplicate logical result Events.
+17. `chat`, `single_turn` and `task` represent different ownership lifecycles;
+    they are not interchangeable Agent-as-tool wrappers.
+18. Transfer gives the specialist the user reply and subsequent conversational
+    turn; task delegation returns typed completion to the coordinator.
+19. Task output schema failure can remain inside the child loop, but an
+    unhandled child model failure propagates without automatic fallback.
+20. Typed schemas do not resolve overlapping specialist charters or cross-field
+    business invariants.
+21. Two specialists writing one Session key produce silent last-writer-wins in
+    the local runtime.
 
 ## Architecture Decisions
 
@@ -91,15 +108,22 @@ coordinator-selected delegation.
 - Assign one retry owner and require idempotency.
 - Test resume with fresh runtime objects and an external side-effect ledger.
 - Use node paths/run IDs as trajectory evidence.
+- Require independent reasoning, isolation or conversation ownership before
+  creating a specialist Agent.
+- Use single-turn for bounded semantic Workflow nodes, transfer for
+  specialist-owned conversation and task mode for coordinator-owned results.
+- Disable parent/peer transfer on bounded task specialists.
+- Validate domain invariants after typed specialist output.
+- Namespace specialist state or merge it explicitly.
 
 ## Unresolved Questions
 
-- What is the stable replacement for direct `AgentTool` use now that ADK 2.0
-  recommends `mode="single_turn"` sub-agents?
-- When does a specialist need an independent Agent identity/history instead of
-  a function or Workflow node?
 - How should trajectory evaluation differ between graph Workflow nodes and
   conversational agent transfers?
+- How should task delegation fallback and retry budgets interact with graph
+  node retry?
+- How should remote A2A specialists preserve the same typed isolation and
+  completion contracts?
 - How should stored Workflow Events migrate when a node is renamed, removed or
   split?
 - Which durable Session service and idempotency contract are sufficient for
@@ -123,6 +147,9 @@ coordinator-selected delegation.
 - [`docs/workflows/deterministic-workflows.md`](docs/workflows/deterministic-workflows.md)
 - [`docs/learning-notes/phase-2-workflows.md`](docs/learning-notes/phase-2-workflows.md)
 - [`patterns/deterministic-workflow.md`](patterns/deterministic-workflow.md)
+- [`docs/multi-agent/specialist-boundaries.md`](docs/multi-agent/specialist-boundaries.md)
+- [`docs/learning-notes/phase-3-multi-agent.md`](docs/learning-notes/phase-3-multi-agent.md)
+- [`patterns/bounded-specialist.md`](patterns/bounded-specialist.md)
 
 ## Environment Notes
 
@@ -130,9 +157,11 @@ coordinator-selected delegation.
 - `uv` is not installed.
 - Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
   `/tmp/adk-python` commit.
-- `make verify` passes: repository invariants plus 20 offline tests.
-- `make verify-adk` passes: 20 ADK-backed tests plus both trace renderers.
+- `make verify` passes: repository invariants plus 27 offline tests.
+- `make verify-adk` passes: 30 ADK-backed tests plus three trace renderers.
 - `make verify-workflows` passes: 12 ADK-backed tests plus a 79 KB JSON
+  evidence bundle.
+- `make verify-multi-agent` passes: 10 ADK-backed tests plus a 35,991-byte JSON
   evidence bundle.
 - Live-model execution remains unverified until credentials are configured.
 - Lab 02 recreates Runner/root objects but retains one
@@ -142,9 +171,11 @@ coordinator-selected delegation.
 
 ## Next Actions
 
-1. Inspect pinned `LlmAgent` modes, transfer logic, node wrappers and Task API.
-2. Select one bounded specialist capability and define a common contract.
-3. Implement function/node, `single_turn`, transfer and coordinator variants.
-4. Inject specialist failure, overlapping responsibility and shared-state
-   conflict.
-5. Compare model calls, context isolation, event trajectory and recovery.
+1. Inspect `State`, instruction/context providers, artifact services and memory
+   APIs at the pinned runtime.
+2. Define one datum set with explicit writer, reader, lifecycle and retention.
+3. Implement prompt-only, Session-state, artifact and memory variants.
+4. Inject stale state, oversized context, cross-user leakage and deletion/TTL
+   failures.
+5. Compare request contents, persisted deltas, artifact references and
+   cross-session recall.

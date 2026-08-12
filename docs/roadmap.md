@@ -95,7 +95,8 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | Phase 1B Tool boundary | Complete for local/source scope | Generated schemas, ToolContext state and failure recovery |
 | Phase 1C Execution model | Local baseline complete | Success, continuation, missing-session and failure traces; invocation resumption deferred |
 | Phase 2 Workflow engineering | Local/runtime baseline complete | Equivalent business rules, routed loop, retry, failure, output and resume traces |
-| Phase 3 Multi-agent systems | Next | Deterministic node versus specialist/delegation comparison |
+| Phase 3 Multi-agent systems | Local/scripted baseline complete | Function, single-turn, transfer and task lifecycles under failure and conflict |
+| Phase 4 State, context and memory | Next | Prompt, Session, artifact and cross-session ownership comparison |
 
 The Phase 1 live-model gate remains open, but it is not a dependency for
 deterministic Workflow semantics.
@@ -224,21 +225,62 @@ Evidence:
 
 ### Phase 3: Multi-Agent Systems
 
-Next hypothesis:
+Status: complete for local scripted-model scope. Live-model routing quality,
+remote A2A and durable task execution remain later integration gates.
 
-> A specialist should be an Agent only when it needs an independent reasoning
-> boundary, identity or conversational lifecycle; deterministic capabilities
-> remain functions or Workflow nodes.
+Hypothesis:
+
+> A specialist should be an Agent only when it needs an independent reasoning,
+> isolation or conversational boundary; deterministic capabilities remain
+> functions or Workflow nodes.
 
 Comparative experiment:
 
 - hold one specialist capability constant;
 - implement it as a function, a `single_turn` Agent node, conversational
-  transfer and coordinator-selected delegate;
+  transfer and coordinator-selected task delegate;
 - compare schema, context isolation, state ownership, event trajectory,
   failure propagation and model-call cost;
 - break responsibility boundaries through overlapping tools and shared-state
   writes.
+
+Observed:
+
+- all four boundaries stored the same typed case-triage decision;
+- model request counts were 0, 1, 2 and 3 respectively;
+- transfer kept the specialist active on the next user turn;
+- task delegation isolated the child by function-call ID and returned a
+  synthesized function response to the coordinator;
+- invalid `finish_task` output remained in the child loop and recovered;
+- a hard child model failure propagated without automatic fallback;
+- indistinguishable specialist declarations permitted a domain-wrong choice;
+- two specialists writing one state key produced silent last-writer-wins.
+
+Evidence:
+
+- `docs/multi-agent/specialist-boundaries.md`
+- `docs/learning-notes/phase-3-multi-agent.md`
+- `labs/03-multi-agent`
+- `patterns/bounded-specialist.md`
+
+### Phase 4: State, Context and Memory
+
+Next hypothesis:
+
+> Data should be placed according to lifecycle and ownership: current model
+> input in prompt context, invocation/session facts in typed state, large
+> payloads in artifacts and intentionally retained cross-session knowledge in
+> memory.
+
+Comparative experiment:
+
+- hold one user-support task constant;
+- vary prompt context, Session state, artifact and memory placement;
+- measure request contents, state deltas, artifact references and cross-session
+  recall;
+- break isolation with stale state, oversized context, foreign-user memory and
+  deletion/TTL gaps;
+- define explicit writer, reader, retention and conflict policy for each datum.
 
 ## Later Phase Design Questions
 

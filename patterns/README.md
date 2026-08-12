@@ -17,3 +17,5 @@ Current candidates:
 
 - [`deterministic-workflow.md`](deterministic-workflow.md): code-owned sequence,
   fan-out, retry, loop termination and resume.
+- [`bounded-specialist.md`](bounded-specialist.md): typed, isolated,
+  coordinator-owned delegation with explicit responsibility and state bounds.
