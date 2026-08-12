@@ -1,98 +1,113 @@
 # Bounded Specialist
 
-Status: candidate, validated locally against pinned ADK 2.6.3.
+Status: `validated`.
+
+Portability: `version-specific`.
+
+Canonical manifest:
+[`manifests/bounded-specialist.json`](manifests/bounded-specialist.json).
 
 ## Problem
 
-A coordinator needs semantic work that is too independent for a normal
-function, but unconstrained multi-agent delegation would blur responsibility,
-state ownership and failure handling.
+A coordinator needs independent semantic work, but unconstrained multi-agent
+delegation would blur responsibility, context, state and failure ownership.
+
+## Context
+
+Use this pattern when a capability needs independent model reasoning, distinct
+tools or policy, isolated context, or explicit conversation ownership.
+
+## Forces
+
+- Each specialist adds model calls, Events and failure states.
+- Schema-valid output can still violate business invariants.
+- Transfer and task completion create different conversation lifecycles.
+
+## Decision
+
+Choose function, single-turn, transfer or task mode from ownership
+requirements. Bound a true specialist with typed input/output, deterministic
+post-validation, explicit failure ownership and namespaced state.
 
 ## Architecture
 
 ```text
 coordinator
   -> typed task request
-  -> specialist with narrow instruction/tools and isolated scope
+  -> isolated specialist reasoning
   -> typed completion
   -> deterministic domain validation
   -> coordinator synthesis
 ```
 
-Use conversational transfer instead only when the specialist should own future
-user turns.
+Conversational transfer replaces the return edge only when the specialist
+should own future user turns.
+
+## Observable Contract
+
+| ID | Contract |
+|---|---|
+| `typed-completion` | The coordinator receives a typed result and validates domain invariants before synthesis. |
+| `context-isolation` | Task and single-turn specialists receive bounded input rather than unrelated history. |
+| `ownership-mode` | Transfer owns future conversation; task mode returns completion to the coordinator. |
+| `state-boundary` | Specialist outputs use distinct keys or an explicit merge policy. |
 
 ## When To Use
 
-- the work requires independent model reasoning;
-- the specialist needs a distinct tool or policy boundary;
-- context should be isolated from unrelated conversation;
-- the coordinator needs a typed result before continuing;
+- independent model reasoning is required;
+- tools or policy need a distinct boundary;
+- unrelated conversation context should be excluded;
+- a coordinator needs a typed result before continuing;
 - specialist trajectory and failure must remain observable.
 
 ## When Not To Use
 
 - a deterministic function expresses the capability;
-- a single semantic Workflow node is sufficient;
+- one semantic Workflow node is sufficient;
 - specialist descriptions overlap;
-- shared state has no ownership or merge policy;
+- shared state has no owner or merge rule;
 - delegation only adds a model call before the same deterministic result.
 
-## Why
+## Implementation
 
-The boundary makes responsibility, input, output, context and completion
-explicit while retaining coordinator ownership of the user-facing response.
-
-## Alternatives
-
-- pure function or `FunctionNode`;
-- `single_turn` Agent node;
-- chat-mode transfer;
-- direct `AgentTool`;
-- external service or remote A2A Agent;
-- deterministic router plus one selected specialist.
-
-## Trade-Offs
-
-- at least one child model call plus coordinator calls;
-- more Event and failure states;
-- schema validation still needs domain validation;
-- task isolation does not provide fallback automatically;
-- recursive task delegation is limited in the pinned runtime;
-- state keys and operational budgets must be partitioned.
+1. Use task mode for coordinator-owned results.
+2. Use transfer only for specialist-owned future turns.
+3. Disable parent and peer transfer on bounded task specialists.
+4. Define `input_schema`, `output_schema` and post-output domain validation.
+5. Namespace `output_key` or merge outputs explicitly.
+6. Define hard-failure fallback outside the specialist.
 
 ## Failure Modes
 
-- two specialists with indistinguishable charters;
-- model selects a schema-compatible but semantically wrong specialist;
-- hard child failure aborts without an explicit fallback route;
-- multiple children overwrite one Session state key;
-- task Agent can transfer out of its intended boundary;
-- coordinator summarizes before validated task completion;
-- final-answer eval ignores delegation trajectory.
+| ID | Failure |
+|---|---|
+| `overlapping-charters` | Two model-visible specialists are indistinguishable and the wrong one is selected. |
+| `hard-failure-without-route` | An unhandled child model failure aborts the coordinator without fallback. |
+| `shared-state-overwrite` | Multiple specialists silently overwrite one Session key. |
+| `transfer-escape` | A bounded task specialist transfers outside its responsibility. |
 
-## ADK Implementation
+## Counterexamples
 
-- `LlmAgent(mode="task")` with `input_schema` and `output_schema`;
-- attach it through the coordinator's `sub_agents`;
-- `FinishTaskTool` for validated completion;
-- function-call ID as task run ID and isolation scope;
-- `disallow_transfer_to_parent=True`;
-- `disallow_transfer_to_peers=True`;
-- namespaced `output_key` or explicit merge node;
-- deterministic post-output invariant validator.
+Use a function for deterministic capability. Use one single-turn node when
+separate conversational ownership and task delegation add no contract value.
 
-## Primary Sources
+## ADK Versions
 
-- pinned `LlmAgent`, `AgentTool` and transfer processor;
-- pinned LLM Agent Workflow wrapper and `FinishTaskTool`;
-- pinned Task API E2E tests;
-- R06 financial-advisor specialist composition.
+- ADK 2.6.3 `chat`, `single_turn`, `task` and `FinishTaskTool` behavior is
+  validated.
+- Direct ADK 1.x `AgentTool` composition remains comparative legacy evidence.
 
-See [`../references/source-index.md`](../references/source-index.md).
+## Evidence
 
-## Minimal Example
+- Source and claim-level links:
+  [`manifests/bounded-specialist.json`](manifests/bounded-specialist.json)
+- Architecture analysis:
+  [`../docs/multi-agent/specialist-boundaries.md`](../docs/multi-agent/specialist-boundaries.md)
+- Executable evidence:
+  [`../labs/03-multi-agent`](../labs/03-multi-agent/)
 
-See
-[`../labs/03-multi-agent/multi_agent_lab/builders.py`](../labs/03-multi-agent/multi_agent_lab/builders.py)
-and its runtime tests.
+## Rejected Decisions
+
+`agent-for-deterministic-capability`: reject creating a specialist for work that
+a typed function or deterministic Workflow node can perform without independent
+reasoning or ownership.

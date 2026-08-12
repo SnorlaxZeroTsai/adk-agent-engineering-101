@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0",
+  "id": "replaceable-production-envelope",
+  "name": "Replaceable Production Envelope",
+  "status": "validated",
+  "portability": "portable",
+  "doc": "patterns/replaceable-production-envelope.md",
+  "summary": "Keep Agent behavior target-independent while configuration, secrets, telemetry, deployment and rollback remain separately owned replaceable contracts.",
+  "context": [
+    "One Agent must move through local, staging and one or more production targets.",
+    "Promotion and rollback need more evidence than a successful deploy command."
+  ],
+  "forces": [
+    "Typed lifecycle metadata costs more than one manifest but clarifies ownership.",
+    "Strict drift detection interrupts convenient imperative changes.",
+    "Rollback actions differ across platform capabilities."
+  ],
+  "decision": [
+    "Separate Agent contract, behavior gate, runtime config, secret refs, deployment spec and release record.",
+    "Promote the exact immutable artifact and behavior report tested in staging.",
+    "Standardize release evidence while keeping target-native rollback execution."
+  ],
+  "implementation": [
+    "Render target-independent Agent and behavior artifacts separately from target overlays.",
+    "Reject secret material in plain environment configuration and unmanaged live drift.",
+    "Govern trace content and full prompt-response capture as separate sinks.",
+    "Append source, artifact, spec, eval, platform and previous-release evidence after deployment."
+  ],
+  "observable_contract": [
+    {
+      "id": "target-independent-behavior",
+      "statement": "Changing deployment target leaves Agent source and behavior-gate artifacts byte-equivalent.",
+      "evidence": [
+        "source:scaffold-layering",
+        "lab:production-render"
+      ]
+    },
+    {
+      "id": "secret-and-drift-boundary",
+      "statement": "Remote config contains secret references rather than material and blocks unmanaged live drift.",
+      "evidence": [
+        "source:deploy-utils",
+        "lab:production-policy"
+      ]
+    },
+    {
+      "id": "telemetry-content-separation",
+      "statement": "Trace content and full prompt-response capture have independent approval, sink and retention policy.",
+      "evidence": [
+        "source:observability-skill",
+        "lab:production-policy"
+      ]
+    },
+    {
+      "id": "immutable-release-history",
+      "statement": "Production points to the tested artifact, behavior report, prior release and target-specific rollback action.",
+      "evidence": [
+        "source:deploy-metadata",
+        "lab:production-release"
+      ]
+    }
+  ],
+  "failure_modes": [
+    {
+      "id": "plain-env-secret",
+      "statement": "A secret is copied through .env as ordinary configuration even if command output is redacted.",
+      "evidence": [
+        "source:deploy-utils",
+        "lab:production-policy"
+      ]
+    },
+    {
+      "id": "silent-live-drift",
+      "statement": "Merge-style update preserves an out-of-band runtime value without reviewed desired state.",
+      "evidence": [
+        "source:agent-runtime-update",
+        "lab:production-policy"
+      ]
+    },
+    {
+      "id": "current-metadata-as-ledger",
+      "statement": "Mutable current-resource metadata is mistaken for immutable artifact, promotion and rollback history.",
+      "evidence": [
+        "source:deploy-metadata",
+        "lab:production-release"
+      ]
+    },
+    {
+      "id": "universal-rollback-fiction",
+      "statement": "One generic rollback command hides a target that only supports restore and redeploy.",
+      "evidence": [
+        "source:deploy-skill",
+        "lab:production-release"
+      ]
+    }
+  ],
+  "counterexamples": [
+    {
+      "context": "A disposable local tutorial has no remote users, retained state or release lifecycle.",
+      "preferred": "Use the minimal local run path without a production release ledger."
+    },
+    {
+      "context": "Targets have materially different deployment capabilities.",
+      "preferred": "Share evidence and policy but keep separate target-native adapters."
+    }
+  ],
+  "adk_versions": [
+    {
+      "version": "Agents CLI 5a306f8",
+      "support": "validated",
+      "notes": "Manifest, scaffold, deploy, metadata and observability source contracts were compared with the offline envelope."
+    },
+    {
+      "version": "Agent Starter Pack 659f047",
+      "support": "comparative",
+      "notes": "Maintenance-mode template composition and generated CI remain rendered-project lifecycle evidence."
+    }
+  ],
+  "source_evidence": [
+    {
+      "id": "scaffold-layering",
+      "ref": "https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/scaffold/utils/template.py",
+      "claim": "Current scaffold composes shared, language, target and Agent overlays."
+    },
+    {
+      "id": "deploy-utils",
+      "ref": "https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/deploy/_utils.py",
+      "claim": "Deploy utilities copy project .env, apply explicit precedence and redact displayed Cloud Run commands."
+    },
+    {
+      "id": "agent-runtime-update",
+      "ref": "https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/deploy/agent_runtime.py",
+      "claim": "Agent Runtime update preserves unspecified live plain environment values."
+    },
+    {
+      "id": "deploy-metadata",
+      "ref": "https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/deploy/_operation.py",
+      "claim": "Mutable local metadata stores one pending operation or current resource and treats corruption as empty."
+    },
+    {
+      "id": "deploy-skill",
+      "ref": "https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/skills/google-agents-cli-deploy/SKILL.md",
+      "claim": "Rollback differs among Cloud Run traffic shift, GKE rollout undo and Agent Runtime redeploy."
+    },
+    {
+      "id": "observability-skill",
+      "ref": "https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/skills/google-agents-cli-observability/SKILL.md",
+      "claim": "Trace content and full prompt-response completion uploads are separate telemetry paths."
+    }
+  ],
+  "lab_evidence": [
+    {
+      "id": "production-render",
+      "path": "labs/08-production-engineering/tests/test_production_contract.py",
+      "claim": "Local, Cloud Run and Agent Runtime retain identical Agent and behavior artifacts with bounded target diffs."
+    },
+    {
+      "id": "production-policy",
+      "path": "labs/08-production-engineering/tests/test_production_contract.py",
+      "claim": "Tests block plaintext secrets, full-content telemetry, target mismatch and preserved live drift."
+    },
+    {
+      "id": "production-release",
+      "path": "labs/08-production-engineering/tests/test_production_contract.py",
+      "claim": "Tests enforce staging promotion, previous release history and target-specific rollback plans."
+    }
+  ],
+  "rejected_decisions": [
+    {
+      "id": "deploy-success-as-release-proof",
+      "decision": "Treat a successful deploy and current resource ID as sufficient promotion and rollback evidence.",
+      "reason": "They do not identify immutable source, artifact, behavior report, prior release or recovery action.",
+      "replacement": "Append immutable release evidence and generate a target-native rollback plan."
+    }
+  ]
+}

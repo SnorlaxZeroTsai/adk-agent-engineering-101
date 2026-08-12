@@ -27,3 +27,6 @@ Current labs:
 - [`08-production-engineering`](08-production-engineering/): replaceable
   runtime/deployment renders, secret and telemetry policy, release promotion,
   drift and target-specific rollback.
+- [`09-pattern-catalog`](09-pattern-catalog/): canonical pattern manifests,
+  claim-level evidence, relation boundaries and deliberate invalid catalog
+  gates.

@@ -1,0 +1,171 @@
+{
+  "schema_version": "1.0",
+  "id": "durable-approval-boundary",
+  "name": "Durable Approval Boundary",
+  "status": "validated",
+  "portability": "portable",
+  "doc": "patterns/durable-approval-boundary.md",
+  "summary": "Bind human authorization to an immutable action request and enforce external idempotency independently from framework resume.",
+  "context": [
+    "A tool or Workflow node can create an irreversible, regulated or financially consequential effect.",
+    "Approval can expire, be replayed or arrive from the wrong principal."
+  ],
+  "forces": [
+    "A scoped approval envelope and ledger cost more than a confirmation boolean.",
+    "Durable storage and partial-commit recovery become production dependencies.",
+    "Exact request binding can require reapproval after a material edit."
+  ],
+  "decision": [
+    "Treat ADK confirmation or RequestInput as interrupt transport, not authorization.",
+    "Validate approver, action scope, request digest, policy version, decision and expiry before execution.",
+    "Enforce one external effect per action ID in the side-effect service."
+  ],
+  "implementation": [
+    "Construct and hash the immutable action request before interrupting.",
+    "Authenticate the approval channel outside the model.",
+    "Persist decision and effect evidence separately.",
+    "Test fresh-object resume, rejection, expiry, tampering and later-run replay."
+  ],
+  "observable_contract": [
+    {
+      "id": "scoped-authorization",
+      "statement": "Approval binds authenticated approver, action ID/type, full request digest, policy version and expiry.",
+      "evidence": [
+        "source:confirmation-schema",
+        "lab:approval-negative-cases"
+      ]
+    },
+    {
+      "id": "pre-effect-enforcement",
+      "statement": "Rejected or invalid approval cannot call the side-effect service.",
+      "evidence": [
+        "source:tool-order",
+        "lab:approval-negative-cases"
+      ]
+    },
+    {
+      "id": "fresh-object-resume",
+      "statement": "A valid response resumes with fresh runtime objects and executes exactly one approved action.",
+      "evidence": [
+        "source:confirmation-resume",
+        "lab:approval-resume"
+      ]
+    },
+    {
+      "id": "external-idempotency",
+      "statement": "Later-run confirmation replay can re-enter the tool but one action ID produces at most one external effect.",
+      "evidence": [
+        "source:confirmation-resume",
+        "lab:approval-replay"
+      ]
+    }
+  ],
+  "failure_modes": [
+    {
+      "id": "prompt-only-confirmation",
+      "statement": "Natural-language instructions ask the model to wait but do not prevent the tool call.",
+      "evidence": [
+        "source:tool-order",
+        "lab:approval-policy"
+      ]
+    },
+    {
+      "id": "after-tool-enforcement",
+      "statement": "An after-tool filter hides output but cannot undo the external effect.",
+      "evidence": [
+        "source:tool-order",
+        "lab:approval-policy"
+      ]
+    },
+    {
+      "id": "unscoped-boolean",
+      "statement": "confirmed=true carries no approver identity, request integrity, policy version or expiry.",
+      "evidence": [
+        "source:confirmation-schema",
+        "lab:approval-negative-cases"
+      ]
+    },
+    {
+      "id": "session-dedup",
+      "statement": "Session history or consumed confirmation state is mistaken for side-effect idempotency.",
+      "evidence": [
+        "source:confirmation-resume",
+        "lab:approval-replay"
+      ]
+    }
+  ],
+  "counterexamples": [
+    {
+      "context": "A reversible low-risk read has a deterministic authorization policy.",
+      "preferred": "Apply the authorization rule directly without human approval."
+    },
+    {
+      "context": "The tool is over-privileged or accepts unsafe arguments.",
+      "preferred": "Reduce privilege and validate arguments; approval is not a substitute."
+    }
+  ],
+  "adk_versions": [
+    {
+      "version": "2.6.3",
+      "support": "validated",
+      "notes": "FunctionTool ToolConfirmation and Workflow RequestInput pause/resume were exercised at the pinned commit."
+    },
+    {
+      "version": "other runtimes",
+      "support": "not-validated",
+      "notes": "The authorization envelope and idempotency contract are portable; interrupt and replay transport need adapter tests."
+    }
+  ],
+  "source_evidence": [
+    {
+      "id": "confirmation-schema",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/tool_confirmation.py",
+      "claim": "ToolConfirmation carries confirmed, hint and payload but no approver identity, request digest or expiry."
+    },
+    {
+      "id": "tool-order",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/flows/llm_flows/functions.py",
+      "claim": "Before-tool replacement can prevent execution while after-tool replacement occurs after the tool effect."
+    },
+    {
+      "id": "confirmation-resume",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/flows/llm_flows/request_confirmation.py",
+      "claim": "Confirmation resume validates original call identity and arguments before re-executing the tool."
+    },
+    {
+      "id": "workflow-hitl",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/workflow/utils/_workflow_hitl_utils.py",
+      "claim": "Workflow HITL transports RequestInput interrupts and resume responses at node scope."
+    }
+  ],
+  "lab_evidence": [
+    {
+      "id": "approval-negative-cases",
+      "path": "labs/07-safety-hitl/runtime_tests/test_safety_hitl.py",
+      "claim": "Rejected, expired, unauthorized and tampered approvals produce zero side effects."
+    },
+    {
+      "id": "approval-resume",
+      "path": "labs/07-safety-hitl/runtime_tests/test_safety_hitl.py",
+      "claim": "Fresh Agent and Runner objects resume one valid approved payment."
+    },
+    {
+      "id": "approval-replay",
+      "path": "labs/07-safety-hitl/runtime_tests/test_safety_hitl.py",
+      "claim": "Later-run replay re-enters the tool while the external ledger retains one effect."
+    },
+    {
+      "id": "approval-policy",
+      "path": "labs/07-safety-hitl/runtime_tests/test_safety_hitl.py",
+      "claim": "Prompt-only and after-tool variants demonstrate enforcement that occurs too late or not at all."
+    }
+  ],
+  "rejected_decisions": [
+    {
+      "id": "framework-confirmation-as-authorization",
+      "decision": "Treat ToolConfirmation confirmed=true as a complete business authorization.",
+      "reason": "The transport does not authenticate the approver, bind policy scope or guarantee external idempotency.",
+      "replacement": "Validate a scoped application approval envelope and execute through an action-ID idempotent service."
+    }
+  ]
+}

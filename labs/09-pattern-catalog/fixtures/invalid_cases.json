@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "id": "missing-lab-link",
+      "scope": "manifest",
+      "target": "deterministic-workflow",
+      "operation": "set",
+      "path": [
+        "observable_contract",
+        0,
+        "evidence"
+      ],
+      "value": [
+        "source:workflow-runtime"
+      ],
+      "expected_code": "claim_evidence_kinds_missing"
+    },
+    {
+      "id": "dangling-evidence-reference",
+      "scope": "manifest",
+      "target": "bounded-specialist",
+      "operation": "set",
+      "path": [
+        "failure_modes",
+        0,
+        "evidence"
+      ],
+      "value": [
+        "source:not-defined",
+        "lab:specialist-conflicts"
+      ],
+      "expected_code": "evidence_ref_unknown"
+    },
+    {
+      "id": "invalid-maturity-status",
+      "scope": "manifest",
+      "target": "data-lifecycle-placement",
+      "operation": "set",
+      "path": [
+        "status"
+      ],
+      "value": "stable",
+      "expected_code": "status_invalid"
+    },
+    {
+      "id": "unpinned-primary-source",
+      "scope": "manifest",
+      "target": "evidence-preserving-rag",
+      "operation": "set",
+      "path": [
+        "source_evidence",
+        0,
+        "ref"
+      ],
+      "value": "https://github.com/google/adk-python/blob/main/src/google/adk/tools/vertex_ai_search_tool.py",
+      "expected_code": "source_not_pinned"
+    },
+    {
+      "id": "unknown-full-length-source-commit",
+      "scope": "manifest",
+      "target": "evidence-preserving-rag",
+      "operation": "set",
+      "path": [
+        "source_evidence",
+        0,
+        "ref"
+      ],
+      "value": "https://github.com/google/adk-python/blob/0000000000000000000000000000000000000000/src/google/adk/tools/vertex_ai_search_tool.py",
+      "expected_code": "source_commit_not_locked"
+    },
+    {
+      "id": "unknown-source-repository",
+      "scope": "manifest",
+      "target": "evidence-preserving-rag",
+      "operation": "set",
+      "path": [
+        "source_evidence",
+        0,
+        "ref"
+      ],
+      "value": "https://github.com/example/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/vertex_ai_search_tool.py",
+      "expected_code": "source_repository_not_locked"
+    },
+    {
+      "id": "missing-counterexample-field",
+      "scope": "manifest",
+      "target": "behavior-contract-gate",
+      "operation": "remove",
+      "path": [
+        "counterexamples"
+      ],
+      "expected_code": "required_field_missing"
+    },
+    {
+      "id": "missing-lab-evidence-path",
+      "scope": "manifest",
+      "target": "durable-approval-boundary",
+      "operation": "set",
+      "path": [
+        "lab_evidence",
+        0,
+        "path"
+      ],
+      "value": "labs/07-safety-hitl/runtime_tests/does_not_exist.py",
+      "expected_code": "lab_path_missing"
+    },
+    {
+      "id": "no-rejected-decision",
+      "scope": "manifest",
+      "target": "replaceable-production-envelope",
+      "operation": "set",
+      "path": [
+        "rejected_decisions"
+      ],
+      "value": [],
+      "expected_code": "array_empty"
+    },
+    {
+      "id": "unknown-relation-target",
+      "scope": "catalog",
+      "operation": "set",
+      "path": [
+        "relations",
+        0,
+        "target"
+      ],
+      "value": "unknown-pattern",
+      "expected_code": "relation_pattern_unknown"
+    },
+    {
+      "id": "duplicate-pattern-index",
+      "scope": "catalog",
+      "operation": "append",
+      "path": [
+        "patterns"
+      ],
+      "value": {
+        "id": "deterministic-workflow",
+        "manifest": "patterns/manifests/deterministic-workflow.json"
+      },
+      "expected_code": "catalog_pattern_duplicate"
+    },
+    {
+      "id": "version-specific-without-validated-version",
+      "scope": "manifest",
+      "target": "bounded-specialist",
+      "operation": "set",
+      "path": [
+        "adk_versions",
+        0,
+        "support"
+      ],
+      "value": "comparative",
+      "expected_code": "version_specific_unvalidated"
+    }
+  ]
+}

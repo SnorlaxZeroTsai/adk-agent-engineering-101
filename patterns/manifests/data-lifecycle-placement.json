@@ -1,0 +1,180 @@
+{
+  "schema_version": "1.0",
+  "id": "data-lifecycle-placement",
+  "name": "Data Lifecycle Placement",
+  "status": "validated",
+  "portability": "portable",
+  "doc": "patterns/data-lifecycle-placement.md",
+  "summary": "Place each datum from explicit writer, reader, scope, freshness, retention and deletion requirements rather than prompt convenience.",
+  "context": [
+    "An Agent combines transient context with Session, user, app or cross-session data.",
+    "Large payload, tenancy, freshness, retention or deletion requirements exist."
+  ],
+  "forces": [
+    "Transient context is cheap to govern but must be supplied every invocation.",
+    "State is convenient but needs schema, conflict and freshness policy.",
+    "Artifacts add explicit I/O; memory adds ingestion, retrieval and deletion ownership."
+  ],
+  "decision": [
+    "Use invocation context for small transient data, state for small mutable process facts, artifacts for large versioned payloads and memory for intentional cross-session recall.",
+    "Define writer, readers, scope, freshness, retention and deletion before selecting an ADK surface."
+  ],
+  "implementation": [
+    "Pass per-invocation data through model_input_context.",
+    "Validate scoped state keys before mutation and namespace independent writers.",
+    "Load versioned artifacts only when the model needs their content.",
+    "Make memory ingestion, identity filtering and deletion propagation explicit service policies."
+  ],
+  "observable_contract": [
+    {
+      "id": "transient-is-not-persisted",
+      "statement": "Invocation context is model-visible for one run and absent from Session state and history.",
+      "evidence": [
+        "source:model-input-context",
+        "lab:placement-baselines"
+      ]
+    },
+    {
+      "id": "state-scope-is-explicit",
+      "statement": "Session, user, app and temporary state have distinct materialization and persistence behavior.",
+      "evidence": [
+        "source:state-materialization",
+        "lab:state-scope"
+      ]
+    },
+    {
+      "id": "artifact-is-versioned-on-demand",
+      "statement": "Large payloads retain artifact version and scope and enter model context only after explicit load.",
+      "evidence": [
+        "source:artifact-service",
+        "lab:artifact-lifecycle"
+      ]
+    },
+    {
+      "id": "memory-has-separate-lifecycle",
+      "statement": "Cross-session recall requires explicit ingestion and identity-scoped search independent of source Session deletion.",
+      "evidence": [
+        "source:memory-service",
+        "lab:memory-lifecycle"
+      ]
+    }
+  ],
+  "failure_modes": [
+    {
+      "id": "stale-or-repeated-context",
+      "statement": "State remains stale or a large transient payload is resent on every invocation.",
+      "evidence": [
+        "source:model-input-context",
+        "lab:context-breaks"
+      ]
+    },
+    {
+      "id": "scoped-state-bypasses-schema",
+      "statement": "Prefixed user or app state bypasses Agent state_schema validation.",
+      "evidence": [
+        "source:state-materialization",
+        "lab:state-scope"
+      ]
+    },
+    {
+      "id": "session-delete-assumption",
+      "statement": "Deleting a Session is assumed to delete retained memory or user-scoped artifacts.",
+      "evidence": [
+        "source:memory-service",
+        "lab:memory-lifecycle"
+      ]
+    },
+    {
+      "id": "cross-user-recall",
+      "statement": "A memory adapter ignores app or user identity and returns another principal's data.",
+      "evidence": [
+        "source:memory-service",
+        "lab:memory-isolation"
+      ]
+    }
+  ],
+  "counterexamples": [
+    {
+      "context": "A pure local function receives all data as normal parameters and nothing crosses an invocation.",
+      "preferred": "Use ordinary function parameters without an Agent data abstraction."
+    },
+    {
+      "context": "A current deterministic lookup belongs in a transactional system of record.",
+      "preferred": "Use a database or API tool rather than long-term Agent memory."
+    }
+  ],
+  "adk_versions": [
+    {
+      "version": "2.6.3",
+      "support": "validated",
+      "notes": "RunConfig context, state scopes, artifact versions and memory ingestion/search were exercised at the pinned commit."
+    },
+    {
+      "version": "other runtimes",
+      "support": "not-validated",
+      "notes": "The placement decision is portable, but concrete namespaces and deletion APIs require adapter-specific validation."
+    }
+  ],
+  "source_evidence": [
+    {
+      "id": "model-input-context",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/run_config.py",
+      "claim": "RunConfig adds per-invocation model contents without writing Session history."
+    },
+    {
+      "id": "state-materialization",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/sessions/_session_util.py",
+      "claim": "Session utilities separate app, user, session and temporary state deltas."
+    },
+    {
+      "id": "artifact-service",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/artifacts/base_artifact_service.py",
+      "claim": "Artifact service defines versioned save, load, list and delete operations with distinct namespaces."
+    },
+    {
+      "id": "memory-service",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/memory/base_memory_service.py",
+      "claim": "Memory requires explicit ingestion and app/user-scoped search but has no portable delete contract."
+    }
+  ],
+  "lab_evidence": [
+    {
+      "id": "placement-baselines",
+      "path": "labs/04-context-and-memory/runtime_tests/test_context_memory.py",
+      "claim": "Transient context, state, artifact and memory variants produce the same scripted answer with different persistence."
+    },
+    {
+      "id": "state-scope",
+      "path": "labs/04-context-and-memory/runtime_tests/test_context_memory.py",
+      "claim": "Tests expose scope lifetimes and prefixed-key schema bypass."
+    },
+    {
+      "id": "artifact-lifecycle",
+      "path": "labs/04-context-and-memory/runtime_tests/test_context_memory.py",
+      "claim": "Artifact scope, version, delete and explicit model visibility are verified."
+    },
+    {
+      "id": "memory-lifecycle",
+      "path": "labs/04-context-and-memory/runtime_tests/test_context_memory.py",
+      "claim": "Memory survives source Session deletion and remains separate from new Session state."
+    },
+    {
+      "id": "context-breaks",
+      "path": "labs/04-context-and-memory/runtime_tests/test_context_memory.py",
+      "claim": "Tests expose stale state and repeated 20 KB transient context."
+    },
+    {
+      "id": "memory-isolation",
+      "path": "labs/04-context-and-memory/runtime_tests/test_context_memory.py",
+      "claim": "A deliberately broken adapter leaks Alice's memory to Bob."
+    }
+  ],
+  "rejected_decisions": [
+    {
+      "id": "one-opaque-state-blob",
+      "decision": "Store every datum in one Session state blob and inject it into every prompt.",
+      "reason": "Scope, freshness, token cost, retention and deletion become implicit and coupled.",
+      "replacement": "Select context, state, artifact or memory from an explicit lifecycle contract."
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "schema_version": "1.0",
+  "patterns": [
+    {
+      "id": "deterministic-workflow",
+      "manifest": "patterns/manifests/deterministic-workflow.json"
+    },
+    {
+      "id": "bounded-specialist",
+      "manifest": "patterns/manifests/bounded-specialist.json"
+    },
+    {
+      "id": "data-lifecycle-placement",
+      "manifest": "patterns/manifests/data-lifecycle-placement.json"
+    },
+    {
+      "id": "evidence-preserving-rag",
+      "manifest": "patterns/manifests/evidence-preserving-rag.json"
+    },
+    {
+      "id": "behavior-contract-gate",
+      "manifest": "patterns/manifests/behavior-contract-gate.json"
+    },
+    {
+      "id": "durable-approval-boundary",
+      "manifest": "patterns/manifests/durable-approval-boundary.json"
+    },
+    {
+      "id": "replaceable-production-envelope",
+      "manifest": "patterns/manifests/replaceable-production-envelope.json"
+    }
+  ],
+  "relations": [
+    {
+      "source": "deterministic-workflow",
+      "type": "constrains",
+      "target": "bounded-specialist",
+      "reason": "Code-owned routing and termination surround bounded semantic specialist nodes."
+    },
+    {
+      "source": "data-lifecycle-placement",
+      "type": "constrains",
+      "target": "bounded-specialist",
+      "reason": "Specialist isolation requires explicit context and state ownership."
+    },
+    {
+      "source": "data-lifecycle-placement",
+      "type": "constrains",
+      "target": "evidence-preserving-rag",
+      "reason": "Retrieved chunks inherit source scope, retention and deletion contracts."
+    },
+    {
+      "source": "behavior-contract-gate",
+      "type": "verifies",
+      "target": "deterministic-workflow",
+      "reason": "Workflow route, retry, output and replay invariants need per-case evidence."
+    },
+    {
+      "source": "behavior-contract-gate",
+      "type": "verifies",
+      "target": "bounded-specialist",
+      "reason": "Delegation choice, state ownership and completion trajectory are release behavior."
+    },
+    {
+      "source": "behavior-contract-gate",
+      "type": "verifies",
+      "target": "data-lifecycle-placement",
+      "reason": "Scope, persistence, isolation and deletion are observable data contracts."
+    },
+    {
+      "source": "behavior-contract-gate",
+      "type": "verifies",
+      "target": "evidence-preserving-rag",
+      "reason": "Retrieval identity, ACL, lifecycle and citations require independent metrics."
+    },
+    {
+      "source": "behavior-contract-gate",
+      "type": "verifies",
+      "target": "durable-approval-boundary",
+      "reason": "Rejected and replayed actions must be tested as blocking safety cases."
+    },
+    {
+      "source": "durable-approval-boundary",
+      "type": "specializes",
+      "target": "deterministic-workflow",
+      "reason": "Consequential Workflow nodes add authorization and external idempotency to pause/resume."
+    },
+    {
+      "source": "replaceable-production-envelope",
+      "type": "depends-on",
+      "target": "behavior-contract-gate",
+      "reason": "Promotion binds the exact behavior report that passed before deployment."
+    },
+    {
+      "source": "replaceable-production-envelope",
+      "type": "depends-on",
+      "target": "data-lifecycle-placement",
+      "reason": "Remote topology must name durable Session, artifact and memory services."
+    }
+  ],
+  "decision_boundaries": [
+    {
+      "id": "control-owner",
+      "patterns": [
+        "deterministic-workflow",
+        "bounded-specialist"
+      ],
+      "tension": "A model can choose semantic work, but fixed ordering, retry and termination must remain predictable.",
+      "resolution": "Keep policy in Workflow edges and use a specialist only for bounded independent reasoning.",
+      "rejected_decision": "Use an LLM coordinator for a route that is already a deterministic business rule."
+    },
+    {
+      "id": "data-versus-retrieval",
+      "patterns": [
+        "data-lifecycle-placement",
+        "evidence-preserving-rag"
+      ],
+      "tension": "Artifacts, memory and retrieval can all make data model-visible but have different lifecycle owners.",
+      "resolution": "Choose storage by scope and retention; add RAG only when ranked evidence and citations are required.",
+      "rejected_decision": "Put every large or cross-session datum into a vector index."
+    },
+    {
+      "id": "enforcement-versus-evaluation",
+      "patterns": [
+        "behavior-contract-gate",
+        "durable-approval-boundary"
+      ],
+      "tension": "Evaluation detects unsafe behavior after execution, while policy must prevent the effect before execution.",
+      "resolution": "Enforce authorization at runtime and use evaluation to prove the enforcement remains intact.",
+      "rejected_decision": "Treat a passing safety eval as the mechanism that blocks a consequential tool call."
+    },
+    {
+      "id": "resume-versus-idempotency",
+      "patterns": [
+        "deterministic-workflow",
+        "durable-approval-boundary"
+      ],
+      "tension": "Framework replay can restore control flow without guaranteeing one external effect.",
+      "resolution": "Persist replay evidence and enforce action-ID idempotency in the side-effect service.",
+      "rejected_decision": "Assume a resumed Session or consumed confirmation is a payment deduplication boundary."
+    },
+    {
+      "id": "behavior-versus-deployment",
+      "patterns": [
+        "behavior-contract-gate",
+        "replaceable-production-envelope"
+      ],
+      "tension": "Deployment targets differ, but the Agent behavior being promoted must not silently fork.",
+      "resolution": "Keep Agent and behavior contracts target-independent; vary only owned runtime and platform artifacts.",
+      "rejected_decision": "Encode target-specific behavior branches inside the Agent implementation."
+    }
+  ]
+}

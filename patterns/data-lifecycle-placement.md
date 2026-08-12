@@ -1,6 +1,11 @@
 # Data Lifecycle Placement
 
-Status: candidate, validated locally against pinned ADK 2.6.3.
+Status: `validated`.
+
+Portability: `portable`.
+
+Canonical manifest:
+[`manifests/data-lifecycle-placement.json`](manifests/data-lifecycle-placement.json).
 
 ## Problem
 
@@ -8,86 +13,100 @@ Agent data is placed in prompts, state, artifacts or memory without an explicit
 lifecycle, causing stale facts, repeated context, cross-user exposure or
 undeletable derived data.
 
-## Architecture
+## Context
 
-Classify every datum before implementation:
+Use this pattern when data crosses an invocation, Session or user boundary, or
+when payload size, freshness, tenancy, retention and deletion matter.
+
+## Forces
+
+- Transient context must be supplied on each invocation.
+- State needs schema, concurrency and freshness policy.
+- Artifact load adds I/O.
+- Memory adds ingestion, retrieval evaluation and deletion workflows.
+
+## Decision
+
+Choose placement from writer, readers, scope, freshness, retention and
+deletion:
 
 ```text
-invocation-only -> model_input_context
-small mutable process fact -> typed state
-large/versioned/on-demand payload -> artifact
+invocation-only                  -> model_input_context
+small mutable process fact       -> typed state
+large/versioned/on-demand data   -> artifact
 intentional cross-session recall -> memory
 ```
 
-Then define writer, readers, scope, freshness and deletion.
+## Architecture
+
+The application owns the placement decision and lifecycle policy. ADK context,
+state, artifact and memory services implement different visibility and
+persistence contracts rather than interchangeable storage APIs.
+
+## Observable Contract
+
+| ID | Contract |
+|---|---|
+| `transient-is-not-persisted` | Invocation context is model-visible for one run and absent from Session state/history. |
+| `state-scope-is-explicit` | Session, user, app and temporary state materialize and persist differently. |
+| `artifact-is-versioned-on-demand` | Large payloads retain artifact version/scope and enter context only after load. |
+| `memory-has-separate-lifecycle` | Recall requires ingestion and identity-scoped search independent of Session deletion. |
 
 ## When To Use
 
-- an Agent combines runtime context with persistent data;
-- the system has user/app/session tenancy;
-- documents or blobs exceed comfortable prompt size;
+- runtime context and persistent data coexist;
+- user/app/session tenancy matters;
+- blobs exceed comfortable prompt size;
 - prior conversations may be recalled;
 - deletion and retention obligations exist.
 
 ## When Not To Use
 
-- a local pure function receives all data as normal parameters;
-- no value crosses a function boundary or invocation;
-- the classification adds labels but no enforceable behavior.
+- a pure function receives all data through normal parameters;
+- no value crosses an invocation boundary;
+- a current lookup belongs in a transactional system of record.
 
-## Why
+## Implementation
 
-Each ADK surface has a different visibility and persistence contract. Explicit
-placement prevents storage choice from silently defining model context or
-retention.
-
-## Alternatives
-
-- external database with application-owned context builder;
-- document store plus retrieval service;
-- external workflow engine variables;
-- provider-managed conversation history;
-- one opaque Session state blob.
-
-## Trade-Offs
-
-- callers must supply transient context each invocation;
-- state requires schema and conflict policy;
-- artifact load adds I/O or a tool/model round trip;
-- memory adds ingestion, retrieval evaluation and deletion workflows;
-- cross-scope state prefixes need validation outside `state_schema`.
+1. Pass small transient values through `model_input_context`.
+2. Validate scoped state before mutation and namespace independent writers.
+3. Save large payloads as versioned artifacts and load them on demand.
+4. Ingest memory explicitly.
+5. Apply app/user identity in memory search.
+6. Orchestrate retention and deletion beyond Session lifecycle.
 
 ## Failure Modes
 
-- stale state contradicts current user input;
-- large context is resent on every turn;
-- artifact content is assumed token-free after load;
-- memory is searched before ingestion;
-- Session deletion is assumed to delete memory;
-- custom memory adapter ignores app/user identity;
-- `user:` or `app:` state bypasses schema validation;
-- user-scoped artifacts are used for session-private data.
+| ID | Failure |
+|---|---|
+| `stale-or-repeated-context` | State remains stale or large transient context is resent every turn. |
+| `scoped-state-bypasses-schema` | Prefixed user/app state bypasses Agent `state_schema`. |
+| `session-delete-assumption` | Session deletion is assumed to delete memory or user artifacts. |
+| `cross-user-recall` | A memory adapter ignores identity and returns another principal's data. |
 
-## ADK Implementation
+## Counterexamples
 
-- `RunConfig.model_input_context`;
-- string instruction placeholders or callable `InstructionProvider`;
-- unprefixed, `user:`, `app:` and `temp:` state keys;
-- `BaseArtifactService` with explicit versions and namespaces;
-- `BaseMemoryService` ingestion plus `load_memory` or `preload_memory`;
-- application-level retention and deletion orchestration.
+Use function parameters when nothing persists. Use a database or API tool for
+current deterministic records rather than treating Agent memory as a system of
+record.
 
-## Primary Sources
+## ADK Versions
 
-- pinned content and instruction processors;
-- pinned State and Session services;
-- pinned artifact services and Context methods;
-- pinned memory services and memory tools.
+- ADK 2.6.3 context, state, artifact and memory behavior is validated.
+- The placement decision is portable; concrete namespaces and deletion APIs
+  require runtime-specific adapters.
 
-See [`../references/source-index.md`](../references/source-index.md).
+## Evidence
 
-## Minimal Example
+- Source and claim-level links:
+  [`manifests/data-lifecycle-placement.json`](manifests/data-lifecycle-placement.json)
+- Architecture analysis:
+  [`../docs/context/data-lifecycle.md`](../docs/context/data-lifecycle.md)
+- Executable evidence:
+  [`../labs/04-context-and-memory`](../labs/04-context-and-memory/)
 
-See
-[`../labs/04-context-and-memory/context_memory_lab/runtime.py`](../labs/04-context-and-memory/context_memory_lab/runtime.py)
-and its runtime tests.
+## Rejected Decisions
+
+`one-opaque-state-blob`: reject placing every datum in one Session state object
+and injecting it into every prompt. Select context, state, artifact or memory
+from an explicit lifecycle contract.

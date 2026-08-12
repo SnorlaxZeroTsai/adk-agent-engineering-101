@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0",
+  "id": "bounded-specialist",
+  "name": "Bounded Specialist",
+  "status": "validated",
+  "portability": "version-specific",
+  "doc": "patterns/bounded-specialist.md",
+  "summary": "Use a specialist Agent only for independent reasoning or conversation ownership, with typed input, completion, context and state bounds.",
+  "context": [
+    "A coordinator needs semantic work that is too independent for a normal function.",
+    "The specialist requires distinct tools, policy, context isolation or conversational ownership."
+  ],
+  "forces": [
+    "A specialist adds model calls, Events and failure states.",
+    "Schema validation does not prove domain correctness or responsibility fit.",
+    "Conversational transfer and coordinator-owned task completion are different lifecycles."
+  ],
+  "decision": [
+    "Choose function, single-turn, transfer or task mode from ownership requirements rather than from naming preference.",
+    "Use typed specialist input/output and deterministic domain validation.",
+    "Namespace specialist state and define an explicit failure/fallback owner."
+  ],
+  "implementation": [
+    "Use task mode for coordinator-owned typed results and transfer for specialist-owned future turns.",
+    "Disable parent and peer transfer on bounded task specialists.",
+    "Use namespaced output keys or an explicit merge node.",
+    "Validate cross-field business invariants after schema-valid completion."
+  ],
+  "observable_contract": [
+    {
+      "id": "typed-completion",
+      "statement": "The coordinator receives a typed specialist result before synthesis and applies domain validation.",
+      "evidence": [
+        "source:finish-task",
+        "lab:specialist-baselines"
+      ]
+    },
+    {
+      "id": "context-isolation",
+      "statement": "Single-turn and task specialists receive bounded input instead of unrelated coordinator history.",
+      "evidence": [
+        "source:workflow-wrapper",
+        "lab:specialist-isolation"
+      ]
+    },
+    {
+      "id": "ownership-mode",
+      "statement": "Transfer gives the specialist future conversation ownership while task mode returns completion to the coordinator.",
+      "evidence": [
+        "source:agent-transfer",
+        "lab:specialist-trajectories"
+      ]
+    },
+    {
+      "id": "state-boundary",
+      "statement": "Specialist outputs use distinct state keys or an explicit merge policy.",
+      "evidence": [
+        "source:llm-agent-modes",
+        "lab:specialist-conflicts"
+      ]
+    }
+  ],
+  "failure_modes": [
+    {
+      "id": "overlapping-charters",
+      "statement": "Two model-visible specialists have indistinguishable descriptions and the model selects the wrong one.",
+      "evidence": [
+        "source:llm-agent-modes",
+        "lab:specialist-conflicts"
+      ]
+    },
+    {
+      "id": "hard-failure-without-route",
+      "statement": "An unhandled child model failure aborts the coordinator because no fallback owner exists.",
+      "evidence": [
+        "source:workflow-wrapper",
+        "lab:specialist-failures"
+      ]
+    },
+    {
+      "id": "shared-state-overwrite",
+      "statement": "Multiple specialists silently overwrite one Session state key.",
+      "evidence": [
+        "source:llm-agent-modes",
+        "lab:specialist-conflicts"
+      ]
+    },
+    {
+      "id": "transfer-escape",
+      "statement": "A bounded task specialist transfers to a parent or peer outside its intended responsibility.",
+      "evidence": [
+        "source:agent-transfer",
+        "lab:specialist-isolation"
+      ]
+    }
+  ],
+  "counterexamples": [
+    {
+      "context": "A deterministic function produces the same result without independent reasoning.",
+      "preferred": "Use a function or FunctionNode."
+    },
+    {
+      "context": "One semantic step does not need separate conversation ownership.",
+      "preferred": "Use a single-turn Agent node rather than a coordinator and task delegate."
+    }
+  ],
+  "adk_versions": [
+    {
+      "version": "2.6.3",
+      "support": "validated",
+      "notes": "chat, single_turn and task modes plus FinishTaskTool were exercised at the pinned commit."
+    },
+    {
+      "version": "1.x AgentTool samples",
+      "support": "comparative",
+      "notes": "Direct AgentTool composition is legacy comparison evidence and does not share the current Task API lifecycle."
+    }
+  ],
+  "source_evidence": [
+    {
+      "id": "llm-agent-modes",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/llm_agent.py",
+      "claim": "LlmAgent modes determine automatic transfer, single-turn and task wrappers."
+    },
+    {
+      "id": "workflow-wrapper",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/workflow/_llm_agent_wrapper.py",
+      "claim": "The wrapper defines input isolation, task dispatch and synthesized completion."
+    },
+    {
+      "id": "finish-task",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/llm/task/_finish_task_tool.py",
+      "claim": "FinishTaskTool validates typed completion and keeps invalid output inside the child loop."
+    },
+    {
+      "id": "agent-transfer",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/flows/llm_flows/agent_transfer.py",
+      "claim": "Transfer eligibility excludes task and single-turn children and changes conversation ownership."
+    }
+  ],
+  "lab_evidence": [
+    {
+      "id": "specialist-baselines",
+      "path": "labs/03-multi-agent/runtime_tests/test_multi_agent.py",
+      "claim": "Function, single-turn, transfer and task variants materialize the same typed domain decision."
+    },
+    {
+      "id": "specialist-isolation",
+      "path": "labs/03-multi-agent/runtime_tests/test_multi_agent.py",
+      "claim": "Tests verify isolated task input, disabled task transfer and transfer-owned follow-up."
+    },
+    {
+      "id": "specialist-trajectories",
+      "path": "labs/03-multi-agent/runtime_tests/test_multi_agent.py",
+      "claim": "Event trajectories distinguish transfer ownership from task completion."
+    },
+    {
+      "id": "specialist-conflicts",
+      "path": "labs/03-multi-agent/runtime_tests/test_multi_agent.py",
+      "claim": "Tests expose overlapping responsibility and silent shared-state last-writer-wins."
+    },
+    {
+      "id": "specialist-failures",
+      "path": "labs/03-multi-agent/runtime_tests/test_multi_agent.py",
+      "claim": "An unhandled specialist failure propagates without automatic coordinator fallback."
+    }
+  ],
+  "rejected_decisions": [
+    {
+      "id": "agent-for-deterministic-capability",
+      "decision": "Create a specialist Agent for a deterministic capability that needs no reasoning or ownership boundary.",
+      "reason": "It adds model cost and failure states without adding a meaningful contract.",
+      "replacement": "Use a typed function or deterministic Workflow node."
+    }
+  ]
+}

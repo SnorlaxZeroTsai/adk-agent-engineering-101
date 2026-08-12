@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/adk-agent-engineering-101/pattern.schema.json",
+  "title": "Agent Engineering Pattern",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "name",
+    "status",
+    "portability",
+    "doc",
+    "summary",
+    "context",
+    "forces",
+    "decision",
+    "implementation",
+    "observable_contract",
+    "failure_modes",
+    "counterexamples",
+    "adk_versions",
+    "source_evidence",
+    "lab_evidence",
+    "rejected_decisions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "candidate",
+        "validated",
+        "rejected"
+      ]
+    },
+    "portability": {
+      "enum": [
+        "portable",
+        "version-specific"
+      ]
+    },
+    "doc": {
+      "type": "string",
+      "pattern": "^patterns/[a-z0-9-]+\\.md$"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context": {
+      "$ref": "#/$defs/nonEmptyStrings"
+    },
+    "forces": {
+      "$ref": "#/$defs/nonEmptyStrings"
+    },
+    "decision": {
+      "$ref": "#/$defs/nonEmptyStrings"
+    },
+    "implementation": {
+      "$ref": "#/$defs/nonEmptyStrings"
+    },
+    "observable_contract": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/evidencedClaim"
+      }
+    },
+    "failure_modes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/evidencedClaim"
+      }
+    },
+    "counterexamples": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "context",
+          "preferred"
+        ],
+        "properties": {
+          "context": {
+            "type": "string",
+            "minLength": 1
+          },
+          "preferred": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "adk_versions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "support",
+          "notes"
+        ],
+        "properties": {
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "support": {
+            "enum": [
+              "validated",
+              "comparative",
+              "not-validated"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "source_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/sourceEvidence"
+      }
+    },
+    "lab_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/labEvidence"
+      }
+    },
+    "rejected_decisions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "decision",
+          "reason",
+          "replacement"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "decision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "replacement": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "nonEmptyStrings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "evidenceRef": {
+      "type": "string",
+      "pattern": "^(source|lab):[a-z][a-z0-9-]*$"
+    },
+    "evidencedClaim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "statement",
+        "evidence"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/evidenceRef"
+          }
+        }
+      }
+    },
+    "sourceEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "ref",
+        "claim"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^https://github\\.com/"
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "labEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "claim"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^labs/"
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

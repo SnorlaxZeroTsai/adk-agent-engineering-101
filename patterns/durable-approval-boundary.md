@@ -1,110 +1,111 @@
 # Durable Approval Boundary
 
-Status: candidate pattern, observed in Phase 7 local/scripted experiments.
+Status: `validated`.
+
+Portability: `portable`.
+
+Canonical manifest:
+[`manifests/durable-approval-boundary.json`](manifests/durable-approval-boundary.json).
 
 ## Problem
 
-A model can ignore a prompt that asks it to wait. A boolean confirmation can
-also be replayed, expire, come from the wrong principal or authorize different
-arguments than the ones eventually executed.
+A model can ignore a prompt asking it to wait. A boolean confirmation can be
+replayed, expire, come from the wrong principal or authorize different
+arguments from those eventually executed.
 
 ## Context
 
 Use this pattern when a tool or Workflow node can create an irreversible,
 regulated or financially consequential effect.
 
+## Forces
+
+- A scoped envelope and ledger cost more than a confirmation boolean.
+- Durable storage and partial-commit recovery become production dependencies.
+- Exact request binding can require reapproval after a material edit.
+
+## Decision
+
+Treat framework confirmation as interrupt transport, not authorization. Bind
+an authenticated approval to the immutable action request, validate it before
+execution, and enforce action-ID idempotency in the external effect service.
+
 ## Architecture
 
 ```text
 immutable action request
-  -> policy says approval is required
-  -> runtime emits interrupt
-  -> authenticated approver returns scoped envelope
-  -> application validates identity/scope/hash/time/policy
-  -> idempotent side-effect service executes by action ID
-  -> decision and effect evidence persist separately
+  -> approval-required policy
+  -> runtime interrupt
+  -> authenticated scoped approval envelope
+  -> identity/scope/hash/time/policy validation
+  -> action-ID idempotent effect
+  -> separate decision and effect evidence
 ```
 
-ADK confirmation or `RequestInput` transports the interrupt and response. The
-application owns authorization. The external system owns effect idempotency.
+## Observable Contract
 
-## Invariants
+| ID | Contract |
+|---|---|
+| `scoped-authorization` | Approval binds approver, action ID/type, request digest, policy and expiry. |
+| `pre-effect-enforcement` | Rejected or invalid approval cannot call the side-effect service. |
+| `fresh-object-resume` | Fresh runtime objects resume one valid approved action. |
+| `external-idempotency` | Later replay can re-enter the tool but cannot repeat the effect. |
 
-- Approval identifies an authenticated approver.
-- Approval names one action ID and action type.
-- Approval binds every consequential argument through a stable digest.
-- Decision, policy version, issue time and expiry are explicit.
-- Rejection or validation failure cannot call the side-effect service.
-- One action ID can produce at most one external effect.
-- Replayed responses remain observable but harmless.
-- Approval payloads contain no raw credential.
+## When To Use
 
-## Forces
+- effects are irreversible or regulated;
+- a human must authorize exact consequential arguments;
+- resume and replay are expected;
+- audit evidence must separate decision from execution.
 
-- More envelope and ledger code than a simple confirmation boolean.
-- Better auditability and deterministic negative tests.
-- Durable storage and atomicity become production dependencies.
-- Short expiry reduces stale authorization but increases operator friction.
-- Exact request binding can require reapproval after any material edit.
+## When Not To Use
+
+- a reversible low-risk read has deterministic authorization;
+- approval is being used to compensate for an over-privileged tool;
+- the approval channel cannot authenticate or authorize the approver.
 
 ## Implementation
 
-1. Construct the immutable action request before interrupting.
-2. Compute a canonical digest over all consequential fields.
-3. Choose tool-level confirmation or node-level `RequestInput`.
-4. Authenticate the approval channel outside the model.
-5. Validate envelope schema without truthy coercion.
-6. Fail closed on identity, scope, digest, policy or time mismatch.
-7. Persist decision evidence before/with execution.
-8. Execute through a service that enforces action-ID idempotency.
-9. Test fresh-object resume, rejection, expiry, tampering and replay.
-10. Add the action contract to a per-case release gate.
+1. Construct and hash the immutable action request.
+2. Choose tool-level confirmation or node-level `RequestInput`.
+3. Authenticate the approval channel outside the model.
+4. Validate schema without truthy coercion.
+5. Fail closed on identity, scope, digest, policy or time mismatch.
+6. Persist decision evidence.
+7. Execute through an action-ID idempotent service.
+8. Test rejection, expiry, tampering, fresh resume and replay.
 
 ## Failure Modes
 
-- Natural-language "ask first" instruction.
-- `confirmed=true` without approver identity.
-- Approval for amount A reused for amount B.
-- `after_tool` filter expected to undo an external effect.
-- Session-only dedup used as payment idempotency.
-- Credential or access token embedded in the approval payload.
-- Approval UI protected by authentication but not authorization scope.
-- Durable checkpoint committed separately from a non-idempotent side effect.
+| ID | Failure |
+|---|---|
+| `prompt-only-confirmation` | Natural-language instructions do not prevent the call. |
+| `after-tool-enforcement` | Output masking occurs after the external effect. |
+| `unscoped-boolean` | `confirmed=true` has no identity, request binding or expiry. |
+| `session-dedup` | Session state is mistaken for external idempotency. |
 
 ## Counterexamples
 
-Do not add human approval to a reversible, low-risk read operation when a
-deterministic authorization rule is sufficient.
+Apply deterministic authorization directly to low-risk reads. Reduce tool
+privilege and validate arguments even when human approval is present.
 
-Do not use approval to compensate for an over-privileged tool. Apply least
-privilege and argument validation even after approval.
+## ADK Versions
 
-## Trade-Offs
-
-- Higher implementation and storage cost.
-- Explicit ownership across runtime, policy and external service.
-- Reliable replay and retry behavior.
-- Stronger audit and evaluation evidence.
-- Additional recovery design for partial commits and process failure.
+- ADK 2.6.3 `ToolConfirmation` and Workflow `RequestInput` are validated.
+- The authorization envelope is portable; interrupt transport needs
+  runtime-specific replay tests.
 
 ## Evidence
 
-Lab 07 observed:
+- Source and claim-level links:
+  [`manifests/durable-approval-boundary.json`](manifests/durable-approval-boundary.json)
+- Architecture analysis:
+  [`../docs/safety/safety-and-hitl.md`](../docs/safety/safety-and-hitl.md)
+- Executable evidence:
+  [`../labs/07-safety-hitl`](../labs/07-safety-hitl/)
 
-- prompt-only payment executed once;
-- `before_tool` blocked before execution;
-- `after_tool` masking occurred after one effect;
-- rejected, expired, unauthorized and tampered approvals produced zero effects;
-- fresh Runner resume executed one approved payment;
-- later-run replay re-entered the tool but retained one ledger effect;
-- node-level `RequestInput` used the same approval contract;
-- the prompt-only variant failed the cross-phase release gate.
+## Rejected Decisions
 
-## Sources
-
-- ADK `BasePlugin` and `PluginManager`
-- ADK `FunctionTool`, `ToolConfirmation` and confirmation processor
-- ADK `RequestInput` and Workflow HITL utilities
-- `safety-plugins` and `ambient-expense-agent` recipes
-- [`../docs/safety/safety-and-hitl.md`](../docs/safety/safety-and-hitl.md)
-- [`../labs/07-safety-hitl`](../labs/07-safety-hitl/)
+`framework-confirmation-as-authorization`: reject treating `confirmed=true` as
+complete business authorization. Validate a scoped envelope and execute through
+an idempotent effect service.

@@ -1,0 +1,171 @@
+{
+  "schema_version": "1.0",
+  "id": "evidence-preserving-rag",
+  "name": "Evidence-Preserving RAG",
+  "status": "validated",
+  "portability": "portable",
+  "doc": "patterns/evidence-preserving-rag.md",
+  "summary": "Preserve source identity, version, ACL and citation evidence through ingestion, retrieval, generation and evaluation.",
+  "context": [
+    "An Agent answers from managed Search, Vector Search or a custom index.",
+    "Source lifecycle, authorization and citation fidelity matter independently of fluent final text."
+  ],
+  "forces": [
+    "Managed services reduce ingestion code but hide some reconciliation behavior.",
+    "Explicit pipelines increase control and operational responsibility.",
+    "Structured provenance increases payload size but enables audit and lifecycle checks."
+  ],
+  "decision": [
+    "Apply trusted access filters before ranking and top-k.",
+    "Return structured hits with stable source, version, chunk and locator identity.",
+    "Evaluate retrieval, lifecycle, answer and citations as separate contracts."
+  ],
+  "implementation": [
+    "Version source, parser, chunker and index schema.",
+    "Give chunks deterministic IDs and reconcile obsolete versions and deletions.",
+    "Generate citations only from the current retrieval response.",
+    "Require abstention on no-hit cases and block stale, deleted or unauthorized evidence."
+  ],
+  "observable_contract": [
+    {
+      "id": "provenance-survives",
+      "statement": "Every model-visible hit retains document, version, chunk, locator and authorization identity.",
+      "evidence": [
+        "source:explicit-search-tool",
+        "lab:rag-provenance"
+      ]
+    },
+    {
+      "id": "acl-before-ranking",
+      "statement": "Trusted principal filters are applied before ranking and top-k results become model-visible.",
+      "evidence": [
+        "source:native-search-tool",
+        "lab:rag-acl"
+      ]
+    },
+    {
+      "id": "lifecycle-reconciliation",
+      "statement": "Current retrieval excludes obsolete versions and deleted sources after explicit reconciliation.",
+      "evidence": [
+        "source:vector-ingestion",
+        "lab:rag-lifecycle"
+      ]
+    },
+    {
+      "id": "separate-grounding-gates",
+      "statement": "Retrieval identity, answer facts, citation fidelity and abstention receive independent verdicts.",
+      "evidence": [
+        "source:sample-eval-gap",
+        "lab:rag-evaluation"
+      ]
+    }
+  ],
+  "failure_modes": [
+    {
+      "id": "prompt-only-acl",
+      "statement": "Authorization is described in prompt text or applied after top-k rather than enforced in retrieval.",
+      "evidence": [
+        "source:native-search-tool",
+        "lab:rag-acl"
+      ]
+    },
+    {
+      "id": "anonymous-chunk-text",
+      "statement": "The retriever returns formatted text without source identity and the answer remains uncitable.",
+      "evidence": [
+        "source:explicit-search-tool",
+        "lab:rag-provenance"
+      ]
+    },
+    {
+      "id": "create-only-ingestion",
+      "statement": "Stable create IDs avoid duplicates but leave stale versions or deleted chunks searchable.",
+      "evidence": [
+        "source:vector-ingestion",
+        "lab:rag-lifecycle"
+      ]
+    },
+    {
+      "id": "response-only-eval",
+      "statement": "A generic judge accepts correct-looking text even when retrieval or citation evidence is invalid.",
+      "evidence": [
+        "source:sample-eval-gap",
+        "lab:rag-evaluation"
+      ]
+    }
+  ],
+  "counterexamples": [
+    {
+      "context": "A small deterministic and current lookup belongs in a transactional database or API.",
+      "preferred": "Use a normal tool rather than a retrieval index."
+    },
+    {
+      "context": "The product does not expose or rely on external evidence and provenance has no user or policy value.",
+      "preferred": "Use bounded model context or a deterministic service response."
+    }
+  ],
+  "adk_versions": [
+    {
+      "version": "2.6.3",
+      "support": "validated",
+      "notes": "Native Vertex AI Search request mutation and explicit FunctionTool retrieval trajectories were exercised with scripted models."
+    },
+    {
+      "version": "provider backends",
+      "support": "not-validated",
+      "notes": "Live relevance, latency, deletion propagation and monetary cost require backend-specific integration gates."
+    }
+  ],
+  "source_evidence": [
+    {
+      "id": "native-search-tool",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/vertex_ai_search_tool.py",
+      "claim": "VertexAiSearchTool injects provider-native data-store retrieval and filter configuration into the model request."
+    },
+    {
+      "id": "explicit-search-tool",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/tools/discovery_engine_search_tool.py",
+      "claim": "DiscoveryEngineSearchTool owns API calls, parsing and structured result serialization."
+    },
+    {
+      "id": "vector-ingestion",
+      "ref": "https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/rag-vector-search/data_ingestion/data_ingestion_pipeline/components/ingest_data.py",
+      "claim": "The explicit Vector Search recipe owns stable IDs and ingestion reconciliation behavior."
+    },
+    {
+      "id": "sample-eval-gap",
+      "ref": "https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/rag-agent-search/tests/eval/eval_config.yaml",
+      "claim": "The sample gate uses generic response quality and turn count without retrieval identity or citation thresholds."
+    }
+  ],
+  "lab_evidence": [
+    {
+      "id": "rag-provenance",
+      "path": "labs/05-rag-engineering/runtime_tests/test_rag_runtime.py",
+      "claim": "Provenance stripping preserves a correct answer but fails citation recall."
+    },
+    {
+      "id": "rag-acl",
+      "path": "labs/05-rag-engineering/runtime_tests/test_rag_runtime.py",
+      "claim": "Removing the native filter exposes an internal source to a public principal."
+    },
+    {
+      "id": "rag-lifecycle",
+      "path": "labs/05-rag-engineering/runtime_tests/test_rag_runtime.py",
+      "claim": "Tests detect stale versions and deletion-lag resurfacing."
+    },
+    {
+      "id": "rag-evaluation",
+      "path": "labs/05-rag-engineering/tests/test_retrieval.py",
+      "claim": "Offline gates separate retrieval, answer, citation and abstention verdicts."
+    }
+  ],
+  "rejected_decisions": [
+    {
+      "id": "citation-format-as-provenance",
+      "decision": "Accept a citation-looking URL generated by the model as proof of grounded retrieval.",
+      "reason": "Formatting does not prove the source was authorized, current or present in the invocation.",
+      "replacement": "Bind citations to exact structured hits returned by the current retriever."
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "schema_version": "1.0",
+  "id": "deterministic-workflow",
+  "name": "Deterministic Workflow",
+  "status": "validated",
+  "portability": "portable",
+  "doc": "patterns/deterministic-workflow.md",
+  "summary": "Keep ordering, routing, retry, termination and output ownership in code while bounding semantic model work inside typed nodes.",
+  "context": [
+    "Mandatory ordering, fan-out, retry, approval or loop invariants must survive model variation.",
+    "Execution path, failure and resume behavior must be observable."
+  ],
+  "forces": [
+    "Explicit control adds nodes and schemas but makes policy independently testable.",
+    "Replay requires stable node identity and idempotent external effects.",
+    "An external workflow engine may still own long-lived distributed durability."
+  ],
+  "decision": [
+    "Represent business control as graph edges and typed nodes.",
+    "Give every retry and terminal outcome one explicit owner.",
+    "Keep semantic model work bounded inside nodes rather than using it as the control plane."
+  ],
+  "implementation": [
+    "Use FunctionNode and typed join payloads for deterministic work.",
+    "Route success, rejection and loop exhaustion explicitly.",
+    "Persist Event evidence and make external side effects idempotent.",
+    "Delegate one logical output owner to avoid duplicate terminal Events."
+  ],
+  "observable_contract": [
+    {
+      "id": "explicit-control",
+      "statement": "Ordering, routing and terminal outcomes are visible in graph structure and Event node paths.",
+      "evidence": [
+        "source:workflow-runtime",
+        "lab:workflow-routes"
+      ]
+    },
+    {
+      "id": "typed-fan-in",
+      "statement": "A downstream node runs only after required branch outputs are joined into a typed payload.",
+      "evidence": [
+        "source:workflow-runtime",
+        "lab:workflow-routes"
+      ]
+    },
+    {
+      "id": "bounded-retry",
+      "statement": "One narrow node owns retry and emits observable failure evidence before recovery or exhaustion.",
+      "evidence": [
+        "source:node-runner",
+        "lab:workflow-failures"
+      ]
+    },
+    {
+      "id": "replay-safe-effects",
+      "statement": "Resume may re-surface output without repeating an external effect, and output ownership remains singular.",
+      "evidence": [
+        "source:replay-manager",
+        "lab:workflow-resume"
+      ]
+    }
+  ],
+  "failure_modes": [
+    {
+      "id": "implicit-exhaustion",
+      "statement": "A technical loop bound is treated as business success or rejection instead of an explicit route.",
+      "evidence": [
+        "source:legacy-loop",
+        "lab:workflow-failures"
+      ]
+    },
+    {
+      "id": "multiple-retry-owners",
+      "statement": "Framework, node and tool retries stack without one budget or idempotency owner.",
+      "evidence": [
+        "source:node-runner",
+        "lab:workflow-failures"
+      ]
+    },
+    {
+      "id": "state-output-conflict",
+      "statement": "Missing join state or duplicate parent and child outputs remain hidden until a downstream consumer fails.",
+      "evidence": [
+        "source:workflow-runtime",
+        "lab:workflow-routes"
+      ]
+    },
+    {
+      "id": "replay-incompatibility",
+      "statement": "Renamed nodes or non-idempotent side effects make historical Session replay unsafe.",
+      "evidence": [
+        "source:replay-manager",
+        "lab:workflow-resume"
+      ]
+    }
+  ],
+  "counterexamples": [
+    {
+      "context": "One deterministic operation has no branching, retry or persisted resume requirement.",
+      "preferred": "Use a normal function or service call."
+    },
+    {
+      "context": "The work is a single bounded semantic transformation.",
+      "preferred": "Use one single-turn Agent node with typed input and output."
+    }
+  ],
+  "adk_versions": [
+    {
+      "version": "2.6.3",
+      "support": "validated",
+      "notes": "Graph Workflow, FunctionNode, JoinNode, RetryConfig and replay were exercised at the pinned commit."
+    },
+    {
+      "version": "1.x legacy composites",
+      "support": "comparative",
+      "notes": "SequentialAgent, ParallelAgent and LoopAgent remain comparison evidence but have different parent-continuation semantics."
+    }
+  ],
+  "source_evidence": [
+    {
+      "id": "workflow-runtime",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/workflow/_workflow.py",
+      "claim": "Workflow schedules triggers, joins, routed loops, checkpoints and replay."
+    },
+    {
+      "id": "node-runner",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/workflow/_node_runner.py",
+      "claim": "NodeRunner owns node-local timeout, retry, error Event and output flushing."
+    },
+    {
+      "id": "replay-manager",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/workflow/utils/_replay_manager.py",
+      "claim": "ReplayManager reconstructs completed child executions from persisted Events."
+    },
+    {
+      "id": "legacy-loop",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/loop_agent.py",
+      "claim": "Legacy max_iterations is a technical execution bound rather than a domain outcome."
+    }
+  ],
+  "lab_evidence": [
+    {
+      "id": "workflow-routes",
+      "path": "labs/02-workflow-engineering/runtime_tests/test_workflow_comparison.py",
+      "claim": "Tests cover sequence, fan-out, join, loop routes, missing state and output delegation."
+    },
+    {
+      "id": "workflow-failures",
+      "path": "labs/02-workflow-engineering/runtime_tests/test_workflow_comparison.py",
+      "claim": "Tests distinguish node retry, legacy child failure and explicit loop exhaustion."
+    },
+    {
+      "id": "workflow-resume",
+      "path": "labs/02-workflow-engineering/runtime_tests/test_workflow_comparison.py",
+      "claim": "Fresh graph objects resume without repeating the external ledger effect."
+    }
+  ],
+  "rejected_decisions": [
+    {
+      "id": "llm-router-for-fixed-policy",
+      "decision": "Use an LLM coordinator to choose a route already defined by business policy.",
+      "reason": "Model variation makes mandatory ordering and terminal behavior non-deterministic.",
+      "replacement": "Encode fixed control in Workflow edges and reserve model calls for bounded semantic nodes."
+    }
+  ]
+}

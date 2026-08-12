@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0",
+  "id": "behavior-contract-gate",
+  "name": "Behavior Contract Gate",
+  "status": "validated",
+  "portability": "portable",
+  "doc": "patterns/behavior-contract-gate.md",
+  "summary": "Separate dataset, runtime evidence and grading, then block releases on every applicable deterministic case contract.",
+  "context": [
+    "An Agent release has tool, state, safety, retrieval, trajectory or cost behavior beyond final text quality.",
+    "One critical case must not be masked by an aggregate score."
+  ],
+  "forces": [
+    "Deterministic metrics are strict but require owned expected behavior.",
+    "Judge metrics cover semantics but are probabilistic and provenance-sensitive.",
+    "Full traces improve diagnosis while increasing retention and privacy burden."
+  ],
+  "decision": [
+    "Keep EvalDataset, TraceSet and SuiteReport as separate versioned artifacts.",
+    "Require complete case identity and per-case deterministic blockers.",
+    "Keep judge results advisory until calibration and failure policy are explicit."
+  ],
+  "implementation": [
+    "Generate evidence without assigning a verdict.",
+    "Preserve tool arguments, trajectory, state, errors, policy and domain evidence.",
+    "Fail closed on missing required evidence or NOT_EVALUATED metrics.",
+    "Map the final blocking report to a nonzero CI process status."
+  ],
+  "observable_contract": [
+    {
+      "id": "case-completeness",
+      "statement": "Generated trace case IDs exactly match the versioned input dataset.",
+      "evidence": [
+        "source:eval-case",
+        "lab:eval-contracts"
+      ]
+    },
+    {
+      "id": "per-case-blocking",
+      "statement": "Every applicable deterministic metric passes per case before the suite can pass.",
+      "evidence": [
+        "source:local-eval-service",
+        "lab:eval-broken-suite"
+      ]
+    },
+    {
+      "id": "stage-separation",
+      "statement": "Dataset, generated trace and grade report remain distinct serializable artifacts.",
+      "evidence": [
+        "source:agents-cli-paths",
+        "lab:eval-contracts"
+      ]
+    },
+    {
+      "id": "enforceable-exit",
+      "statement": "The baseline exits zero and a deliberately broken architecture suite exits nonzero.",
+      "evidence": [
+        "source:agents-cli-compare",
+        "lab:eval-exit"
+      ]
+    }
+  ],
+  "failure_modes": [
+    {
+      "id": "mean-masks-case",
+      "statement": "A mean score passes while one critical invocation or case violates its contract.",
+      "evidence": [
+        "source:trajectory-evaluator",
+        "lab:eval-broken-suite"
+      ]
+    },
+    {
+      "id": "partial-generation-passes",
+      "statement": "Failed inference cases are dropped and a partial TraceSet is still graded as complete.",
+      "evidence": [
+        "source:agents-cli-generate",
+        "lab:eval-contracts"
+      ]
+    },
+    {
+      "id": "judge-overrides-contract",
+      "statement": "A fluent judge score overrides deterministic tool, state, policy or retrieval failures.",
+      "evidence": [
+        "source:local-eval-service",
+        "lab:eval-broken-suite"
+      ]
+    },
+    {
+      "id": "diff-without-policy",
+      "statement": "Result comparison reports numeric deltas but does not define a release-blocking decision.",
+      "evidence": [
+        "source:agents-cli-compare",
+        "lab:eval-exit"
+      ]
+    }
+  ],
+  "counterexamples": [
+    {
+      "context": "Several trajectories are intentionally equivalent and owned state/effect outcomes are sufficient.",
+      "preferred": "Evaluate the stable outcome contract rather than an exact tool sequence."
+    },
+    {
+      "context": "A semantic judge has not been calibrated for drift, sampling or failure review.",
+      "preferred": "Keep it advisory and retain deterministic blockers for critical policy."
+    }
+  ],
+  "adk_versions": [
+    {
+      "version": "2.6.3",
+      "support": "validated",
+      "notes": "Cross-phase runtime traces were normalized from the pinned ADK Event and Session surfaces."
+    },
+    {
+      "version": "Agents CLI 5a306f8",
+      "support": "comparative",
+      "notes": "Dataset, generate, grade and compare lifecycle informed the artifact separation and policy gaps."
+    }
+  ],
+  "source_evidence": [
+    {
+      "id": "eval-case",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/evaluation/eval_case.py",
+      "claim": "EvalCase defines static/scenario cases, Session input and reduced invocation evidence."
+    },
+    {
+      "id": "local-eval-service",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/evaluation/local_eval_service.py",
+      "claim": "LocalEvalService separates inference, metric evaluation, invocation results and case status."
+    },
+    {
+      "id": "trajectory-evaluator",
+      "ref": "https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/evaluation/trajectory_evaluator.py",
+      "claim": "TrajectoryEvaluator compares exact tool calls and averages invocation scores."
+    },
+    {
+      "id": "agents-cli-paths",
+      "ref": "https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/eval/_paths.py",
+      "claim": "Agents CLI stores datasets, generated traces and graded results as separate lifecycle artifacts."
+    },
+    {
+      "id": "agents-cli-generate",
+      "ref": "https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/eval/cmd_generate.py",
+      "claim": "Trace generation records per-case inference failures but can complete with partial successful cases."
+    },
+    {
+      "id": "agents-cli-compare",
+      "ref": "https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/eval/cmd_compare.py",
+      "claim": "Compare produces recursive diffs and deltas without a release policy or blocking status."
+    }
+  ],
+  "lab_evidence": [
+    {
+      "id": "eval-contracts",
+      "path": "labs/06-evaluation/tests/test_evaluation_engine.py",
+      "claim": "Tests enforce dataset/trace identity, serialization and all-cases aggregation."
+    },
+    {
+      "id": "eval-broken-suite",
+      "path": "labs/06-evaluation/runtime_tests/test_cross_phase_gate.py",
+      "claim": "Six deliberate architecture breakages fail deterministic metrics while a scripted judge passes."
+    },
+    {
+      "id": "eval-exit",
+      "path": "labs/06-evaluation/scripts/run_eval_gate.py",
+      "claim": "The baseline returns zero and the broken suite returns one."
+    }
+  ],
+  "rejected_decisions": [
+    {
+      "id": "single-aggregate-score",
+      "decision": "Use one aggregate response-quality score as the release gate.",
+      "reason": "Compensation hides critical case failures and discards ownership of the failed dimension.",
+      "replacement": "Use per-case deterministic blockers plus separately reported aggregate and judge metrics."
+    }
+  ]
+}

@@ -8,16 +8,18 @@ LAB_05 := $(CURDIR)/labs/05-rag-engineering
 LAB_06 := $(CURDIR)/labs/06-evaluation
 LAB_07 := $(CURDIR)/labs/07-safety-hitl
 LAB_08 := $(CURDIR)/labs/08-production-engineering
+LAB_09 := $(CURDIR)/labs/09-pattern-catalog
 ADK_PYTHON ?= $(LAB_01)/.venv/bin/python
 
 .PHONY: verify verify-project test-lab-01 test-lab-02 test-lab-03 \
 	test-lab-04 test-lab-05 test-lab-06 bootstrap-adk verify-adk \
 	verify-workflows verify-multi-agent verify-context-memory verify-rag \
 	verify-evaluation test-lab-07 verify-safety-hitl test-lab-08 \
-	verify-production
+	verify-production test-lab-09 verify-pattern-catalog
 
 verify: verify-project test-lab-01 test-lab-02 test-lab-03 test-lab-04 \
-	test-lab-05 test-lab-06 test-lab-07 verify-production
+	test-lab-05 test-lab-06 test-lab-07 verify-production \
+	verify-pattern-catalog
 
 verify-project:
 	$(PYTHON) scripts/verify_project.py
@@ -60,6 +62,18 @@ verify-production: test-lab-08
 		! $(PYTHON) scripts/run_production_gate.py --variant broken >/dev/null
 	cd labs/08-production-engineering && \
 		$(PYTHON) scripts/run_production_traces.py >/dev/null
+
+test-lab-09:
+	cd labs/09-pattern-catalog && \
+		$(PYTHON) -m unittest discover -s tests -v
+
+verify-pattern-catalog: test-lab-09
+	cd labs/09-pattern-catalog && \
+		$(PYTHON) scripts/run_pattern_gate.py --variant baseline >/dev/null
+	cd labs/09-pattern-catalog && \
+		! $(PYTHON) scripts/run_pattern_gate.py --variant broken >/dev/null
+	cd labs/09-pattern-catalog && \
+		$(PYTHON) scripts/run_pattern_traces.py >/dev/null
 
 bootstrap-adk:
 	$(PYTHON) -m venv $(LAB_01)/.venv
