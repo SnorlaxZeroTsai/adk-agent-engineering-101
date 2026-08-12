@@ -4,8 +4,8 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Start Phase 4 by holding one support task constant and comparing prompt
-context, typed Session state, artifacts and cross-session memory.
+Start Phase 5 by holding one corpus and question set constant while comparing
+managed Search with explicit Vector Search ingestion and retrieval ownership.
 
 ## Completed
 
@@ -36,6 +36,14 @@ context, typed Session state, artifacts and cross-session memory.
 - Overlapping-responsibility and shared-state conflict experiments.
 - 7 Lab 03 offline tests and 10 ADK-backed multi-agent tests.
 - Second candidate pattern: bounded specialist.
+- Phase 4 source comparison of transient model context, instruction/state
+  assembly, state scopes, artifact services and memory services.
+- Lab 04 common support dossier across transient context, Session state,
+  explicit artifact loading and preloaded cross-session memory.
+- Stale-state, 20 KB context, state-scope, artifact lifecycle, memory
+  retention/deletion and intentional cross-user leakage experiments.
+- 6 Lab 04 offline tests and 13 ADK-backed context/memory tests.
+- Third candidate pattern: data lifecycle placement.
 
 ## Important Findings
 
@@ -86,6 +94,26 @@ context, typed Session state, artifacts and cross-session memory.
     business invariants.
 21. Two specialists writing one Session key produce silent last-writer-wins in
     the local runtime.
+22. `RunConfig.model_input_context` is per invocation and model-visible, but it
+    is not written to Session state or history.
+23. State key prefixes define app, user, Session and temporary lifecycles;
+    `temp:` deltas are visible during the invocation but trimmed before
+    persistence.
+24. Agent `state_schema` validates unprefixed state only. Keys containing a
+    scope prefix bypass that schema and require separate validation.
+25. Artifacts are versioned and Session-scoped by default; `user:` artifacts
+    cross Sessions for one user and must be loaded before the model can see
+    their payload.
+26. Explicit artifact loading kept a 20 KB payload out of unrelated model
+    requests, while transient context resent it on every invocation.
+27. Memory requires explicit ingestion. Deleting the source Session did not
+    remove retained memory, and the base memory contract has no portable
+    deletion API.
+28. Memory preload injects recall as dynamic instruction without copying the
+    source datum into the new Session state.
+29. Cross-user isolation is a memory-service responsibility. An adapter that
+    ignored request identity returned Alice's secret to Bob despite a valid
+    Agent and Runner configuration.
 
 ## Architecture Decisions
 
@@ -115,6 +143,14 @@ context, typed Session state, artifacts and cross-session memory.
 - Disable parent/peer transfer on bounded task specialists.
 - Validate domain invariants after typed specialist output.
 - Namespace specialist state or merge it explicitly.
+- Place data from an explicit writer, reader, scope, retention and deletion
+  contract rather than from prompt convenience.
+- Validate prefixed state before mutation because Agent `state_schema` does not
+  cover scoped keys.
+- Keep large payloads in artifacts and load them only for model requests that
+  need their content.
+- Treat memory ingestion, identity isolation and deletion propagation as
+  explicit service policies, separate from Session lifecycle.
 
 ## Unresolved Questions
 
@@ -133,6 +169,11 @@ context, typed Session state, artifacts and cross-session memory.
 - What minimum governance metadata is justified for the mini Agent Garden?
 - How should partial streaming events be consolidated and evaluated?
 - Which state scopes need optimistic concurrency in a durable Session service?
+- Which managed memory backends provide enforceable TTL, user deletion and
+  proof of deletion?
+- How should artifact and memory deletion propagate to cached model context,
+  indexes and evaluation fixtures?
+- Which retrieval quality and citation metrics should block a RAG regression?
 
 ## Relevant Sources
 
@@ -150,6 +191,9 @@ context, typed Session state, artifacts and cross-session memory.
 - [`docs/multi-agent/specialist-boundaries.md`](docs/multi-agent/specialist-boundaries.md)
 - [`docs/learning-notes/phase-3-multi-agent.md`](docs/learning-notes/phase-3-multi-agent.md)
 - [`patterns/bounded-specialist.md`](patterns/bounded-specialist.md)
+- [`docs/context/data-lifecycle.md`](docs/context/data-lifecycle.md)
+- [`docs/learning-notes/phase-4-context-memory.md`](docs/learning-notes/phase-4-context-memory.md)
+- [`patterns/data-lifecycle-placement.md`](patterns/data-lifecycle-placement.md)
 
 ## Environment Notes
 
@@ -157,12 +201,14 @@ context, typed Session state, artifacts and cross-session memory.
 - `uv` is not installed.
 - Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
   `/tmp/adk-python` commit.
-- `make verify` passes: repository invariants plus 27 offline tests.
-- `make verify-adk` passes: 30 ADK-backed tests plus three trace renderers.
+- `make verify` passes: repository invariants plus 33 offline tests.
+- `make verify-adk` passes: 43 ADK-backed tests plus four trace renderers.
 - `make verify-workflows` passes: 12 ADK-backed tests plus a 79 KB JSON
   evidence bundle.
 - `make verify-multi-agent` passes: 10 ADK-backed tests plus a 35,991-byte JSON
   evidence bundle.
+- `make verify-context-memory` passes: 13 ADK-backed tests plus a deterministic
+  28,792-byte JSON evidence bundle.
 - Live-model execution remains unverified until credentials are configured.
 - Lab 02 recreates Runner/root objects but retains one
   `InMemorySessionService`; it does not prove durable process recovery.
@@ -171,11 +217,12 @@ context, typed Session state, artifacts and cross-session memory.
 
 ## Next Actions
 
-1. Inspect `State`, instruction/context providers, artifact services and memory
-   APIs at the pinned runtime.
-2. Define one datum set with explicit writer, reader, lifecycle and retention.
-3. Implement prompt-only, Session-state, artifact and memory variants.
-4. Inject stale state, oversized context, cross-user leakage and deletion/TTL
-   failures.
-5. Compare request contents, persisted deltas, artifact references and
-   cross-session recall.
+1. Inspect managed Search, Vertex AI Search, Vector Search and retrieval-tool
+   contracts at pinned source versions.
+2. Define one versioned corpus, access policy and question/answer dataset.
+3. Implement managed and explicit ingestion/retrieval variants against the
+   same corpus.
+4. Record retrieved identities, relevance, groundedness, citations, latency
+   and measured cost.
+5. Inject stale documents, access-control violations, deletion lag and
+   retrieval misses before extracting a RAG pattern.

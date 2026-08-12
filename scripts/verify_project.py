@@ -17,14 +17,17 @@ REQUIRED_PATHS = (
     "docs/learning-notes/phase-1-foundations.md",
     "docs/learning-notes/phase-2-workflows.md",
     "docs/learning-notes/phase-3-multi-agent.md",
+    "docs/learning-notes/phase-4-context-memory.md",
     "docs/foundations/agent.md",
     "docs/foundations/tools.md",
     "docs/foundations/execution-model.md",
     "docs/workflows/deterministic-workflows.md",
     "docs/multi-agent/specialist-boundaries.md",
+    "docs/context/data-lifecycle.md",
     "patterns/README.md",
     "patterns/deterministic-workflow.md",
     "patterns/bounded-specialist.md",
+    "patterns/data-lifecycle-placement.md",
     "labs/README.md",
     "labs/01-agent-basics/README.md",
     "labs/01-agent-basics/agent_basics/runtime_trace.py",
@@ -41,6 +44,11 @@ REQUIRED_PATHS = (
     "labs/03-multi-agent/multi_agent_lab/builders.py",
     "labs/03-multi-agent/runtime_tests/test_multi_agent.py",
     "labs/03-multi-agent/scripts/run_multi_agent_traces.py",
+    "labs/04-context-and-memory/README.md",
+    "labs/04-context-and-memory/context_memory_lab/domain.py",
+    "labs/04-context-and-memory/context_memory_lab/runtime.py",
+    "labs/04-context-and-memory/runtime_tests/test_context_memory.py",
+    "labs/04-context-and-memory/scripts/run_context_memory_traces.py",
     "case-studies/README.md",
     "agent-garden/README.md",
     "mini-agent-garden/README.md",
@@ -87,7 +95,7 @@ def main() -> None:
     roadmap = (ROOT / "docs/roadmap.md").read_text(encoding="utf-8")
     if "ADK 1.x" not in roadmap or "ADK 2.0" not in roadmap:
         fail("roadmap must preserve the ADK 1.x/2.0 migration boundary")
-    if "Phase 4 State, context and memory | Next" not in roadmap:
+    if "Phase 5 RAG engineering | Next" not in roadmap:
         fail("roadmap does not point to the next architecture dependency")
 
     workflow_note = (
@@ -112,11 +120,22 @@ def main() -> None:
         if required_concept not in multi_agent_note:
             fail(f"multi-agent module lacks {required_concept!r}")
 
+    context_note = (ROOT / "docs/context/data-lifecycle.md").read_text(
+        encoding="utf-8"
+    )
+    for required_concept in (
+        "State Scopes",
+        "Large-Context Break",
+        "Cross-User Memory Break",
+    ):
+        if required_concept not in context_note:
+            fail(f"context module lacks {required_concept!r}")
+
     state = (ROOT / "PROJECT_STATE.md").read_text(encoding="utf-8")
     if "Next Actions" not in state or "Unresolved Questions" not in state:
         fail("PROJECT_STATE.md lacks continuation context")
 
-    print("PASS: project structure and Phase 0-3 artifacts verified")
+    print("PASS: project structure and Phase 0-4 artifacts verified")
 
 
 if __name__ == "__main__":

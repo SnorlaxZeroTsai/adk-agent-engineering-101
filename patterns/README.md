@@ -19,3 +19,5 @@ Current candidates:
   fan-out, retry, loop termination and resume.
 - [`bounded-specialist.md`](bounded-specialist.md): typed, isolated,
   coordinator-owned delegation with explicit responsibility and state bounds.
+- [`data-lifecycle-placement.md`](data-lifecycle-placement.md): context, state,
+  artifact and memory placement from explicit scope and retention requirements.

@@ -31,9 +31,9 @@ Agent boundary
   -> Tool contract
   -> App / Runner / Session / Event
   -> deterministic Workflow
+  -> multi-agent delegation
   -> state / context / artifacts
   -> long-term memory
-  -> multi-agent delegation
   -> retrieval and RAG
   -> evaluation
   -> safety and HITL
@@ -96,7 +96,8 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | Phase 1C Execution model | Local baseline complete | Success, continuation, missing-session and failure traces; invocation resumption deferred |
 | Phase 2 Workflow engineering | Local/runtime baseline complete | Equivalent business rules, routed loop, retry, failure, output and resume traces |
 | Phase 3 Multi-agent systems | Local/scripted baseline complete | Function, single-turn, transfer and task lifecycles under failure and conflict |
-| Phase 4 State, context and memory | Next | Prompt, Session, artifact and cross-session ownership comparison |
+| Phase 4 State, context and memory | Local/scripted baseline complete | Transient context, state scopes, artifact versions and memory isolation/deletion traces |
+| Phase 5 RAG engineering | Next | Same-corpus managed Search versus explicit Vector Search comparison |
 
 The Phase 1 live-model gate remains open, but it is not a dependency for
 deterministic Workflow semantics.
@@ -265,7 +266,10 @@ Evidence:
 
 ### Phase 4: State, Context and Memory
 
-Next hypothesis:
+Status: complete for in-memory scripted scope. Durable backends, managed Memory
+Bank retention and concurrent state updates remain later integration gates.
+
+Hypothesis:
 
 > Data should be placed according to lifecycle and ownership: current model
 > input in prompt context, invocation/session facts in typed state, large
@@ -281,6 +285,48 @@ Comparative experiment:
 - break isolation with stale state, oversized context, foreign-user memory and
   deletion/TTL gaps;
 - define explicit writer, reader, retention and conflict policy for each datum.
+
+Observed:
+
+- transient context, state and preloaded memory each used one model request;
+- explicit artifact loading used two model requests and exposed the payload
+  only to the request that needed it;
+- a 20 KB transient payload was resent on every turn, while the artifact
+  payload appeared in only one of three model requests;
+- state prefixes produced invocation, session, user and app lifecycles, while
+  `temp:` state was removed before persistence;
+- prefixed state keys bypassed the Agent's `state_schema`;
+- artifact versions, Session/user namespaces and deletion were observable;
+- memory required explicit ingestion, survived source-Session deletion and had
+  backend-specific TTL/deletion behavior;
+- an intentionally broken memory adapter leaked Alice's retained data to Bob,
+  proving identity scoping belongs at the service boundary.
+
+Evidence:
+
+- `docs/context/data-lifecycle.md`
+- `docs/learning-notes/phase-4-context-memory.md`
+- `labs/04-context-and-memory`
+- `patterns/data-lifecycle-placement.md`
+
+### Phase 5: RAG Engineering
+
+Next hypothesis:
+
+> Retrieval architecture should be chosen from ingestion ownership, access
+> control, deletion and evaluation requirements; generation quality cannot
+> compensate for retrieval misses or unsupported citations.
+
+Comparative experiment:
+
+- hold one versioned corpus and question set constant;
+- compare managed Search with explicit Vector Search ingestion and retrieval;
+- record chunk/document identity, retrieval relevance, groundedness, citation
+  fidelity, latency and measured cost;
+- inject stale documents, access-controlled documents, deletion lag and
+  retrieval misses;
+- identify who owns parsing, chunking, embedding versions, index updates and
+  deletion propagation in each architecture.
 
 ## Later Phase Design Questions
 
