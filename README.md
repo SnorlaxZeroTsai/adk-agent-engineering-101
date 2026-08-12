@@ -24,8 +24,8 @@
 | Evaluation | Cross-phase CI-style gate complete | [`docs/evaluation/evaluation-engineering.md`](docs/evaluation/evaluation-engineering.md) |
 | Safety and HITL | Local/scripted enforcement and approval baseline complete | [`docs/safety/safety-and-hitl.md`](docs/safety/safety-and-hitl.md) |
 | Production engineering | Offline render, promotion and rollback baseline complete | [`docs/production/production-engineering.md`](docs/production/production-engineering.md) |
-| Executable labs | 79 offline + 74 ADK runtime tests passing | [`labs/`](labs/) |
-| Pattern catalog | Seven candidates extracted | [`patterns/`](patterns/) |
+| Pattern catalog | Seven patterns normalized and mechanically validated | [`docs/patterns/pattern-catalog.md`](docs/patterns/pattern-catalog.md) |
+| Executable labs | 93 offline + 74 ADK runtime tests passing | [`labs/`](labs/) |
 | Mini Agent Garden | Planned | [`mini-agent-garden/README.md`](mini-agent-garden/README.md) |
 
 Research snapshot: 2026-08-12. Exact upstream commits are pinned in
@@ -43,8 +43,9 @@ Research snapshot: 2026-08-12. Exact upstream commits are pinned in
 7. Run the cross-architecture evaluation gate in Lab 06.
 8. Compare safety enforcement and human approval in Lab 07.
 9. Render and break replaceable production envelopes in Lab 08.
-10. Normalize the seven observed patterns before designing the Agent Garden.
-11. Use the accumulated evidence to implement the mini Agent Garden.
+10. Validate the normalized pattern catalog in Lab 09.
+11. Reverse engineer catalog, scaffold, runtime and governance metadata.
+12. Use the accumulated evidence to implement the mini Agent Garden.
 
 The detailed dependency order and phase exit criteria live in
 [`docs/roadmap.md`](docs/roadmap.md).
@@ -54,7 +55,7 @@ The detailed dependency order and phase exit criteria live in
 | Module | Required |
 |---|---|
 | Documentation and source-reading exercises | Git, a text editor |
-| Lab 01/02/03/04/05/06/07/08 deterministic tests | Python 3.10+ |
+| Lab 01/02/03/04/05/06/07/08/09 deterministic tests | Python 3.10+ |
 | Scripted ADK runtime tests | Python 3.10+, Git and network access for one-time bootstrap |
 | Live-model lab execution | Python 3.10+, `uv` or venv, Gemini API key or Google Cloud ADC |
 | Deployment modules | Google Cloud project, `gcloud`, Terraform |
@@ -84,6 +85,7 @@ Cloud credentials are not required for offline or scripted-model tests.
 | `06-evaluation` | Grade Agent, Workflow, specialist, memory and RAG behavior with per-case blocking metrics and a real CI exit status | Offline metric tests use stdlib; trace generation reuses the pinned ADK environment |
 | `07-safety-hitl` | Compare prompt-only, plugin and durable approval boundaries under unsafe I/O, rejection, expiry and replay | Offline approval tests use stdlib; scripted policy/confirmation traces reuse the pinned ADK environment |
 | `08-production-engineering` | Render target-independent Agent/eval contracts with replaceable runtime, deployment, telemetry, promotion and rollback ownership | Stdlib-only policy, release and deterministic render tests; no cloud credentials required |
+| `09-pattern-catalog` | Validate normalized pattern manifests, claim evidence, relation boundaries and invalid catalog cases | Stdlib-only schema and repository evidence checks; no ADK install required |
 
 ## Run
 
@@ -149,6 +151,13 @@ cd labs/08-production-engineering
 python3 -m unittest discover -s tests -v
 ```
 
+Run only Lab 09 offline tests:
+
+```bash
+cd labs/09-pattern-catalog
+python3 -m unittest discover -s tests -v
+```
+
 Inspect the lab's Agent and tool contract without importing ADK:
 
 ```bash
@@ -203,6 +212,12 @@ Run the production render and release gate:
 
 ```bash
 make verify-production
+```
+
+Run the normalized pattern catalog gate:
+
+```bash
+make verify-pattern-catalog
 ```
 
 After configuring credentials, run the interactive Agent:

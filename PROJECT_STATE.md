@@ -4,9 +4,9 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Start Phase 9 by normalizing the seven source-backed candidate patterns into
-one mechanically verifiable catalog contract before designing Agent Garden
-blueprints.
+Start Phase 10 by reverse engineering discoverability and reuse contracts
+across ADK recipe manifests, Starter Pack template metadata and Agents CLI
+project manifests before designing executable Agent Garden blueprints.
 
 ## Completed
 
@@ -28,7 +28,7 @@ blueprints.
 - Sequence, fan-out/join, routed loop, retry, missing-state, duplicate-output
   and fresh-object resume experiments.
 - 7 Lab 02 offline tests and 12 ADK-backed Workflow tests.
-- First candidate pattern: deterministic Workflow.
+- First pattern extracted: deterministic Workflow.
 - Phase 3 source comparison of `chat`, `single_turn` and `task` Agent modes.
 - Lab 03 typed case-triage capability across function, single-turn, transfer
   and task-delegation boundaries.
@@ -36,7 +36,7 @@ blueprints.
   experiments.
 - Overlapping-responsibility and shared-state conflict experiments.
 - 7 Lab 03 offline tests and 10 ADK-backed multi-agent tests.
-- Second candidate pattern: bounded specialist.
+- Second pattern extracted: bounded specialist.
 - Phase 4 source comparison of transient model context, instruction/state
   assembly, state scopes, artifact services and memory services.
 - Lab 04 common support dossier across transient context, Session state,
@@ -44,7 +44,7 @@ blueprints.
 - Stale-state, 20 KB context, state-scope, artifact lifecycle, memory
   retention/deletion and intentional cross-user leakage experiments.
 - 6 Lab 04 offline tests and 13 ADK-backed context/memory tests.
-- Third candidate pattern: data lifecycle placement.
+- Third pattern extracted: data lifecycle placement.
 - Phase 5 source comparison of native `VertexAiSearchTool`, Discovery Engine
   fallback, managed connector ingestion and explicit Vector Search ingestion.
 - Lab 05 versioned/ACL corpus across native managed Search and explicit
@@ -53,7 +53,7 @@ blueprints.
   gates over five shared query cases.
 - Provenance-loss, unfiltered-search, stale-index and deletion-lag breakages.
 - 10 Lab 05 offline tests and 10 ADK-backed RAG tests.
-- Fourth candidate pattern: evidence-preserving RAG.
+- Fourth pattern extracted: evidence-preserving RAG.
 - Phase 6 source comparison of ADK eval cases/metrics/results and Agents CLI
   dataset/generate/grade/compare lifecycle.
 - Lab 06 typed `EvalDataset`, verdict-free `TraceSet` and CI-consumable
@@ -65,7 +65,7 @@ blueprints.
 - Six passing baselines and six deliberately broken variants.
 - Baseline gate exits `0`; broken gate exits `1` with 28 blocking reasons.
 - 11 Lab 06 offline tests and 6 ADK-backed cross-phase tests.
-- Fifth candidate pattern: behavior contract gate.
+- Fifth pattern extracted: behavior contract gate.
 - Phase 7 source comparison of App plugins, Agent callbacks, model/tool hooks,
   FunctionTool confirmation, Workflow `RequestInput` and credential requests.
 - Lab 07 shared vendor payment across prompt-only, plugin and dynamic approval
@@ -77,7 +77,7 @@ blueprints.
   approver, tampering and later-run replay experiments.
 - 7 Lab 07 offline tests and 15 ADK-backed safety/HITL tests.
 - Phase 6 gate extended to six baseline and six broken architecture cases.
-- Sixth candidate pattern: durable approval boundary.
+- Sixth pattern extracted: durable approval boundary.
 - Phase 8 source comparison of Starter Pack rendered-project ownership and
   current Agents CLI scaffold, deploy, metadata and observability lifecycle.
 - Lab 08 target-independent Agent/behavior contracts rendered across local,
@@ -89,7 +89,19 @@ blueprints.
 - Seven passing baseline scenarios and eight broken variants with 23 blocking
   failures.
 - 18 Lab 08 dependency-free production-contract tests.
-- Seventh candidate pattern: replaceable production envelope.
+- Seventh pattern extracted: replaceable production envelope.
+- Phase 9 canonical catalog index, JSON Schemas and seven structured manifests.
+- Seven normalized Markdown cards synchronized with maturity, portability and
+  claim IDs.
+- 28 observable contracts and 28 failure modes, each linked to pinned source
+  and executable lab evidence.
+- Seven explicitly rejected decisions, 11 cross-pattern relations and five
+  decision boundaries.
+- Ten invalid catalog mutations covering evidence, source pinning, status,
+  path, relation, duplication and version scope.
+- 14 Lab 09 dependency-free tests with baseline exit `0` and broken exit `1`.
+- All seven patterns promoted to locally `validated`; Bounded Specialist
+  remains `version-specific`.
 
 ## Important Findings
 
@@ -242,6 +254,23 @@ blueprints.
 62. Seven production baseline scenarios passed; eight broken variants produced
     23 blocking failures for secrets, telemetry, eval, artifact immutability,
     target drift, metadata and rollback history.
+63. Pattern evidence maturity and implementation portability are independent.
+    Bounded Specialist is locally validated while its current ADK mode surface
+    remains version-specific.
+64. A bottom-of-page source list does not identify which source and experiment
+    support one observable contract or failure mode.
+65. Every normalized claim now requires at least one full-commit GitHub source
+    and one existing repository lab artifact.
+66. The seven patterns contain 28 observable contracts, 28 failure modes and
+    seven rejected decisions rather than only positive implementation advice.
+67. Cross-pattern relations show that Behavior Contract Gate verifies five
+    other patterns and Production Envelope depends on both behavior and data
+    lifecycle contracts.
+68. Five decision boundaries make control-versus-reasoning,
+    placement-versus-retrieval, enforcement-versus-evaluation,
+    resume-versus-idempotency and behavior-versus-deployment choices explicit.
+69. Twelve deliberately invalid catalog mutations all failed by their expected
+    issue code; baseline passed with zero issues.
 
 ## Architecture Decisions
 
@@ -330,6 +359,17 @@ blueprints.
   replaceable cache.
 - Standardize release evidence while leaving rollback execution to the real
   target adapter.
+- Use canonical JSON manifests as the machine authority for patterns and keep
+  Markdown cards as synchronized human explanations.
+- Separate pattern `status` from `portability`.
+- Require every observable contract and failure mode to reference named pinned
+  source and executable lab evidence.
+- Require at least one counterexample and rejected decision per pattern.
+- Store dependencies in relation edges and ambiguous choices in decision
+  boundaries.
+- Keep published JSON Schema required fields and the stdlib validator in
+  test-enforced parity.
+- Treat the pattern catalog as blueprint input, not runtime configuration.
 
 ## Unresolved Questions
 
@@ -376,6 +416,12 @@ blueprints.
   traffic rollback?
 - How should Terraform desired state and imperative Agents CLI deploy avoid
   dual ownership and undetected drift?
+- Which fields in recipe, template and project manifests are discoverability
+  metadata versus executable blueprint configuration?
+- Which catalog fields need ownership, deprecation, compatibility and upgrade
+  semantics?
+- How should a Garden represent one Agent with multiple runtime/deployment
+  implementations without duplicating its catalog identity?
 
 ## Relevant Sources
 
@@ -408,6 +454,10 @@ blueprints.
 - [`docs/production/production-engineering.md`](docs/production/production-engineering.md)
 - [`docs/learning-notes/phase-8-production.md`](docs/learning-notes/phase-8-production.md)
 - [`patterns/replaceable-production-envelope.md`](patterns/replaceable-production-envelope.md)
+- [`docs/patterns/pattern-catalog.md`](docs/patterns/pattern-catalog.md)
+- [`docs/learning-notes/phase-9-pattern-catalog.md`](docs/learning-notes/phase-9-pattern-catalog.md)
+- [`patterns/catalog.json`](patterns/catalog.json)
+- [`labs/09-pattern-catalog`](labs/09-pattern-catalog/)
 
 ## Environment Notes
 
@@ -415,7 +465,7 @@ blueprints.
 - `uv` is not installed.
 - Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
   `/tmp/adk-python` commit.
-- `make verify` passes: repository invariants plus 79 offline tests.
+- `make verify` passes: repository invariants plus 93 offline tests.
 - `make verify-adk` passes: 74 ADK-backed tests plus seven trace renderers and
   baseline/broken evaluation exit checks.
 - `make verify-workflows` passes: 12 ADK-backed tests plus a 79 KB JSON
@@ -433,6 +483,9 @@ blueprints.
   65,971-byte evidence bundle.
 - `make verify-production` passes: 18 dependency-free tests, baseline exit `0`,
   expected broken exit `1` and a deterministic 43,765-byte evidence bundle.
+- `make verify-pattern-catalog` passes: 14 dependency-free tests, baseline
+  exit `0`, expected broken exit `1` and a deterministic 3,327-byte evidence
+  bundle.
 - Live-model execution remains unverified until credentials are configured.
 - Lab 02 recreates Runner/root objects but retains one
   `InMemorySessionService`; it does not prove durable process recovery.
@@ -441,10 +494,12 @@ blueprints.
 
 ## Next Actions
 
-1. Normalize all seven candidate patterns to the roadmap catalog schema.
-2. Assign each pattern a portable, version-specific or rejected status.
-3. Link every observable invariant and failure mode to primary source and lab
-   evidence.
-4. Identify overlapping decisions, contradictions and missing counterexamples.
-5. Add a mechanical pattern-catalog verifier before using the patterns as
-   Agent Garden blueprint inputs.
+1. Compare ADK recipe manifest, Starter Pack template config and Agents CLI
+   project manifest fields and validation behavior.
+2. Classify metadata as catalog-only, scaffold-time, runtime or governance.
+3. Trace identity, ownership, version, dependency, deprecation and upgrade
+   semantics across the three systems.
+4. Create valid and deliberately misleading catalog entries for the same
+   Agent implementation.
+5. Define the minimum discoverability contract without prematurely encoding
+   the full executable blueprint.

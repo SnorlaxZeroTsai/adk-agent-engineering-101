@@ -101,7 +101,8 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | Phase 6 Evaluation | Local/scripted gate complete | Six cross-phase cases, per-dimension failures and enforceable baseline/broken exit status |
 | Phase 7 Safety and HITL | Local/scripted baseline complete | Enforcement coverage, confirmation lifecycle, approval envelope and replay-safe side effect |
 | Phase 8 Production engineering | Offline baseline complete | Replaceable target renders, config/secret/telemetry policy, release promotion and rollback evidence |
-| Phase 9 Pattern catalog | Next | Normalize seven candidate patterns and their counterexamples into one enforceable contract |
+| Phase 9 Pattern catalog | Complete | Seven normalized manifests, claim evidence, relations, decision boundaries and invalid-case gate |
+| Phase 10 Agent Garden reverse engineering | Next | Separate discoverability, scaffold, runtime and governance metadata across current source contracts |
 
 The Phase 1 live-model gate remains open, but it is not a dependency for
 deterministic Workflow semantics.
@@ -502,20 +503,62 @@ Evidence:
 
 ### Phase 9: Pattern Catalog
 
-Status: next.
+Status: complete.
 
 Hypothesis:
 
 > A reusable pattern is a normalized decision contract with observable
 > invariants and counterexamples, not a renamed sample implementation.
 
-Next experiment:
+Experiment:
 
 - normalize the seven candidate files to the roadmap pattern schema;
-- distinguish portable, version-specific and rejected decisions;
+- separate evidence maturity from implementation portability;
 - cross-link each invariant to source and lab evidence;
 - identify overlaps, contradictions and missing counterexamples;
 - validate the catalog mechanically before using it as Agent Garden input.
+
+Observed:
+
+- all seven patterns reached `validated` maturity from pinned source, local
+  implementation and intentional breakage;
+- six decision contracts are portable and Bounded Specialist remains
+  version-specific to the current ADK mode surface;
+- 28 observable contracts and 28 failure modes each have source and lab refs;
+- seven rejected decisions make counter-position explicit;
+- 11 relations and five decision boundaries expose cross-pattern dependencies;
+- all 12 invalid catalog mutations failed by their expected issue code;
+- baseline exited `0`, broken exited `1`.
+
+Evidence:
+
+- `docs/patterns/pattern-catalog.md`
+- `docs/learning-notes/phase-9-pattern-catalog.md`
+- `patterns/catalog.json`
+- `patterns/manifests`
+- `labs/09-pattern-catalog`
+- 14 dependency-free tests
+- deterministic 3,327-byte evidence bundle
+
+### Phase 10: Agent Garden Reverse Engineering
+
+Status: next.
+
+Hypothesis:
+
+> A reusable Agent Garden needs separate contracts for catalog discovery,
+> scaffold rendering, runtime execution and governance; no existing manifest
+> owns all four.
+
+Next experiment:
+
+- compare ADK recipe manifests, Starter Pack template config and Agents CLI
+  project manifest field by field;
+- classify fields as catalog-only, scaffold-time, runtime or governance;
+- trace validation, discovery, ownership, version and upgrade behavior;
+- create valid and deliberately misleading entries for the same Agent;
+- define the minimum discoverability contract without designing the complete
+  executable blueprint early.
 
 ## Later Phase Design Questions
 
@@ -568,25 +611,28 @@ Next experiment:
 
 ## Pattern Catalog Contract
 
-Each future pattern card under `patterns/` will use:
+Each pattern card under `patterns/` has a canonical JSON manifest:
 
-```yaml
+```text
 name:
-status: candidate | validated | version-specific | rejected
+status: candidate | validated | rejected
+portability: portable | version-specific
 context:
 forces:
 decision:
 implementation:
 observable_contract:
 failure_modes:
-counterexample:
+counterexamples:
 adk_versions:
 source_evidence:
 lab_evidence:
+rejected_decisions:
 ```
 
-Candidate patterns are not promoted to `validated` from source reading alone.
-They require at least one local implementation and one intentional break.
+Each observable contract and failure mode references at least one pinned source
+and one executable lab artifact. Candidate patterns are not promoted to
+`validated` from source reading alone.
 
 ## Agent Garden Deliverable Sequence
 
@@ -616,6 +662,8 @@ They require at least one local implementation and one intentional break.
 | 2026-08-12 | One aggregate quality score can serve as a release gate | Preserve per-case deterministic blockers; the six-case broken suite passed its `13/3` scripted judge threshold while failing architecture contracts |
 | 2026-08-12 | A project manifest and successful deploy identify a recoverable release | Keep scaffold metadata, desired runtime config and append-only release evidence as separate contracts |
 | 2026-08-12 | One rollback abstraction can hide target differences | Standardize immutable evidence, then use Cloud Run traffic shift, GKE rollout undo or Agent Runtime restore-and-redeploy |
+| 2026-08-12 | Pattern maturity and version scope fit one status enum | Separate `status` from `portability`; Bounded Specialist is validated and version-specific at the same time |
+| 2026-08-12 | A source list at the bottom of a card is sufficient evidence | Link every observable contract and failure mode to named pinned source and executable lab evidence |
 
 ## Milestone Tracking
 

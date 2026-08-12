@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 
@@ -22,6 +23,7 @@ REQUIRED_PATHS = (
     "docs/learning-notes/phase-6-evaluation.md",
     "docs/learning-notes/phase-7-safety-hitl.md",
     "docs/learning-notes/phase-8-production.md",
+    "docs/learning-notes/phase-9-pattern-catalog.md",
     "docs/foundations/agent.md",
     "docs/foundations/tools.md",
     "docs/foundations/execution-model.md",
@@ -32,7 +34,12 @@ REQUIRED_PATHS = (
     "docs/evaluation/evaluation-engineering.md",
     "docs/safety/safety-and-hitl.md",
     "docs/production/production-engineering.md",
+    "docs/patterns/README.md",
+    "docs/patterns/pattern-catalog.md",
     "patterns/README.md",
+    "patterns/catalog.json",
+    "patterns/schema/pattern.schema.json",
+    "patterns/schema/catalog.schema.json",
     "patterns/deterministic-workflow.md",
     "patterns/bounded-specialist.md",
     "patterns/data-lifecycle-placement.md",
@@ -40,6 +47,13 @@ REQUIRED_PATHS = (
     "patterns/behavior-contract-gate.md",
     "patterns/durable-approval-boundary.md",
     "patterns/replaceable-production-envelope.md",
+    "patterns/manifests/deterministic-workflow.json",
+    "patterns/manifests/bounded-specialist.json",
+    "patterns/manifests/data-lifecycle-placement.json",
+    "patterns/manifests/evidence-preserving-rag.json",
+    "patterns/manifests/behavior-contract-gate.json",
+    "patterns/manifests/durable-approval-boundary.json",
+    "patterns/manifests/replaceable-production-envelope.json",
     "labs/README.md",
     "labs/01-agent-basics/README.md",
     "labs/01-agent-basics/agent_basics/runtime_trace.py",
@@ -98,6 +112,17 @@ REQUIRED_PATHS = (
     "labs/08-production-engineering/tests/test_production_contract.py",
     "labs/08-production-engineering/scripts/run_production_gate.py",
     "labs/08-production-engineering/scripts/run_production_traces.py",
+    "labs/09-pattern-catalog/README.md",
+    "labs/09-pattern-catalog/OBSERVATIONS.md",
+    "labs/09-pattern-catalog/pattern_catalog/contracts.py",
+    "labs/09-pattern-catalog/pattern_catalog/loader.py",
+    "labs/09-pattern-catalog/pattern_catalog/validation.py",
+    "labs/09-pattern-catalog/pattern_catalog/fixtures.py",
+    "labs/09-pattern-catalog/pattern_catalog/gate.py",
+    "labs/09-pattern-catalog/fixtures/invalid_cases.json",
+    "labs/09-pattern-catalog/tests/test_pattern_catalog.py",
+    "labs/09-pattern-catalog/scripts/run_pattern_gate.py",
+    "labs/09-pattern-catalog/scripts/run_pattern_traces.py",
     "case-studies/README.md",
     "agent-garden/README.md",
     "mini-agent-garden/README.md",
@@ -144,7 +169,7 @@ def main() -> None:
     roadmap = (ROOT / "docs/roadmap.md").read_text(encoding="utf-8")
     if "ADK 1.x" not in roadmap or "ADK 2.0" not in roadmap:
         fail("roadmap must preserve the ADK 1.x/2.0 migration boundary")
-    if "Phase 9 Pattern catalog | Next" not in roadmap:
+    if "Phase 10 Agent Garden reverse engineering | Next" not in roadmap:
         fail("roadmap does not point to the next architecture dependency")
 
     workflow_note = (
@@ -226,11 +251,32 @@ def main() -> None:
         if required_concept not in production_note:
             fail(f"production module lacks {required_concept!r}")
 
+    pattern_note = (
+        ROOT / "docs/patterns/pattern-catalog.md"
+    ).read_text(encoding="utf-8")
+    for required_concept in (
+        "Maturity and Portability",
+        "Evidence Linkage",
+        "Decision Boundaries",
+        "Invalid Catalog",
+    ):
+        if required_concept not in pattern_note:
+            fail(f"pattern catalog module lacks {required_concept!r}")
+
+    catalog = json.loads(
+        (ROOT / "patterns/catalog.json").read_text(encoding="utf-8")
+    )
+    pattern_entries = catalog.get("patterns")
+    if not isinstance(pattern_entries, list) or len(pattern_entries) != 7:
+        fail("pattern catalog must index exactly seven Phase 9 patterns")
+    if len(catalog.get("decision_boundaries", [])) != 5:
+        fail("pattern catalog must retain five decision boundaries")
+
     state = (ROOT / "PROJECT_STATE.md").read_text(encoding="utf-8")
     if "Next Actions" not in state or "Unresolved Questions" not in state:
         fail("PROJECT_STATE.md lacks continuation context")
 
-    print("PASS: project structure and Phase 0-8 artifacts verified")
+    print("PASS: project structure and Phase 0-9 artifacts verified")
 
 
 if __name__ == "__main__":
