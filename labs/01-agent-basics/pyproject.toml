@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Offline-first lab for the Google ADK Agent and tool boundary"
 requires-python = ">=3.10"
 dependencies = [
-  "google-adk>=2.0,<3",
+  "google-adk @ git+https://github.com/google/adk-python.git@a56f6e13ae38296b608808c7a3b37efe4b8c862e",
 ]
 
 [dependency-groups]
