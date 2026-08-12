@@ -24,6 +24,7 @@ REQUIRED_PATHS = (
     "docs/learning-notes/phase-7-safety-hitl.md",
     "docs/learning-notes/phase-8-production.md",
     "docs/learning-notes/phase-9-pattern-catalog.md",
+    "docs/learning-notes/phase-10-agent-garden.md",
     "docs/foundations/agent.md",
     "docs/foundations/tools.md",
     "docs/foundations/execution-model.md",
@@ -123,8 +124,25 @@ REQUIRED_PATHS = (
     "labs/09-pattern-catalog/tests/test_pattern_catalog.py",
     "labs/09-pattern-catalog/scripts/run_pattern_gate.py",
     "labs/09-pattern-catalog/scripts/run_pattern_traces.py",
+    "labs/10-agent-garden-discovery/README.md",
+    "labs/10-agent-garden-discovery/OBSERVATIONS.md",
+    "labs/10-agent-garden-discovery/garden_discovery/contracts.py",
+    "labs/10-agent-garden-discovery/garden_discovery/loader.py",
+    "labs/10-agent-garden-discovery/garden_discovery/projection.py",
+    "labs/10-agent-garden-discovery/garden_discovery/validation.py",
+    "labs/10-agent-garden-discovery/garden_discovery/fixtures.py",
+    "labs/10-agent-garden-discovery/garden_discovery/gate.py",
+    "labs/10-agent-garden-discovery/fixtures/misleading_cases.json",
+    "labs/10-agent-garden-discovery/tests/test_discovery_contract.py",
+    "labs/10-agent-garden-discovery/scripts/run_discovery_gate.py",
+    "labs/10-agent-garden-discovery/scripts/run_discovery_traces.py",
     "case-studies/README.md",
     "agent-garden/README.md",
+    "agent-garden/concepts.md",
+    "agent-garden/discoverability-contract.md",
+    "agent-garden/metadata-surfaces.json",
+    "agent-garden/catalog-entry.schema.json",
+    "agent-garden/discovery-catalog.json",
     "mini-agent-garden/README.md",
     "references/upstream-lock.yaml",
     "references/source-index.md",
@@ -169,7 +187,7 @@ def main() -> None:
     roadmap = (ROOT / "docs/roadmap.md").read_text(encoding="utf-8")
     if "ADK 1.x" not in roadmap or "ADK 2.0" not in roadmap:
         fail("roadmap must preserve the ADK 1.x/2.0 migration boundary")
-    if "Phase 10 Agent Garden reverse engineering | Next" not in roadmap:
+    if "Phase 11 Blueprint schema | Next" not in roadmap:
         fail("roadmap does not point to the next architecture dependency")
 
     workflow_note = (
@@ -272,11 +290,71 @@ def main() -> None:
     if len(catalog.get("decision_boundaries", [])) != 5:
         fail("pattern catalog must retain five decision boundaries")
 
+    garden_note = (
+        ROOT / "agent-garden" / "discoverability-contract.md"
+    ).read_text(encoding="utf-8")
+    for required_concept in (
+        "Discovery Drift",
+        "Minimum Discovery Facts",
+        "Deliberate Misleading Entries",
+        "Catalog Shape",
+    ):
+        if required_concept not in garden_note:
+            fail(f"Agent Garden discovery module lacks {required_concept!r}")
+
+    metadata = json.loads(
+        (ROOT / "agent-garden" / "metadata-surfaces.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    source_contracts = metadata.get("source_contracts")
+    if not isinstance(source_contracts, list) or len(source_contracts) != 3:
+        fail("Agent Garden metadata must compare exactly three source contracts")
+    source_field_count = sum(
+        len(item.get("fields", []))
+        for item in source_contracts
+        if isinstance(item, dict)
+    )
+    if source_field_count != 33:
+        fail(
+            "Agent Garden metadata must retain 33 field ownership rows; "
+            f"found {source_field_count}"
+        )
+    plane_ids = {
+        item.get("id")
+        for item in metadata.get("planes", [])
+        if isinstance(item, dict)
+    }
+    if plane_ids != {"catalog", "scaffold", "runtime", "governance"}:
+        fail("Agent Garden metadata ownership planes are incomplete")
+    if len(metadata.get("required_discovery_facts", [])) != 9:
+        fail("Agent Garden catalog must retain nine discovery facts")
+
+    discovery_catalog = json.loads(
+        (ROOT / "agent-garden" / "discovery-catalog.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    discovery_entries = discovery_catalog.get("entries")
+    if not isinstance(discovery_entries, list) or len(discovery_entries) != 1:
+        fail("Phase 10 discovery catalog must contain one baseline entry")
+    forbidden_blueprint_fields = {
+        "models",
+        "tools",
+        "workflow",
+        "policy",
+        "evaluation",
+        "deployment_targets",
+        "secrets",
+    }
+    if forbidden_blueprint_fields & discovery_entries[0].keys():
+        fail("discovery catalog contains executable Blueprint fields")
+
     state = (ROOT / "PROJECT_STATE.md").read_text(encoding="utf-8")
     if "Next Actions" not in state or "Unresolved Questions" not in state:
         fail("PROJECT_STATE.md lacks continuation context")
 
-    print("PASS: project structure and Phase 0-9 artifacts verified")
+    print("PASS: project structure and Phase 0-10 artifacts verified")
 
 
 if __name__ == "__main__":

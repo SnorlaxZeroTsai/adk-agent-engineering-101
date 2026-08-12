@@ -4,9 +4,9 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Start Phase 10 by reverse engineering discoverability and reuse contracts
-across ADK recipe manifests, Starter Pack template metadata and Agents CLI
-project manifests before designing executable Agent Garden blueprints.
+Start Phase 11 by writing three materially different executable Blueprint
+examples, then extract a versioned schema that references the stable Phase 10
+CatalogEntry instead of duplicating catalog authority.
 
 ## Completed
 
@@ -102,6 +102,21 @@ project manifests before designing executable Agent Garden blueprints.
 - 14 Lab 09 dependency-free tests with baseline exit `0` and broken exit `1`.
 - All seven patterns promoted to locally `validated`; Bounded Specialist
   remains `version-specific`.
+- Phase 10 field-level comparison of ADK recipe manifest, Starter Pack template
+  config and Agents CLI project manifest.
+- 33 source fields classified across catalog, scaffold, runtime and governance
+  ownership.
+- Four pinned consumer observations including current Agents CLI discovery of
+  the frozen `python/agents` root.
+- Non-executable CatalogEntry contract with nine required discovery facts.
+- Stable Agent identity separated from implementation, template, project
+  instance, Blueprint and release identities.
+- Valid `cross-session-memory` entry with full-commit source, ADK 1.x
+  compatibility, pinned remote-template locator and runnability assurance.
+- 13 misleading catalog mutations covering identity, source, compatibility,
+  owner, lifecycle, assurance and authority violations.
+- 16 Lab 10 dependency-free tests with baseline exit `0`, broken exit `1` and
+  deterministic 5,578-byte evidence bundle.
 
 ## Important Findings
 
@@ -271,6 +286,24 @@ project manifests before designing executable Agent Garden blueprints.
     resume-versus-idempotency and behavior-versus-deployment choices explicit.
 69. Twelve deliberately invalid catalog mutations all failed by their expected
     issue code; baseline passed with zero issues.
+70. ADK recipe, Starter template and Agents CLI project metadata provide only
+    4, 3 and 1 of the nine required discoverability facts; no existing
+    manifest owns the complete catalog contract.
+71. Recipe directory, template folder and generated project name are three
+    different implicit identities and cannot serve as one stable Agent ID.
+72. Pinned Agents CLI ADK discovery still scans the repository's frozen
+    `python/agents` root and does not consume current `core/`/`contrib/`
+    manifests.
+73. Repository-valid and active does not imply consumer-visible; producer and
+    discovery consumer require one versioned catalog contract.
+74. Template deployment targets and dependencies are scaffold capabilities,
+    not runtime or production assurance.
+75. Stable identity, lifecycle replacement, immutable source, compatibility,
+    reuse locator and implementation-bound assurance require registry-owned
+    metadata beyond the three upstream surfaces.
+76. All 13 misleading catalog mutations failed, including project-name
+    identity, mutable refs, frozen path, ADK 2.x overclaim, authority leakage
+    and duplicate immutable source.
 
 ## Architecture Decisions
 
@@ -370,6 +403,18 @@ project manifests before designing executable Agent Garden blueprints.
 - Keep published JSON Schema required fields and the stdlib validator in
   test-enforced parity.
 - Treat the pattern catalog as blueprint input, not runtime configuration.
+- Keep Agent identity independent from display name, source path, template
+  folder, generated project name and deployment resource.
+- Store immutable source, language, framework compatibility, reuse locator and
+  assurance on an Implementation beneath one CatalogEntry.
+- Require deprecated or retired catalog entries to name a replacement.
+- Reject active catalog entries that point to frozen source roots.
+- Treat template capabilities as scaffold facts until runtime and behavior
+  evidence prove them.
+- Keep CatalogEntry explicitly free of model, tool, workflow, policy,
+  evaluation, secret, deployment and release configuration.
+- Derive the executable Blueprint schema from three materially different
+  examples rather than unioning current manifest fields.
 
 ## Unresolved Questions
 
@@ -383,9 +428,6 @@ project manifests before designing executable Agent Garden blueprints.
   split?
 - Which durable Session service and idempotency contract are sufficient for
   actual process-loss recovery?
-- Which recipe manifest fields are catalog metadata versus runtime-enforceable
-  blueprint contracts?
-- What minimum governance metadata is justified for the mini Agent Garden?
 - How should partial streaming events be consolidated and evaluated?
 - Which state scopes need optimistic concurrency in a durable Session service?
 - Which managed memory backends provide enforceable TTL, user deletion and
@@ -416,12 +458,16 @@ project manifests before designing executable Agent Garden blueprints.
   traffic rollback?
 - How should Terraform desired state and imperative Agents CLI deploy avoid
   dual ownership and undetected drift?
-- Which fields in recipe, template and project manifests are discoverability
-  metadata versus executable blueprint configuration?
-- Which catalog fields need ownership, deprecation, compatibility and upgrade
-  semantics?
-- How should a Garden represent one Agent with multiple runtime/deployment
-  implementations without duplicating its catalog identity?
+- Which fields are truly common across single-Agent, Workflow/RAG and
+  multi-agent/HITL executable Blueprints?
+- Which Blueprint extension points should be typed unions versus external
+  plugin references?
+- How should a Blueprint reference one CatalogEntry Implementation without
+  duplicating source, compatibility or lifecycle authority?
+- Which schema-version changes can migrate automatically, and which require a
+  new Implementation identity or human review?
+- How should Blueprint validation compose architecture, state, policy, eval
+  and production contracts without one field silently owning two lifecycles?
 
 ## Relevant Sources
 
@@ -458,6 +504,13 @@ project manifests before designing executable Agent Garden blueprints.
 - [`docs/learning-notes/phase-9-pattern-catalog.md`](docs/learning-notes/phase-9-pattern-catalog.md)
 - [`patterns/catalog.json`](patterns/catalog.json)
 - [`labs/09-pattern-catalog`](labs/09-pattern-catalog/)
+- [`agent-garden/concepts.md`](agent-garden/concepts.md)
+- [`agent-garden/discoverability-contract.md`](agent-garden/discoverability-contract.md)
+- [`agent-garden/metadata-surfaces.json`](agent-garden/metadata-surfaces.json)
+- [`agent-garden/catalog-entry.schema.json`](agent-garden/catalog-entry.schema.json)
+- [`agent-garden/discovery-catalog.json`](agent-garden/discovery-catalog.json)
+- [`docs/learning-notes/phase-10-agent-garden.md`](docs/learning-notes/phase-10-agent-garden.md)
+- [`labs/10-agent-garden-discovery`](labs/10-agent-garden-discovery/)
 
 ## Environment Notes
 
@@ -465,7 +518,7 @@ project manifests before designing executable Agent Garden blueprints.
 - `uv` is not installed.
 - Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
   `/tmp/adk-python` commit.
-- `make verify` passes: repository invariants plus 93 offline tests.
+- `make verify` passes: repository invariants plus 109 offline tests.
 - `make verify-adk` passes: 74 ADK-backed tests plus seven trace renderers and
   baseline/broken evaluation exit checks.
 - `make verify-workflows` passes: 12 ADK-backed tests plus a 79 KB JSON
@@ -486,6 +539,9 @@ project manifests before designing executable Agent Garden blueprints.
 - `make verify-pattern-catalog` passes: 14 dependency-free tests, baseline
   exit `0`, expected broken exit `1` and a deterministic 3,327-byte evidence
   bundle.
+- `make verify-agent-garden-discovery` passes: 16 dependency-free tests,
+  baseline exit `0`, expected broken exit `1` and a deterministic 5,578-byte
+  evidence bundle.
 - Live-model execution remains unverified until credentials are configured.
 - Lab 02 recreates Runner/root objects but retains one
   `InMemorySessionService`; it does not prove durable process recovery.
@@ -494,12 +550,12 @@ project manifests before designing executable Agent Garden blueprints.
 
 ## Next Actions
 
-1. Compare ADK recipe manifest, Starter Pack template config and Agents CLI
-   project manifest fields and validation behavior.
-2. Classify metadata as catalog-only, scaffold-time, runtime or governance.
-3. Trace identity, ownership, version, dependency, deprecation and upgrade
-   semantics across the three systems.
-4. Create valid and deliberately misleading catalog entries for the same
-   Agent implementation.
-5. Define the minimum discoverability contract without prematurely encoding
-   the full executable blueprint.
+1. Write a single-Agent typed-tool Blueprint example referencing the Phase 10
+   CatalogEntry Implementation.
+2. Write a deterministic Workflow plus RAG Blueprint example.
+3. Write a multi-agent specialist plus durable-approval Blueprint example.
+4. Extract only common required fields and explicit architecture-specific
+   extension points into a versioned schema.
+5. Add invalid examples for authority duplication, missing behavior gates,
+   unsafe state ownership and incompatible lifecycle combinations.
+6. Test schema-version migration without changing CatalogEntry identity.

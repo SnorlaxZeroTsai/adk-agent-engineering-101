@@ -102,7 +102,8 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | Phase 7 Safety and HITL | Local/scripted baseline complete | Enforcement coverage, confirmation lifecycle, approval envelope and replay-safe side effect |
 | Phase 8 Production engineering | Offline baseline complete | Replaceable target renders, config/secret/telemetry policy, release promotion and rollback evidence |
 | Phase 9 Pattern catalog | Complete | Seven normalized manifests, claim evidence, relations, decision boundaries and invalid-case gate |
-| Phase 10 Agent Garden reverse engineering | Next | Separate discoverability, scaffold, runtime and governance metadata across current source contracts |
+| Phase 10 Agent Garden reverse engineering | Complete | Three metadata contracts, 33 field rows, nine discovery facts and 13 misleading-entry gates |
+| Phase 11 Blueprint schema | Next | Three materially different executable examples before a shared versioned schema |
 
 The Phase 1 live-model gate remains open, but it is not a dependency for
 deterministic Workflow semantics.
@@ -542,7 +543,7 @@ Evidence:
 
 ### Phase 10: Agent Garden Reverse Engineering
 
-Status: next.
+Status: complete.
 
 Hypothesis:
 
@@ -550,7 +551,7 @@ Hypothesis:
 > scaffold rendering, runtime execution and governance; no existing manifest
 > owns all four.
 
-Next experiment:
+Experiment:
 
 - compare ADK recipe manifests, Starter Pack template config and Agents CLI
   project manifest field by field;
@@ -559,6 +560,56 @@ Next experiment:
 - create valid and deliberately misleading entries for the same Agent;
 - define the minimum discoverability contract without designing the complete
   executable blueprint early.
+
+Observed:
+
+- the three source contracts contain 33 field rows across catalog, scaffold,
+  runtime and governance ownership;
+- recipe, template and project surfaces provide only 4, 3 and 1 of the nine
+  required discovery facts;
+- recipe path, template folder and generated project name are all implicit
+  identities with different lifecycle owners;
+- current Agents CLI ADK discovery scans frozen `python/agents` rather than
+  the active `core/` and `contrib/` recipe manifests;
+- the registry-composed entry covers stable identity, display, lifecycle,
+  ownership, classification, immutable source, compatibility, reuse and
+  assurance without executable Blueprint fields;
+- all 13 misleading entries failed by their expected issue code;
+- baseline exited `0`, broken exited `1`.
+
+Evidence:
+
+- `agent-garden/concepts.md`
+- `agent-garden/discoverability-contract.md`
+- `agent-garden/metadata-surfaces.json`
+- `agent-garden/catalog-entry.schema.json`
+- `agent-garden/discovery-catalog.json`
+- `docs/learning-notes/phase-10-agent-garden.md`
+- `labs/10-agent-garden-discovery`
+- 16 dependency-free tests
+- deterministic 5,578-byte evidence bundle
+
+### Phase 11: Blueprint Schema
+
+Status: next.
+
+Hypothesis:
+
+> An executable Blueprint should reference a stable CatalogEntry and describe
+> only architecture/runtime/policy/eval/lifecycle contracts shared by
+> materially different Agents; a union of existing manifest fields will encode
+> accidental tooling details.
+
+Next experiment:
+
+- write a single-Agent typed-tool blueprint example;
+- write a deterministic Workflow plus RAG blueprint example;
+- write a multi-agent specialist plus durable-approval blueprint example;
+- identify common required fields and architecture-specific extension points;
+- define a versioned schema only after all three examples are executable;
+- add invalid examples for authority duplication, missing behavior gates,
+  unsafe state ownership and incompatible lifecycle combinations;
+- validate schema migration without changing CatalogEntry identity.
 
 ## Later Phase Design Questions
 
@@ -637,8 +688,9 @@ and one executable lab artifact. Candidate patterns are not promoted to
 ## Agent Garden Deliverable Sequence
 
 1. Compare `adk-samples/manifest.yaml`, Starter Pack template config and
-   `agents-cli-manifest.yaml`.
+   `agents-cli-manifest.yaml`. Complete in Phase 10.
 2. Identify catalog-only, scaffold-time, runtime and governance fields.
+   Complete in Phase 10.
 3. Write three materially different blueprint examples.
 4. Design schema only after examples expose common fields.
 5. Validate invalid blueprints and migration between schema versions.
@@ -664,6 +716,8 @@ and one executable lab artifact. Candidate patterns are not promoted to
 | 2026-08-12 | One rollback abstraction can hide target differences | Standardize immutable evidence, then use Cloud Run traffic shift, GKE rollout undo or Agent Runtime restore-and-redeploy |
 | 2026-08-12 | Pattern maturity and version scope fit one status enum | Separate `status` from `portability`; Bounded Specialist is validated and version-specific at the same time |
 | 2026-08-12 | A source list at the bottom of a card is sufficient evidence | Link every observable contract and failure mode to named pinned source and executable lab evidence |
+| 2026-08-12 | A repository-valid recipe is automatically visible to scaffold consumers | Current Agents CLI still scans the frozen legacy root; give discovery a versioned catalog contract |
+| 2026-08-12 | Recipe, template and project manifest fields can be unioned into one Blueprint | Separate stable catalog identity from scaffold/project metadata, then derive executable schema from three different examples |
 
 ## Milestone Tracking
 

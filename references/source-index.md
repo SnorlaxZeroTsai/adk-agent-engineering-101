@@ -75,6 +75,21 @@ All links are pinned to the commits in `upstream-lock.yaml`.
 | Recipe anatomy | [`docs/recipe-handbook/anatomy.md`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/docs/recipe-handbook/anatomy.md) | Turns a sample into a validated, owned recipe |
 | Recipe preparation | [`prepare-python-recipe`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/.agents/skills/prepare-python-recipe/SKILL.md) | Encodes scaffolding and validation as a reusable developer workflow |
 
+## Agent Garden Discoverability
+
+| Concern | Source | Why it matters |
+|---|---|---|
+| Strict recipe field contract | [`manifest-schema.json`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/.github/schemas/manifest-schema.json) | Supplies description, status, language, ownership and coarse architecture while rejecting unknown fields |
+| Recipe validation behavior | [`validate_manifest.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/tools/validate_manifest.py) | Adds YAML, placeholder-owner and TODO-description checks beyond the JSON Schema |
+| Active and frozen recipe roots | [`.github/policy.yml`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/.github/policy.yml) | Makes source path a governance fact: current recipes live under core/contrib while legacy language/agents roots are frozen |
+| Starter template metadata | [`templateconfig.yaml`](https://github.com/GoogleCloudPlatform/agent-starter-pack/blob/659f047742457bd55e5db0edd088cf678b6f0669/agent_starter_pack/agents/adk/.template/templateconfig.yaml) | Provides selection display, dependencies, Session and deployment overlay choices without owner or lifecycle |
+| Starter template discovery | [`get_available_agents`](https://github.com/GoogleCloudPlatform/agent-starter-pack/blob/659f047742457bd55e5db0edd088cf678b6f0669/agent_starter_pack/cli/utils/template.py#L510) | Uses folder identity and permissively consumes known template fields for list/filter behavior |
+| Current template metadata | [`agents/adk/.template/templateconfig.yaml`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/scaffold/agents/adk/.template/templateconfig.yaml) | Carries current ADK 2.x dependency and target choices as scaffold capability |
+| Generated project manifest | [`agents-cli-manifest.yaml`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/scaffold/base_templates/_shared/agents-cli-manifest.yaml) | Records one project instance's template, tool version, path, region and create parameters |
+| Project manifest consumer | [`ProjectConfig`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/_project.py) | Reads known keys with defaults, ignores unknown fields and treats scaffold version mismatch as guidance |
+| Remote template precedence | [`load_remote_template_config`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/scaffold/utils/remote_template.py#L368) | Merges defaults, project metadata and CLI overrides, so project/template fields are not stable catalog authority |
+| Legacy-root ADK discovery | [`discover_adk_agents`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/scaffold/utils/remote_template.py#L531) | Scans only `python/agents`, demonstrating that repository-valid current recipes can remain invisible to a stale consumer |
+
 ## Representative Architecture Evidence
 
 | Pattern | Source |
