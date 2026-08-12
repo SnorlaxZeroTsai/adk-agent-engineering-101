@@ -26,10 +26,12 @@ contracts反推internal Agent Garden，而不是先設計一個萬用manifest。
   的component/lifecycle contract。
 - [`adrs/`](adrs/)：authority、storage、rendering、evaluation、deployment與
   extension decisions。
+- [`mvp.md`](mvp.md)：local Mini Agent Garden commands、Project Instance、
+  behavior evidence、upgrade與extension結果。
 
 ## Planned Artifacts
 
-`mvp.md`與`future-evolution.md`會在後續phases依序建立。
+`future-evolution.md`會在後續研究中建立。
 
 Catalog contract不包含model、tool、workflow、policy、evaluation、
 deployment或secret設定。Blueprint以Catalog reference連接這些executable

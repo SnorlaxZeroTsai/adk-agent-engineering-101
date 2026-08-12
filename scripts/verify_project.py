@@ -27,6 +27,7 @@ REQUIRED_PATHS = (
     "docs/learning-notes/phase-10-agent-garden.md",
     "docs/learning-notes/phase-11-blueprints.md",
     "docs/learning-notes/phase-12-mvp-architecture.md",
+    "docs/learning-notes/phase-13-mini-agent-garden.md",
     "docs/foundations/agent.md",
     "docs/foundations/tools.md",
     "docs/foundations/execution-model.md",
@@ -166,6 +167,14 @@ REQUIRED_PATHS = (
     "labs/12-mvp-architecture/tests/test_mvp_architecture.py",
     "labs/12-mvp-architecture/scripts/run_architecture_gate.py",
     "labs/12-mvp-architecture/scripts/run_architecture_traces.py",
+    "labs/13-mini-agent-garden/README.md",
+    "labs/13-mini-agent-garden/OBSERVATIONS.md",
+    "labs/13-mini-agent-garden/garden_lab/gate.py",
+    "labs/13-mini-agent-garden/fixtures/invalid_cases.json",
+    "labs/13-mini-agent-garden/fixtures/experimental-typed.blueprint.json",
+    "labs/13-mini-agent-garden/tests/test_mini_agent_garden.py",
+    "labs/13-mini-agent-garden/scripts/run_garden_gate.py",
+    "labs/13-mini-agent-garden/scripts/run_garden_traces.py",
     "case-studies/README.md",
     "agent-garden/README.md",
     "agent-garden/concepts.md",
@@ -189,6 +198,23 @@ REQUIRED_PATHS = (
     "agent-garden/adrs/0004-evaluation-before-promotion.md",
     "agent-garden/adrs/0005-deployment-ledger-separation.md",
     "agent-garden/adrs/0006-typed-core-external-adapters.md",
+    "agent-garden/mvp.md",
+    "mini-agent-garden/pyproject.toml",
+    "mini-agent-garden/mini_agent_garden/__init__.py",
+    "mini-agent-garden/mini_agent_garden/__main__.py",
+    "mini-agent-garden/mini_agent_garden/canonical.py",
+    "mini-agent-garden/mini_agent_garden/contracts.py",
+    "mini-agent-garden/mini_agent_garden/errors.py",
+    "mini-agent-garden/mini_agent_garden/catalog.py",
+    "mini-agent-garden/mini_agent_garden/architecture.py",
+    "mini-agent-garden/mini_agent_garden/validation.py",
+    "mini-agent-garden/mini_agent_garden/source.py",
+    "mini-agent-garden/mini_agent_garden/rendering.py",
+    "mini-agent-garden/mini_agent_garden/storage.py",
+    "mini-agent-garden/mini_agent_garden/behavior.py",
+    "mini-agent-garden/mini_agent_garden/upgrade.py",
+    "mini-agent-garden/mini_agent_garden/service.py",
+    "mini-agent-garden/mini_agent_garden/cli.py",
     "mini-agent-garden/README.md",
     "references/upstream-lock.yaml",
     "references/source-index.md",
@@ -233,8 +259,10 @@ def main() -> None:
     roadmap = (ROOT / "docs/roadmap.md").read_text(encoding="utf-8")
     if "ADK 1.x" not in roadmap or "ADK 2.0" not in roadmap:
         fail("roadmap must preserve the ADK 1.x/2.0 migration boundary")
-    if "Phase 13 Mini Agent Garden | Next" not in roadmap:
-        fail("roadmap does not point to the next architecture dependency")
+    if "Phase 13 Mini Agent Garden | Complete for local scope" not in roadmap:
+        fail("roadmap does not record the completed local MVP milestone")
+    if "| Next |" in roadmap:
+        fail("roadmap retains a next phase without evidence-backed scope")
 
     workflow_note = (
         ROOT / "docs/workflows/deterministic-workflows.md"
@@ -590,13 +618,55 @@ def main() -> None:
     if len(invalid_architectures.get("cases", [])) != 15:
         fail("Phase 12 must retain exactly 15 invalid architecture cases")
 
+    mvp_note = (ROOT / "agent-garden" / "mvp.md").read_text(
+        encoding="utf-8"
+    )
+    for required_concept in (
+        "Command To Component Mapping",
+        "Three Blueprint Proof",
+        "Artifact Flow",
+        "Upgrade Semantics",
+        "Extension Result",
+    ):
+        if required_concept not in mvp_note:
+            fail(f"Mini Agent Garden module lacks {required_concept!r}")
+
+    cli_source = (
+        ROOT
+        / "mini-agent-garden"
+        / "mini_agent_garden"
+        / "cli.py"
+    ).read_text(encoding="utf-8")
+    for command in (
+        '"list"',
+        '"inspect"',
+        '"validate"',
+        '"create"',
+        '"test"',
+        '"upgrade"',
+    ):
+        if command not in cli_source:
+            fail(f"Mini Agent Garden CLI lacks command {command}")
+
+    invalid_garden_flows = json.loads(
+        (
+            ROOT
+            / "labs"
+            / "13-mini-agent-garden"
+            / "fixtures"
+            / "invalid_cases.json"
+        ).read_text(encoding="utf-8")
+    )
+    if len(invalid_garden_flows.get("cases", [])) != 11:
+        fail("Phase 13 must retain exactly 11 invalid lifecycle flows")
+
     state = (ROOT / "PROJECT_STATE.md").read_text(encoding="utf-8")
     if "Next Actions" not in state or "Unresolved Questions" not in state:
         fail("PROJECT_STATE.md lacks continuation context")
-    if "Phase 13" not in state:
-        fail("PROJECT_STATE.md does not point to Phase 13")
+    if "Phase 0-13" not in state:
+        fail("PROJECT_STATE.md does not record the completed local roadmap")
 
-    print("PASS: project structure and Phase 0-12 artifacts verified")
+    print("PASS: project structure and Phase 0-13 artifacts verified")
 
 
 if __name__ == "__main__":

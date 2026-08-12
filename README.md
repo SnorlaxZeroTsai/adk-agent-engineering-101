@@ -28,8 +28,8 @@
 | Agent Garden discoverability | Catalog/scaffold/runtime/governance ownership baseline complete | [`agent-garden/discoverability-contract.md`](agent-garden/discoverability-contract.md) |
 | Executable Blueprint schema | Three architecture branches, semantic validation and v0.1 migration complete | [`agent-garden/blueprint-schema.md`](agent-garden/blueprint-schema.md) |
 | MVP architecture | Six authority-separated components and lifecycle contract complete | [`agent-garden/architecture.md`](agent-garden/architecture.md) |
-| Executable labs | 146 offline + 74 ADK runtime tests passing | [`labs/`](labs/) |
-| Mini Agent Garden | Planned | [`mini-agent-garden/README.md`](mini-agent-garden/README.md) |
+| Mini Agent Garden | Local discover, validate, scaffold, test and upgrade MVP complete | [`agent-garden/mvp.md`](agent-garden/mvp.md) |
+| Executable labs | 168 offline + 74 ADK runtime tests passing | [`labs/`](labs/) |
 
 Research snapshot: 2026-08-12. Exact upstream commits are pinned in
 [`references/upstream-lock.yaml`](references/upstream-lock.yaml).
@@ -52,7 +52,7 @@ Research snapshot: 2026-08-12. Exact upstream commits are pinned in
 12. Validate three materially different executable Blueprints and their shared
     schema in Lab 11.
 13. Validate the six-component MVP architecture and lifecycle in Lab 12.
-14. Use that architecture to implement the mini Agent Garden.
+14. Run the local Mini Agent Garden lifecycle in Lab 13.
 
 The detailed dependency order and phase exit criteria live in
 [`docs/roadmap.md`](docs/roadmap.md).
@@ -62,7 +62,7 @@ The detailed dependency order and phase exit criteria live in
 | Module | Required |
 |---|---|
 | Documentation and source-reading exercises | Git, a text editor |
-| Lab 01/02/03/04/05/06/07/08/09/10/11/12 deterministic tests | Python 3.10+ |
+| Lab 01/02/03/04/05/06/07/08/09/10/11/12/13 deterministic tests | Python 3.10+ |
 | Scripted ADK runtime tests | Python 3.10+, Git and network access for one-time bootstrap |
 | Live-model lab execution | Python 3.10+, `uv` or venv, Gemini API key or Google Cloud ADC |
 | Deployment modules | Google Cloud project, `gcloud`, Terraform |
@@ -96,6 +96,7 @@ Cloud credentials are not required for offline or scripted-model tests.
 | `10-agent-garden-discovery` | Separate recipe, template and project metadata; validate stable identity, immutable source, compatibility, lifecycle and assurance | Stdlib-only catalog and source-ownership checks; no ADK install required |
 | `11-blueprint-schema` | Validate single-Agent, Workflow/RAG and multi-agent/HITL Blueprints, semantic references and v0.1 migration | Stdlib-only schema, Git object and Python AST checks; no ADK install required |
 | `12-mvp-architecture` | Validate component authority, artifact/storage/trust boundaries, release/rollback flow and three Blueprint walkthroughs | Stdlib-only architecture, repository reference and deterministic digest checks; no ADK install required |
+| `13-mini-agent-garden` | Discover, validate, scaffold, test and upgrade all three Blueprints through one local CLI and typed component adapters | Stdlib-only Git object, filesystem, subprocess and digest checks; no ADK install required |
 
 ## Run
 
@@ -240,6 +241,19 @@ Run the MVP architecture gate:
 
 ```bash
 make verify-mvp-architecture
+```
+
+Run the local Mini Agent Garden gate:
+
+```bash
+make verify-mini-agent-garden
+```
+
+List available Blueprints:
+
+```bash
+PYTHONPATH=mini-agent-garden \
+  python3 -m mini_agent_garden --repository . list
 ```
 
 After configuring credentials, run the interactive Agent:

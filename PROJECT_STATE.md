@@ -4,10 +4,10 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Start Phase 13 by implementing a thin Mini Agent Garden CLI over the completed
-Catalog, Blueprint and six-component MVP contracts. Preserve component
-authority through typed artifacts; do not let command handlers become a new
-Catalog, policy, deployment or release source of truth.
+The Phase 0-13 source-driven local roadmap is complete. Preserve the verified
+Catalog, Blueprint, component and CLI contracts while selecting the next
+credentialed production integration from the unresolved evidence gaps; do not
+weaken local gates to accommodate a provider.
 
 ## Completed
 
@@ -145,6 +145,21 @@ Catalog, policy, deployment or release source of truth.
 - 15 deliberate invalid architecture mutations with baseline exit `0` and
   broken exit `1`.
 - 18 Lab 12 dependency-free tests and deterministic 17,713-byte evidence
+  bundle.
+- Phase 13 local Mini Agent Garden reference implementation.
+- `list`, `inspect`, `validate`, `create`, `test` and `upgrade` CLI commands.
+- Three deterministic Project Instances rendered from immutable commit
+  `9702a79d15f81a9a44a8d40af3ca038196746c46`.
+- 13 single-Agent, 7 Workflow and 7 multi-agent scaffolded implementation
+  contract tests.
+- Content-addressed local candidates and Behavior Reports.
+- v0.1 schema migration, compatible managed-file regeneration and
+  review-required Implementation change planning.
+- Typed architecture handler injection without CLI dispatch changes; default
+  schema/validator remains fail closed.
+- 11 deliberate invalid lifecycle flows with baseline exit `0` and broken
+  exit `1`.
+- 22 Lab 13 dependency-free tests and deterministic 5,083-byte evidence
   bundle.
 
 ## Important Findings
@@ -353,6 +368,20 @@ Catalog, policy, deployment or release source of truth.
 84. All 15 invalid architecture mutations failed, including authority,
     credential, secret, immutability, cache, extension, evidence and ADR
     violations.
+85. One CLI can serve single Agent, Workflow/RAG and multi-agent/HITL when it
+    exchanges typed component artifacts instead of branching on app topology.
+86. Scaffold source must come from the Catalog-selected Git revision, not the
+    mutable current worktree.
+87. A managed-file manifest makes renderer ownership and user-file
+    preservation mechanically testable during upgrade.
+88. Behavior execution needs an immutable candidate digest; project-file
+    integrity alone does not prevent a forged candidate identity.
+89. Blueprint schema migration, compatible composition regeneration and
+    Implementation change have different review requirements.
+90. CLI dispatch can use a handler registry, but a new architecture still
+    requires a typed Blueprint branch and semantic validator.
+91. All 11 invalid Mini Garden flows failed, including resolution, metric,
+    tamper, candidate, behavior, review, ledger, handler and schema failures.
 
 ## Architecture Decisions
 
@@ -490,6 +519,17 @@ Catalog, policy, deployment or release source of truth.
 - Keep architecture kinds in the typed core and constrain external adapters
   from overriding identity, policy, secrets or release evidence.
 - Keep the CLI as a caller that exchanges typed artifacts between components.
+- Read scaffold source from immutable Git objects selected by Catalog.
+- List every renderer-owned Project Instance file and preserve all unlisted
+  project-team files during compatible regeneration.
+- Revalidate managed files and candidate digest before behavior execution.
+- Keep Blueprint-provided data from selecting an arbitrary test shell command.
+- Store candidates and Behavior Reports by canonical content digest.
+- Distinguish schema migration, compatible regeneration and Implementation
+  change in upgrade plans.
+- Require explicit review before applying an Implementation change.
+- Keep CLI architecture dispatch registry-based while retaining typed schema
+  and validator ownership in the core.
 
 ## Unresolved Questions
 
@@ -535,16 +575,12 @@ Catalog, policy, deployment or release source of truth.
   dual ownership and undetected drift?
 - How should Catalog Registry enforce trust policy and access control without
   changing CatalogEntry authority?
-- How should a local CLI exchange typed artifacts without sharing mutable
-  component internals?
-- How should Project Instance regeneration preserve user-owned source and
-  surface scaffold conflicts?
-- How should the upgrade command distinguish Blueprint schema migration,
-  Implementation change and Project Instance regeneration?
 - How should filesystem/content-addressed/ledger adapters handle concurrent
   writers before a durable service is justified?
-- Can a new typed architecture branch be added without changing core CLI
-  command dispatch?
+- How should scaffold merge conflicts be represented when user-owned changes
+  overlap a newly managed path?
+- How should a remote source resolver verify signatures and repository access
+  without leaking credentials into Catalog metadata?
 
 ## Relevant Sources
 
@@ -597,6 +633,10 @@ Catalog, policy, deployment or release source of truth.
 - [`agent-garden/adrs`](agent-garden/adrs/)
 - [`docs/learning-notes/phase-12-mvp-architecture.md`](docs/learning-notes/phase-12-mvp-architecture.md)
 - [`labs/12-mvp-architecture`](labs/12-mvp-architecture/)
+- [`agent-garden/mvp.md`](agent-garden/mvp.md)
+- [`mini-agent-garden`](mini-agent-garden/)
+- [`docs/learning-notes/phase-13-mini-agent-garden.md`](docs/learning-notes/phase-13-mini-agent-garden.md)
+- [`labs/13-mini-agent-garden`](labs/13-mini-agent-garden/)
 
 ## Environment Notes
 
@@ -604,7 +644,7 @@ Catalog, policy, deployment or release source of truth.
 - `uv` is not installed.
 - Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
   `/tmp/adk-python` commit.
-- `make verify` passes: repository invariants plus 146 offline tests.
+- `make verify` passes: repository invariants plus 168 offline tests.
 - `make verify-adk` passes: 74 ADK-backed tests plus seven trace renderers and
   baseline/broken evaluation exit checks.
 - `make verify-workflows` passes: 12 ADK-backed tests plus a 79 KB JSON
@@ -634,6 +674,9 @@ Catalog, policy, deployment or release source of truth.
 - `make verify-mvp-architecture` passes: 18 dependency-free tests, baseline
   exit `0`, expected broken exit `1` and a deterministic 17,713-byte evidence
   bundle.
+- `make verify-mini-agent-garden` passes: 22 dependency-free tests, 27
+  scaffolded implementation contract tests, baseline exit `0`, expected
+  broken exit `1` and a deterministic 5,083-byte evidence bundle.
 - Live-model execution remains unverified until credentials are configured.
 - Lab 02 recreates Runner/root objects but retains one
   `InMemorySessionService`; it does not prove durable process recovery.
@@ -642,13 +685,13 @@ Catalog, policy, deployment or release source of truth.
 
 ## Next Actions
 
-1. Define the Phase 13 CLI surface as thin calls into the six component
-   contracts.
-2. Implement local Catalog discovery and immutable Implementation selection.
-3. Render deterministic Project Instances for all three Phase 11 Blueprints.
-4. Expose schema/semantic validation and behavior gates without duplicating
-   their rules in command handlers.
-5. Implement upgrade planning for Blueprint migration, Implementation change
-   and Project Instance regeneration.
-6. Add one typed architecture extension and test whether core CLI dispatch
-   remains unchanged.
+1. Select one credentialed live-model/cloud integration and define its
+   measurable exit gate before implementation.
+2. Add signed source/catalog provenance and registry access-control evidence.
+3. Replace local content/ledger adapters only when locking, concurrency or
+   durability requirements are explicit.
+4. Bind a real cloud promotion result transactionally or reconciliably to the
+   append-only Release Record.
+5. Add live latency, token, cost, retrieval and judge-drift release metrics.
+6. Design stateful service migration and rollback evidence for Session,
+   artifact, memory and retrieval stores.

@@ -105,7 +105,7 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | Phase 10 Agent Garden reverse engineering | Complete | Three metadata contracts, 33 field rows, nine discovery facts and 13 misleading-entry gates |
 | Phase 11 Blueprint schema | Complete | Three architecture branches, 15 invalid cases and identity-preserving v0.1 migration |
 | Phase 12 MVP architecture | Complete | Six components, 12 artifacts, six storage classes, nine trust boundaries and three lifecycle walkthroughs |
-| Phase 13 Mini Agent Garden | Next | Implement discover, scaffold, validate, test and upgrade over the validated authority boundaries |
+| Phase 13 Mini Agent Garden | Complete for local scope | Three Blueprints discover, scaffold, validate, test and upgrade through one thin CLI |
 
 The Phase 1 live-model gate remains open, but it is not a dependency for
 deterministic Workflow semantics.
@@ -695,7 +695,9 @@ Evidence:
 
 ### Phase 13: Mini Agent Garden
 
-Status: next.
+Status: complete for dependency-free local product scope. Cloud target
+execution, remote trust, durable locking and live-model gates remain separate
+integration work.
 
 Hypothesis:
 
@@ -703,7 +705,7 @@ Hypothesis:
 > Blueprint architectures by exchanging the Phase 12 typed artifacts; it must
 > not become a new Catalog, policy, deployment or release authority.
 
-Next experiment:
+Experiment:
 
 - implement local Catalog discovery and immutable Implementation selection;
 - render Project Instances for all three Phase 11 Blueprints;
@@ -714,6 +716,36 @@ Next experiment:
   Instance regeneration during upgrade;
 - add a new architecture extension only through a typed contract and prove
   whether core CLI dispatch needs modification.
+
+Observed:
+
+- `list`, `inspect`, `validate`, `create`, `test` and `upgrade` call component
+  services without taking over Catalog, Blueprint, metric or release
+  authority;
+- all three Catalog-selected implementations were copied from immutable commit
+  `9702a79` into deterministic Project Instances;
+- single Agent, Workflow/RAG and multi-agent/HITL projects contained 24, 18
+  and 18 managed files and passed 13, 7 and 7 contract tests;
+- candidate and Behavior Report digests remained stable across temporary
+  workspace paths;
+- managed-file and forged-candidate tampering failed before test execution;
+- v0.1 schema migration preserved identities, compatible composition
+  regenerated managed files and unlisted user files survived;
+- changed Implementation selection required explicit review;
+- an injected typed architecture handler used the same CLI dispatch, while
+  the default schema/validator rejected the untyped fixture;
+- all 11 invalid lifecycle flows failed by their expected code;
+- baseline exits `0`, broken exits `1`.
+
+Evidence:
+
+- `agent-garden/mvp.md`
+- `mini-agent-garden`
+- `docs/learning-notes/phase-13-mini-agent-garden.md`
+- `labs/13-mini-agent-garden`
+- 22 dependency-free tests
+- 27 scaffolded implementation contract tests
+- deterministic 5,083-byte evidence bundle
 
 ## Later Phase Design Questions
 
@@ -803,9 +835,11 @@ and one executable lab artifact. Candidate patterns are not promoted to
 6. Derive authority-separated components, storage, trust and extension
    boundaries. Complete in Phase 12.
 7. Implement registry discovery, scaffold rendering and project validation.
-8. Add eval-gate and upgrade commands.
+   Complete in Phase 13.
+8. Add behavior-gate and upgrade commands. Complete in Phase 13.
 9. Test whether a new architecture can be added without modifying core CLI
-   logic.
+   logic. Complete in Phase 13 for dispatch; typed schema/validator changes
+   remain mandatory.
 
 ## Roadmap Revisions
 
@@ -829,6 +863,7 @@ and one executable lab artifact. Candidate patterns are not promoted to
 | 2026-08-12 | One generic architecture options map can cover every Agent | Use a strict single-Agent, Workflow or multi-agent union and keep cross-cutting runtime/policy/eval/lifecycle fields common |
 | 2026-08-12 | JSON Schema alone proves a Blueprint is executable | Add Git object, assurance digest, Python AST, graph, state, retrieval, policy and lifecycle semantic validation |
 | 2026-08-12 | One credentialed deployment service can also own release history | Separate mutable target control in Deployment Controller from append-only promotion and rollback truth in Release Ledger |
+| 2026-08-12 | Supporting another architecture requires new CLI command branches | Keep CLI dispatch registry-based, but still require a typed Blueprint branch, validator and behavior evidence |
 
 ## Milestone Tracking
 
