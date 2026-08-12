@@ -17,3 +17,5 @@ Current labs:
   specialist boundaries under failure, overlap and state conflict.
 - [`04-context-and-memory`](04-context-and-memory/): transient context, state,
   artifacts and memory under staleness, isolation and deletion failures.
+- [`05-rag-engineering`](05-rag-engineering/): managed native Search versus
+  explicit vector retrieval under provenance, ACL, version and deletion faults.

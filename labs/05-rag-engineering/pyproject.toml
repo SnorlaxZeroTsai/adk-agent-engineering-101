@@ -1,0 +1,17 @@
+[project]
+name = "rag-engineering-lab"
+version = "0.1.0"
+description = "Deterministic managed-search and explicit-vector RAG comparison"
+requires-python = ">=3.10"
+dependencies = [
+    "google-adk",
+]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "runtime_tests"]
