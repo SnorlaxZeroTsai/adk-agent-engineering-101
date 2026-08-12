@@ -94,7 +94,8 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | Phase 1A Agent boundary | Complete for offline/scripted scope | Agent note and deterministic counterexamples |
 | Phase 1B Tool boundary | Complete for local/source scope | Generated schemas, ToolContext state and failure recovery |
 | Phase 1C Execution model | Local baseline complete | Success, continuation, missing-session and failure traces; invocation resumption deferred |
-| Phase 2 Workflow engineering | Next | Legacy composite versus ADK 2.0 Workflow lab |
+| Phase 2 Workflow engineering | Local/runtime baseline complete | Equivalent business rules, routed loop, retry, failure, output and resume traces |
+| Phase 3 Multi-agent systems | Next | Deterministic node versus specialist/delegation comparison |
 
 The Phase 1 live-model gate remains open, but it is not a dependency for
 deterministic Workflow semantics.
@@ -181,6 +182,9 @@ Exit gate:
 
 ### Phase 2: Workflow Engineering
 
+Status: complete for deterministic local/runtime scope. Durable Session
+recovery, Task API, streaming and real model-node cost remain later gates.
+
 Comparative cases:
 
 - R03: small ADK 1.x sequence.
@@ -195,8 +199,46 @@ Experiments:
 - Hold prompts and tools constant.
 - Compare deterministic path, fan-out, retry, termination, pause/resume and
   event observability.
-- Force a child failure, missing state key, duplicate event and resume after
-  process loss.
+- Force a child failure, missing state key, duplicate event and resume with
+  fresh runtime objects; reserve actual process-loss proof for a durable
+  Session service gate.
+
+Observed:
+
+- equivalent legacy and graph paths produced the same approved brief;
+- graph fan-out and join exposed branch/run identity;
+- explicit graph exhaustion prevented unsafe fall-through after a loop limit;
+- graph node retry emitted an error Event and recovered on attempt two;
+- `use_as_output=True` removed a duplicate dynamic output;
+- fresh graph objects resumed and continued downstream without repeating an
+  external effect;
+- the pinned legacy custom-Agent resume reached the interrupted leaf but not
+  the parent sequence tail.
+
+Evidence:
+
+- `docs/workflows/deterministic-workflows.md`
+- `docs/learning-notes/phase-2-workflows.md`
+- `labs/02-workflow-engineering`
+- `patterns/deterministic-workflow.md`
+
+### Phase 3: Multi-Agent Systems
+
+Next hypothesis:
+
+> A specialist should be an Agent only when it needs an independent reasoning
+> boundary, identity or conversational lifecycle; deterministic capabilities
+> remain functions or Workflow nodes.
+
+Comparative experiment:
+
+- hold one specialist capability constant;
+- implement it as a function, a `single_turn` Agent node, conversational
+  transfer and coordinator-selected delegate;
+- compare schema, context isolation, state ownership, event trajectory,
+  failure propagation and model-call cost;
+- break responsibility boundaries through overlapping tools and shared-state
+  writes.
 
 ## Later Phase Design Questions
 
@@ -291,6 +333,9 @@ They require at least one local implementation and one intentional break.
 | 2026-08-12 | Workflow samples share one runtime model | Teach ADK 2.0 first and preserve an explicit ADK 1.x comparative track |
 | 2026-08-12 | Existing manifest can seed the full blueprint directly | Treat manifest as minimal catalog/ownership metadata; derive runtime and governance fields experimentally |
 | 2026-08-12 | Every yielded Event can be treated as message content | Error events may have no content; consumers must inspect event kind, error and action fields first |
+| 2026-08-12 | Legacy composites have no resume semantics | They persist agent-state checkpoints; the migration issue is different replay/routing and parent-continuation behavior |
+| 2026-08-12 | Replayed output proves a side effect ran twice | Graph replay can re-surface prior output while an external side-effect ledger remains unchanged |
+| 2026-08-12 | `max_iterations` is a failed/successful outcome | It is only a technical bound; exhaustion needs an explicit domain route |
 
 ## Milestone Tracking
 

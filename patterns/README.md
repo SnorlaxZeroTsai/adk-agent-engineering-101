@@ -12,3 +12,8 @@ No pattern is considered complete until it has:
 2. a competing alternative,
 3. an executable experiment,
 4. at least one intentional failure case.
+
+Current candidates:
+
+- [`deterministic-workflow.md`](deterministic-workflow.md): code-owned sequence,
+  fan-out, retry, loop termination and resume.

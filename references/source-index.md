@@ -21,6 +21,13 @@ All links are pinned to the commits in `upstream-lock.yaml`.
 | Invocation contract | [`InvocationContext`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/invocation_context.py) | Defines invocation, agent-call and model-step hierarchy |
 | State delta contract | [`State`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/sessions/state.py) | Tracks current state and pending event delta with optional schema validation |
 | Test session service | [`InMemorySessionService`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/sessions/in_memory_session_service.py) | Makes persistence behavior observable while documenting production limits |
+| Legacy sequence | [`SequentialAgent`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/sequential_agent.py) | Deprecated ordered child execution with current-child checkpoints |
+| Legacy fan-out | [`ParallelAgent`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/parallel_agent.py) | Deprecated concurrent branches and merged child Event streams |
+| Legacy loop | [`LoopAgent`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/agents/loop_agent.py) | Deprecated iteration state, escalation exit and maximum-iteration bound |
+| Graph orchestration | [`Workflow`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/workflow/_workflow.py) | Trigger scheduling, join handling, routed loops, checkpoints and replay |
+| Graph validation | [`_graph_validation.py`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/workflow/utils/_graph_validation.py) | Rejects duplicate/unreachable structure, unconditional cycles and schema mismatch |
+| Per-node execution | [`NodeRunner`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/workflow/_node_runner.py) | Owns node context, timeout, retry, error Event and output/delta flushing |
+| Workflow rehydration | [`ReplayManager`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/workflow/utils/_replay_manager.py) | Reconstructs direct-child executions and deterministic completion order from Events |
 
 ## Recipe Productization
 
@@ -37,6 +44,7 @@ All links are pinned to the commits in `upstream-lock.yaml`.
 |---|---|
 | Deterministic sequence | [`llm-auditor/agent.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/python/agents/llm-auditor/llm_auditor/agent.py) |
 | Custom iterative loop | [`deep-search/app/agent.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/deep-search/app/agent.py) |
+| Private composite patching | [`global-kyc-agent/agent.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/python/agents/global-kyc-agent/global_kyc_agent/agent.py) |
 | Coordinator and specialist tools | [`financial-advisor/agent.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/contrib/python/financial-advisor/financial_advisor/agent.py) |
 | Cross-session memory | [`cross-session-memory/app/agent.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/cross-session-memory/app/agent.py) |
 | Global guardrails | [`safety-plugins/plugins/agent_as_a_judge.py`](https://github.com/google/adk-samples/blob/4b5dd7705750dafbd987aa83efc323c3691d45fc/core/python/safety-plugins/safety_plugins/plugins/agent_as_a_judge.py) |

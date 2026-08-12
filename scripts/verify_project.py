@@ -15,15 +15,24 @@ REQUIRED_PATHS = (
     "docs/repo-map.md",
     "docs/learning-notes/phase-0-reconnaissance.md",
     "docs/learning-notes/phase-1-foundations.md",
+    "docs/learning-notes/phase-2-workflows.md",
     "docs/foundations/agent.md",
     "docs/foundations/tools.md",
     "docs/foundations/execution-model.md",
+    "docs/workflows/deterministic-workflows.md",
     "patterns/README.md",
+    "patterns/deterministic-workflow.md",
     "labs/README.md",
     "labs/01-agent-basics/README.md",
     "labs/01-agent-basics/agent_basics/runtime_trace.py",
     "labs/01-agent-basics/runtime_tests/test_runtime_trace.py",
     "labs/01-agent-basics/scripts/run_runtime_trace.py",
+    "labs/02-workflow-engineering/README.md",
+    "labs/02-workflow-engineering/workflow_lab/domain.py",
+    "labs/02-workflow-engineering/workflow_lab/graph_pipeline.py",
+    "labs/02-workflow-engineering/workflow_lab/legacy_pipeline.py",
+    "labs/02-workflow-engineering/runtime_tests/test_workflow_comparison.py",
+    "labs/02-workflow-engineering/scripts/run_workflow_traces.py",
     "case-studies/README.md",
     "agent-garden/README.md",
     "mini-agent-garden/README.md",
@@ -70,14 +79,25 @@ def main() -> None:
     roadmap = (ROOT / "docs/roadmap.md").read_text(encoding="utf-8")
     if "ADK 1.x" not in roadmap or "ADK 2.0" not in roadmap:
         fail("roadmap must preserve the ADK 1.x/2.0 migration boundary")
+    if "Phase 3 Multi-agent systems | Next" not in roadmap:
+        fail("roadmap does not point to the next architecture dependency")
+
+    workflow_note = (
+        ROOT / "docs/workflows/deterministic-workflows.md"
+    ).read_text(encoding="utf-8")
+    for required_concept in (
+        "Loop Exhaustion",
+        "Duplicate Output",
+        "Resume Comparison",
+    ):
+        if required_concept not in workflow_note:
+            fail(f"Workflow module lacks {required_concept!r}")
 
     state = (ROOT / "PROJECT_STATE.md").read_text(encoding="utf-8")
     if "Next Actions" not in state or "Unresolved Questions" not in state:
         fail("PROJECT_STATE.md lacks continuation context")
 
-    print(
-        "PASS: project structure, source lock and Phase 0/1 artifacts verified"
-    )
+    print("PASS: project structure and Phase 0-2 artifacts verified")
 
 
 if __name__ == "__main__":

@@ -4,8 +4,9 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Start Phase 2 by comparing deterministic ADK 1.x composite-agent patterns with
-the pinned ADK 2.0 graph Workflow runtime.
+Start Phase 3 by holding one specialist capability constant and comparing a
+deterministic function/node, single-turn Agent, conversational transfer and
+coordinator-selected delegation.
 
 ## Completed
 
@@ -21,6 +22,13 @@ the pinned ADK 2.0 graph Workflow runtime.
 - Pinned ADK 2.6.3 scripted runtime harness with 8 passing tests.
 - Success, same-session continuation, missing-session, unhandled failure,
   recovered failure and callback failure traces.
+- Phase 2 source comparison of deprecated composite Agents and graph
+  `Workflow`.
+- Lab 02 shared domain core plus legacy and graph adapters.
+- Sequence, fan-out/join, routed loop, retry, missing-state, duplicate-output
+  and fresh-object resume experiments.
+- 7 Lab 02 offline tests and 12 ADK-backed Workflow tests.
+- First candidate pattern: deterministic Workflow.
 
 ## Important Findings
 
@@ -48,6 +56,19 @@ the pinned ADK 2.0 graph Workflow runtime.
    propagating to the Runner caller.
 10. Conversation continuation on a Session is not interrupted-invocation
     resumption.
+11. Legacy composite Agents are deprecated but still have resumable agent-state
+    checkpoints. Migration must compare behavior rather than assume no legacy
+    resume semantics exist.
+12. `LoopAgent.max_iterations` is a technical bound, not a domain rejection or
+    success outcome.
+13. Graph `RetryConfig` provides node-local retry and an error Event per failed
+    attempt, but retry count is not durable across resume.
+14. Graph replay can re-surface a completed node's output without re-executing
+    its external side effect.
+15. In the pinned custom-Agent experiment, legacy Runner resumed the
+    interrupted leaf but did not naturally continue the parent sequence tail.
+16. Dynamic child output needs explicit `use_as_output=True` delegation to
+    avoid duplicate logical result Events.
 
 ## Architecture Decisions
 
@@ -62,15 +83,27 @@ the pinned ADK 2.0 graph Workflow runtime.
 - Keep pure domain functions separate from ToolContext-aware wrappers.
 - Assert yielded events, persisted events and materialized state independently.
 - Use explicit error callbacks only for approved recovery policy.
+- Keep deterministic domain rules independent of legacy composite and graph
+  adapters.
+- Treat loop exhaustion as an explicit route.
+- Use typed join payloads when all parallel results are required.
+- Keep harness metrics separate from business Session state.
+- Assign one retry owner and require idempotency.
+- Test resume with fresh runtime objects and an external side-effect ledger.
+- Use node paths/run IDs as trajectory evidence.
 
 ## Unresolved Questions
 
-- Which ADK 1.x composite-agent patterns should be migrated to the 2.0 Workflow
-  runtime, and which remain useful as LLM delegation patterns?
 - What is the stable replacement for direct `AgentTool` use now that ADK 2.0
   recommends `mode="single_turn"` sub-agents?
+- When does a specialist need an independent Agent identity/history instead of
+  a function or Workflow node?
 - How should trajectory evaluation differ between graph Workflow nodes and
   conversational agent transfers?
+- How should stored Workflow Events migrate when a node is renamed, removed or
+  split?
+- Which durable Session service and idempotency contract are sufficient for
+  actual process-loss recovery?
 - Which recipe manifest fields are catalog metadata versus runtime-enforceable
   blueprint contracts?
 - What minimum governance metadata is justified for the mini Agent Garden?
@@ -87,6 +120,9 @@ the pinned ADK 2.0 graph Workflow runtime.
 - [`docs/foundations/tools.md`](docs/foundations/tools.md)
 - [`docs/foundations/execution-model.md`](docs/foundations/execution-model.md)
 - [`docs/learning-notes/phase-1-foundations.md`](docs/learning-notes/phase-1-foundations.md)
+- [`docs/workflows/deterministic-workflows.md`](docs/workflows/deterministic-workflows.md)
+- [`docs/learning-notes/phase-2-workflows.md`](docs/learning-notes/phase-2-workflows.md)
+- [`patterns/deterministic-workflow.md`](patterns/deterministic-workflow.md)
 
 ## Environment Notes
 
@@ -94,17 +130,21 @@ the pinned ADK 2.0 graph Workflow runtime.
 - `uv` is not installed.
 - Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
   `/tmp/adk-python` commit.
-- `make verify` passes: repository invariants plus 13 offline tests.
-- `make verify-adk` passes: 8 ADK-backed runtime tests plus trace rendering.
+- `make verify` passes: repository invariants plus 20 offline tests.
+- `make verify-adk` passes: 20 ADK-backed tests plus both trace renderers.
+- `make verify-workflows` passes: 12 ADK-backed tests plus a 79 KB JSON
+  evidence bundle.
 - Live-model execution remains unverified until credentials are configured.
+- Lab 02 recreates Runner/root objects but retains one
+  `InMemorySessionService`; it does not prove durable process recovery.
 - Upstream clones used for Phase 0 are under `/tmp` and may disappear between
   sessions; re-clone at the pinned commits when needed.
 
 ## Next Actions
 
-1. Inspect pinned ADK 2.0 `Workflow`, graph/node APIs and legacy composite
-   implementations.
-2. Build Lab 02 with equivalent sequential, parallel and loop tasks.
-3. Force child failure, missing state, loop-limit and resume conditions.
-4. Compare event paths, determinism, retry and resumability.
-5. Update roadmap, README, learning note and pattern candidates.
+1. Inspect pinned `LlmAgent` modes, transfer logic, node wrappers and Task API.
+2. Select one bounded specialist capability and define a common contract.
+3. Implement function/node, `single_turn`, transfer and coordinator variants.
+4. Inject specialist failure, overlapping responsibility and shared-state
+   conflict.
+5. Compare model calls, context isolation, event trajectory and recovery.
