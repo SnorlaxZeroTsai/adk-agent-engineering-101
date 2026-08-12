@@ -4,10 +4,10 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Start Phase 12 by deriving the smallest MVP component model and ADR set from
-the completed CatalogEntry, executable Blueprint, behavior-gate and release
-contracts. Do not choose storage or distributed services before an observed
-ownership boundary requires them.
+Start Phase 13 by implementing a thin Mini Agent Garden CLI over the completed
+Catalog, Blueprint and six-component MVP contracts. Preserve component
+authority through typed artifacts; do not let command handlers become a new
+Catalog, policy, deployment or release source of truth.
 
 ## Completed
 
@@ -133,6 +133,18 @@ ownership boundary requires them.
 - Flat single-Agent v0.1 to v1.0 exact migration with Blueprint,
   CatalogEntry and Implementation identities preserved.
 - 19 Lab 11 dependency-free tests and deterministic 4,383-byte evidence
+  bundle.
+- Phase 12 authority-separated MVP component model.
+- Six components, 12 artifacts, six storage classes, nine trust boundaries
+  and seven extension points.
+- Seven-stage release path and two-stage rollback path.
+- Three digest-chained Blueprint lifecycle walkthroughs preserving
+  architecture-specific validators and blocking metrics.
+- Six Accepted ADRs for authority, storage, pure rendering, evaluation,
+  deployment/ledger separation and extension ownership.
+- 15 deliberate invalid architecture mutations with baseline exit `0` and
+  broken exit `1`.
+- 18 Lab 12 dependency-free tests and deterministic 17,713-byte evidence
   bundle.
 
 ## Important Findings
@@ -321,6 +333,26 @@ ownership boundary requires them.
 76. All 13 misleading catalog mutations failed, including project-name
     identity, mutable refs, frozen path, ADK 2.x overclaim, authority leakage
     and duplicate immutable source.
+77. Catalog, validation, rendering, deployment, behavior evaluation and
+    release history require six distinct authority components.
+78. Deployment Controller needs target credentials and mutable platform
+    status; Release Ledger needs append-only evidence and no target
+    credentials.
+79. Static Contract Validator and executable Behavior Gate require different
+    source-read and sandboxed-execution trust boundaries.
+80. Git authority, regenerable workspace, content-addressed evidence,
+    append-only history, target cache and external secret manager have
+    different write models and cannot be one generic store.
+81. Deployment status is operational cache; only Release Record is
+    append-only promotion and rollback truth.
+82. New architecture kinds require a typed Blueprint/validator change, while
+    source, renderer, runtime, metric, deployment and release integrations can
+    remain constrained adapters.
+83. Single Agent, Workflow/RAG and multi-agent/HITL all used the same
+    seven-stage platform lifecycle without sharing one runtime implementation.
+84. All 15 invalid architecture mutations failed, including authority,
+    credential, secret, immutability, cache, extension, evidence and ADR
+    violations.
 
 ## Architecture Decisions
 
@@ -445,6 +477,19 @@ ownership boundary requires them.
   blocking contracts.
 - Auto-migrate only shape changes that preserve identity, behavior and
   ownership; require a new Implementation or review for semantic changes.
+- Split platform components by authority, credential scope and write model,
+  not by CLI command.
+- Keep Catalog Registry, Contract Validator, Project Renderer, Deployment
+  Controller, Behavior Gate and Release Ledger as separate MVP authorities.
+- Keep rendering pure and credential-free.
+- Promote only the exact immutable candidate bound to a passing behavior
+  report.
+- Treat target deployment status as cache and Release Record as append-only
+  truth.
+- Let Release Ledger plan rollback and Deployment Controller execute it.
+- Keep architecture kinds in the typed core and constrain external adapters
+  from overriding identity, policy, secrets or release evidence.
+- Keep the CLI as a caller that exchanges typed artifacts between components.
 
 ## Unresolved Questions
 
@@ -488,18 +533,18 @@ ownership boundary requires them.
   traffic rollback?
 - How should Terraform desired state and imperative Agents CLI deploy avoid
   dual ownership and undetected drift?
-- Which minimum components are required to resolve Catalog identity, validate
-  Blueprint composition, render projects, run behavior gates and retain
-  release evidence?
-- Which component owns registry indexing, trust policy and access control?
-- Which MVP state belongs in Git, a local content-addressed cache or a durable
-  service?
-- Which architecture extensions require new typed schema branches, and which
-  can remain external contract references?
-- How should validator, scaffold renderer, evaluation adapter and release
-  ledger communicate without sharing mutable internal models?
-- What is the smallest upgrade plan that distinguishes Blueprint schema
-  migration, Implementation change and Project Instance regeneration?
+- How should Catalog Registry enforce trust policy and access control without
+  changing CatalogEntry authority?
+- How should a local CLI exchange typed artifacts without sharing mutable
+  component internals?
+- How should Project Instance regeneration preserve user-owned source and
+  surface scaffold conflicts?
+- How should the upgrade command distinguish Blueprint schema migration,
+  Implementation change and Project Instance regeneration?
+- How should filesystem/content-addressed/ledger adapters handle concurrent
+  writers before a durable service is justified?
+- Can a new typed architecture branch be added without changing core CLI
+  command dispatch?
 
 ## Relevant Sources
 
@@ -547,6 +592,11 @@ ownership boundary requires them.
 - [`agent-garden/blueprints`](agent-garden/blueprints/)
 - [`docs/learning-notes/phase-11-blueprints.md`](docs/learning-notes/phase-11-blueprints.md)
 - [`labs/11-blueprint-schema`](labs/11-blueprint-schema/)
+- [`agent-garden/architecture.md`](agent-garden/architecture.md)
+- [`agent-garden/mvp-architecture.json`](agent-garden/mvp-architecture.json)
+- [`agent-garden/adrs`](agent-garden/adrs/)
+- [`docs/learning-notes/phase-12-mvp-architecture.md`](docs/learning-notes/phase-12-mvp-architecture.md)
+- [`labs/12-mvp-architecture`](labs/12-mvp-architecture/)
 
 ## Environment Notes
 
@@ -554,7 +604,7 @@ ownership boundary requires them.
 - `uv` is not installed.
 - Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
   `/tmp/adk-python` commit.
-- `make verify` passes: repository invariants plus 128 offline tests.
+- `make verify` passes: repository invariants plus 146 offline tests.
 - `make verify-adk` passes: 74 ADK-backed tests plus seven trace renderers and
   baseline/broken evaluation exit checks.
 - `make verify-workflows` passes: 12 ADK-backed tests plus a 79 KB JSON
@@ -581,6 +631,9 @@ ownership boundary requires them.
 - `make verify-blueprints` passes: 19 dependency-free tests, baseline exit
   `0`, expected broken exit `1` and a deterministic 4,383-byte evidence
   bundle.
+- `make verify-mvp-architecture` passes: 18 dependency-free tests, baseline
+  exit `0`, expected broken exit `1` and a deterministic 17,713-byte evidence
+  bundle.
 - Live-model execution remains unverified until credentials are configured.
 - Lab 02 recreates Runner/root objects but retains one
   `InMemorySessionService`; it does not prove durable process recovery.
@@ -589,13 +642,13 @@ ownership boundary requires them.
 
 ## Next Actions
 
-1. Write ADRs for Catalog registry, Blueprint validator, scaffold renderer,
-   evaluation adapter and release ledger ownership.
-2. Draw the component/data-flow model from selection through validate,
-   scaffold, test, promote and rollback.
-3. Define which artifacts are immutable, content-addressed or mutable indexes.
-4. Define trust, access-control and extension boundaries without selecting a
-   distributed runtime prematurely.
-5. Walk all three Phase 11 Blueprints through the proposed lifecycle and
-   remove any component not required by all relevant paths.
-6. Record the Phase 13 CLI surface only after component ownership is stable.
+1. Define the Phase 13 CLI surface as thin calls into the six component
+   contracts.
+2. Implement local Catalog discovery and immutable Implementation selection.
+3. Render deterministic Project Instances for all three Phase 11 Blueprints.
+4. Expose schema/semantic validation and behavior gates without duplicating
+   their rules in command handlers.
+5. Implement upgrade planning for Blueprint migration, Implementation change
+   and Project Instance regeneration.
+6. Add one typed architecture extension and test whether core CLI dispatch
+   remains unchanged.

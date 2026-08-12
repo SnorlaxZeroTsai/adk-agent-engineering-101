@@ -26,6 +26,7 @@ REQUIRED_PATHS = (
     "docs/learning-notes/phase-9-pattern-catalog.md",
     "docs/learning-notes/phase-10-agent-garden.md",
     "docs/learning-notes/phase-11-blueprints.md",
+    "docs/learning-notes/phase-12-mvp-architecture.md",
     "docs/foundations/agent.md",
     "docs/foundations/tools.md",
     "docs/foundations/execution-model.md",
@@ -152,6 +153,19 @@ REQUIRED_PATHS = (
     "labs/11-blueprint-schema/tests/test_blueprint_schema.py",
     "labs/11-blueprint-schema/scripts/run_blueprint_gate.py",
     "labs/11-blueprint-schema/scripts/run_blueprint_traces.py",
+    "labs/12-mvp-architecture/README.md",
+    "labs/12-mvp-architecture/OBSERVATIONS.md",
+    "labs/12-mvp-architecture/architecture_lab/contracts.py",
+    "labs/12-mvp-architecture/architecture_lab/loader.py",
+    "labs/12-mvp-architecture/architecture_lab/references.py",
+    "labs/12-mvp-architecture/architecture_lab/walkthrough.py",
+    "labs/12-mvp-architecture/architecture_lab/validation.py",
+    "labs/12-mvp-architecture/architecture_lab/fixtures.py",
+    "labs/12-mvp-architecture/architecture_lab/gate.py",
+    "labs/12-mvp-architecture/fixtures/invalid_cases.json",
+    "labs/12-mvp-architecture/tests/test_mvp_architecture.py",
+    "labs/12-mvp-architecture/scripts/run_architecture_gate.py",
+    "labs/12-mvp-architecture/scripts/run_architecture_traces.py",
     "case-studies/README.md",
     "agent-garden/README.md",
     "agent-garden/concepts.md",
@@ -166,6 +180,15 @@ REQUIRED_PATHS = (
     "agent-garden/blueprints/examples/order-support.blueprint.json",
     "agent-garden/blueprints/examples/research-workflow.blueprint.json",
     "agent-garden/blueprints/examples/case-triage.blueprint.json",
+    "agent-garden/architecture.md",
+    "agent-garden/mvp-architecture.json",
+    "agent-garden/mvp-architecture.schema.json",
+    "agent-garden/adrs/0001-authority-separated-components.md",
+    "agent-garden/adrs/0002-git-first-artifacts.md",
+    "agent-garden/adrs/0003-pure-project-renderer.md",
+    "agent-garden/adrs/0004-evaluation-before-promotion.md",
+    "agent-garden/adrs/0005-deployment-ledger-separation.md",
+    "agent-garden/adrs/0006-typed-core-external-adapters.md",
     "mini-agent-garden/README.md",
     "references/upstream-lock.yaml",
     "references/source-index.md",
@@ -210,7 +233,7 @@ def main() -> None:
     roadmap = (ROOT / "docs/roadmap.md").read_text(encoding="utf-8")
     if "ADK 1.x" not in roadmap or "ADK 2.0" not in roadmap:
         fail("roadmap must preserve the ADK 1.x/2.0 migration boundary")
-    if "Phase 12 MVP architecture | Next" not in roadmap:
+    if "Phase 13 Mini Agent Garden | Next" not in roadmap:
         fail("roadmap does not point to the next architecture dependency")
 
     workflow_note = (
@@ -458,11 +481,122 @@ def main() -> None:
     if len(invalid_blueprints.get("cases", [])) != 15:
         fail("Phase 11 must retain exactly 15 invalid Blueprint cases")
 
+    architecture_note = (
+        ROOT / "agent-garden" / "architecture.md"
+    ).read_text(encoding="utf-8")
+    for required_concept in (
+        "Component Model",
+        "Artifact And Storage Boundary",
+        "Release And Rollback",
+        "Trust Boundaries",
+        "Extension Boundaries",
+        "Blueprint Walkthroughs",
+    ):
+        if required_concept not in architecture_note:
+            fail(f"MVP architecture module lacks {required_concept!r}")
+
+    architecture = json.loads(
+        (ROOT / "agent-garden" / "mvp-architecture.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    architecture_schema = json.loads(
+        (ROOT / "agent-garden" / "mvp-architecture.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    if set(architecture_schema.get("required", [])) != set(architecture):
+        fail("MVP architecture schema and instance top-level fields drifted")
+
+    components = {
+        item.get("id"): item
+        for item in architecture.get("components", [])
+        if isinstance(item, dict)
+    }
+    expected_components = {
+        "catalog-registry",
+        "contract-validator",
+        "project-renderer",
+        "deployment-controller",
+        "behavior-gate",
+        "release-ledger",
+    }
+    if set(components) != expected_components:
+        fail("MVP architecture must retain exactly six authority components")
+    expected_scopes = {
+        "catalog-registry": "none",
+        "contract-validator": "source-read",
+        "project-renderer": "none",
+        "deployment-controller": "target-scoped",
+        "behavior-gate": "sandboxed-execution",
+        "release-ledger": "ledger-write",
+    }
+    if {
+        component_id: item.get("credential_scope")
+        for component_id, item in components.items()
+    } != expected_scopes:
+        fail("MVP component credential scopes drifted")
+    if any(name in components for name in ("cli", "database", "event-bus")):
+        fail("MVP includes a component without repeated authority evidence")
+
+    expected_counts = {
+        "artifacts": 12,
+        "storage_classes": 6,
+        "trust_boundaries": 9,
+        "extension_points": 7,
+        "blueprint_walkthroughs": 3,
+        "adrs": 6,
+    }
+    for field, expected_count in expected_counts.items():
+        if len(architecture.get(field, [])) != expected_count:
+            fail(
+                f"MVP architecture must retain {expected_count} {field}"
+            )
+    if any(
+        item.get("secret_material_allowed") is not False
+        for item in architecture.get("artifacts", [])
+    ):
+        fail("MVP architecture permits secret material in an artifact")
+
+    lifecycle = architecture.get("lifecycle", {})
+    release_stages = [
+        item.get("id") for item in lifecycle.get("release_path", [])
+    ]
+    if release_stages != [
+        "discover",
+        "validate",
+        "render",
+        "stage",
+        "evaluate",
+        "promote",
+        "record",
+    ]:
+        fail("MVP release lifecycle order drifted")
+    rollback_stages = [
+        item.get("id") for item in lifecycle.get("rollback_path", [])
+    ]
+    if rollback_stages != ["plan-rollback", "execute-rollback"]:
+        fail("MVP rollback lifecycle order drifted")
+
+    invalid_architectures = json.loads(
+        (
+            ROOT
+            / "labs"
+            / "12-mvp-architecture"
+            / "fixtures"
+            / "invalid_cases.json"
+        ).read_text(encoding="utf-8")
+    )
+    if len(invalid_architectures.get("cases", [])) != 15:
+        fail("Phase 12 must retain exactly 15 invalid architecture cases")
+
     state = (ROOT / "PROJECT_STATE.md").read_text(encoding="utf-8")
     if "Next Actions" not in state or "Unresolved Questions" not in state:
         fail("PROJECT_STATE.md lacks continuation context")
+    if "Phase 13" not in state:
+        fail("PROJECT_STATE.md does not point to Phase 13")
 
-    print("PASS: project structure and Phase 0-11 artifacts verified")
+    print("PASS: project structure and Phase 0-12 artifacts verified")
 
 
 if __name__ == "__main__":

@@ -104,7 +104,8 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | Phase 9 Pattern catalog | Complete | Seven normalized manifests, claim evidence, relations, decision boundaries and invalid-case gate |
 | Phase 10 Agent Garden reverse engineering | Complete | Three metadata contracts, 33 field rows, nine discovery facts and 13 misleading-entry gates |
 | Phase 11 Blueprint schema | Complete | Three architecture branches, 15 invalid cases and identity-preserving v0.1 migration |
-| Phase 12 MVP architecture | Next | Derive components and extension boundaries from Catalog, Blueprint and release contracts |
+| Phase 12 MVP architecture | Complete | Six components, 12 artifacts, six storage classes, nine trust boundaries and three lifecycle walkthroughs |
+| Phase 13 Mini Agent Garden | Next | Implement discover, scaffold, validate, test and upgrade over the validated authority boundaries |
 
 The Phase 1 live-model gate remains open, but it is not a dependency for
 deterministic Workflow semantics.
@@ -641,7 +642,9 @@ Evidence:
 
 ### Phase 12: MVP Architecture
 
-Status: next.
+Status: complete for dependency-free component and lifecycle scope. Cloud
+deployment, signed release history and transactional promotion remain later
+integration gates.
 
 Hypothesis:
 
@@ -649,7 +652,7 @@ Hypothesis:
 > validate Blueprint composition, render a project, run behavior gates and
 > retain release evidence; every additional service needs repeated evidence.
 
-Next experiment:
+Experiment:
 
 - derive component boundaries from Phase 10 Catalog, Phase 11 Blueprint and
   Phase 8 release contracts;
@@ -660,6 +663,57 @@ Next experiment:
 - map extension points to typed architecture unions or external contract refs;
 - prove that single-Agent, Workflow/RAG and multi-agent/HITL use the same
   platform lifecycle without sharing one runtime implementation.
+
+Observed:
+
+- six components were required: Catalog Registry, Contract Validator, Project
+  Renderer, Deployment Controller, Behavior Gate and Release Ledger;
+- Deployment Controller and Release Ledger require different credentials,
+  mutability and accountable owners;
+- Contract Validator and Behavior Gate require different source-read versus
+  sandboxed-execution trust boundaries;
+- 12 artifacts map to version control, workspace, content-addressed store,
+  append-only ledger, target control plane or external secret manager;
+- nine trust boundaries and seven extension points preserve authority across
+  selection, validation, rendering, deployment, evaluation and rollback;
+- all three Phase 11 Blueprints completed the same seven-stage release path
+  while retaining architecture-specific validators and blocking metrics;
+- all 15 invalid component/lifecycle mutations failed by their expected issue
+  code;
+- baseline exits `0`, broken exits `1`.
+
+Evidence:
+
+- `agent-garden/architecture.md`
+- `agent-garden/mvp-architecture.json`
+- `agent-garden/mvp-architecture.schema.json`
+- `agent-garden/adrs`
+- `docs/learning-notes/phase-12-mvp-architecture.md`
+- `labs/12-mvp-architecture`
+- 18 dependency-free tests
+- deterministic 17,713-byte evidence bundle
+
+### Phase 13: Mini Agent Garden
+
+Status: next.
+
+Hypothesis:
+
+> A thin CLI can discover, scaffold, validate, test and upgrade three different
+> Blueprint architectures by exchanging the Phase 12 typed artifacts; it must
+> not become a new Catalog, policy, deployment or release authority.
+
+Next experiment:
+
+- implement local Catalog discovery and immutable Implementation selection;
+- render Project Instances for all three Phase 11 Blueprints;
+- expose schema and semantic validation without duplicating validator rules in
+  command handlers;
+- run behavior gates and retain digest-bound reports;
+- distinguish Blueprint schema migration, Implementation change and Project
+  Instance regeneration during upgrade;
+- add a new architecture extension only through a typed contract and prove
+  whether core CLI dispatch needs modification.
 
 ## Later Phase Design Questions
 
@@ -746,9 +800,11 @@ and one executable lab artifact. Candidate patterns are not promoted to
    11.
 5. Validate invalid blueprints and migration between schema versions.
    Complete in Phase 11.
-6. Implement registry discovery, scaffold rendering and project validation.
-7. Add eval-gate and upgrade commands.
-8. Test whether a new architecture can be added without modifying core CLI
+6. Derive authority-separated components, storage, trust and extension
+   boundaries. Complete in Phase 12.
+7. Implement registry discovery, scaffold rendering and project validation.
+8. Add eval-gate and upgrade commands.
+9. Test whether a new architecture can be added without modifying core CLI
    logic.
 
 ## Roadmap Revisions
@@ -772,6 +828,7 @@ and one executable lab artifact. Candidate patterns are not promoted to
 | 2026-08-12 | Recipe, template and project manifest fields can be unioned into one Blueprint | Separate stable catalog identity from scaffold/project metadata, then derive executable schema from three different examples |
 | 2026-08-12 | One generic architecture options map can cover every Agent | Use a strict single-Agent, Workflow or multi-agent union and keep cross-cutting runtime/policy/eval/lifecycle fields common |
 | 2026-08-12 | JSON Schema alone proves a Blueprint is executable | Add Git object, assurance digest, Python AST, graph, state, retrieval, policy and lifecycle semantic validation |
+| 2026-08-12 | One credentialed deployment service can also own release history | Separate mutable target control in Deployment Controller from append-only promotion and rollback truth in Release Ledger |
 
 ## Milestone Tracking
 

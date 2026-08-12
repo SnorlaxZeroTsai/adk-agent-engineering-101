@@ -105,6 +105,17 @@ All links are pinned to the commits in `upstream-lock.yaml`.
 | Behavior gate | [`LocalEvalService`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/evaluation/local_eval_service.py) | Dataset, gate and blocking metrics remain explicit executable contracts |
 | Project lifecycle | [`ProjectConfig`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/_project.py) | Project instance metadata is referenced by later scaffold lifecycle and is not Catalog or Blueprint identity |
 
+## MVP Component Inputs
+
+| Component concern | Source | Architecture implication |
+|---|---|---|
+| Catalog selection | [`discover_adk_agents`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/scaffold/utils/remote_template.py#L531) | Discovery needs an explicit versioned index and immutable Implementation selection instead of directory scanning |
+| Contract validation | [`_graph_validation.py`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/workflow/utils/_graph_validation.py) | Architecture-specific semantic checks remain separate from scaffold rendering |
+| Pure rendering | [`scaffold/utils/template.py`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/scaffold/utils/template.py) | Layer composition produces a Project Instance but should not own Catalog, behavior or release authority |
+| Behavior execution | [`LocalEvalService`](https://github.com/google/adk-python/blob/a56f6e13ae38296b608808c7a3b37efe4b8c862e/src/google/adk/evaluation/local_eval_service.py) | Candidate execution and blocking metrics require a sandbox boundary distinct from static validation |
+| Target control | [`deploy/cmd_deploy.py`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/deploy/cmd_deploy.py) | Deployment adapters need target credentials and own mutable platform operations |
+| Release history | [`deploy/_operation.py`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/src/google/agents/cli/deploy/_operation.py) and [`google-agents-cli-deploy/SKILL.md`](https://github.com/google/agents-cli/blob/5a306f8956cb1eeae69f9709de0e4d61b44e11e7/skills/google-agents-cli-deploy/SKILL.md) | Mutable pending-operation metadata and target-specific rollback do not provide append-only promotion truth, so Release Ledger remains a separate authority |
+
 ## Representative Architecture Evidence
 
 | Pattern | Source |
