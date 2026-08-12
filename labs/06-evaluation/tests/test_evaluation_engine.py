@@ -60,10 +60,10 @@ class ContractTests(unittest.TestCase):
     def test_cross_phase_dataset_has_one_unique_case_per_phase(self) -> None:
         dataset = build_dataset()
 
-        self.assertEqual(len(dataset.cases), 5)
+        self.assertEqual(len(dataset.cases), 6)
         self.assertEqual(
             len({case.case_id for case in dataset.cases}),
-            5,
+            6,
         )
         self.assertEqual(
             {case.phase for case in dataset.cases},
@@ -73,6 +73,7 @@ class ContractTests(unittest.TestCase):
                 "multi-agent",
                 "context-memory",
                 "rag",
+                "safety-hitl",
             },
         )
 

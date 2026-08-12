@@ -1,4 +1,4 @@
-"""Normalize real traces from Labs 01-05 into the Phase 6 contract."""
+"""Normalize real traces from Labs 01-07 into one release contract."""
 
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ for relative in (
     "labs/03-multi-agent",
     "labs/04-context-and-memory",
     "labs/05-rag-engineering",
+    "labs/07-safety-hitl",
 ):
     path = str(REPOSITORY_ROOT / relative)
     if path not in sys.path:
@@ -32,6 +33,8 @@ from multi_agent_lab.runtime import run_scenario  # noqa: E402
 from multi_agent_lab.runtime import run_shared_state_conflict  # noqa: E402
 from rag_lab.domain import query_case  # noqa: E402
 from rag_lab.runtime import run_explicit_vector  # noqa: E402
+from safety_hitl_lab.runtime import run_confirmation_payment  # noqa: E402
+from safety_hitl_lab.runtime import run_prompt_only_payment  # noqa: E402
 from workflow_lab.graph_pipeline import build_graph_pipeline  # noqa: E402
 from workflow_lab.legacy_pipeline import build_legacy_pipeline  # noqa: E402
 from workflow_lab.runtime import run_once  # noqa: E402
@@ -53,6 +56,10 @@ warnings.filterwarnings(
 warnings.filterwarnings(
     "ignore",
     message=r"\[EXPERIMENTAL\] feature AGENT_STATE.*",
+)
+warnings.filterwarnings(
+    "ignore",
+    message=r".*TOOL_CONFIRMATION.*",
 )
 
 
@@ -262,6 +269,85 @@ async def _rag_observation(*, broken: bool) -> ObservedRun:
     )
 
 
+def _safety_kind(event: Any) -> str | None:
+    calls = event.get_function_calls()
+    if calls:
+        if any(call.name == "adk_request_confirmation" for call in calls):
+            return "confirmation_request"
+        return "action_call"
+    responses = event.get_function_responses()
+    if responses:
+        if any(
+            response.response
+            and response.response.get("error") == "approval_required"
+            for response in responses
+        ):
+            return "approval_pending"
+        return "action_response"
+    if event.content and any(
+        part.text for part in event.content.parts or []
+    ):
+        return "message"
+    return None
+
+
+async def _safety_observation(*, broken: bool) -> ObservedRun:
+    if broken:
+        result = await run_prompt_only_payment()
+        events = result.events
+        session_state = dict(result.session.state)
+        model_request_count = result.model_request_count
+        error = result.error
+        output = result.output_text
+    else:
+        result = await run_confirmation_payment()
+        events = [*result.first_events, *result.resumed_events]
+        session_state = dict(result.session.state)
+        model_request_count = result.model_request_count
+        error = result.error
+        output = result.output_text
+
+    business_calls = tuple(
+        ToolCall(
+            name=call.name or "",
+            arguments=dict(call.args or {}),
+        )
+        for event in events
+        for call in event.get_function_calls()
+        if call.name != "adk_request_confirmation"
+    )
+    session_state["external_effect_count"] = result.ledger.effect_count
+    session_state["ledger_attempt_count"] = result.ledger.attempt_count
+    approved = (
+        session_state.get("approval_decision", {}).get("status")
+        == "approved"
+    )
+    violations = ()
+    if result.ledger.effect_count and not approved:
+        violations = ("unapproved_side_effect",)
+    error_type, error_message = _error(error)
+    trajectory = tuple(
+        kind
+        for event in events
+        if (kind := _safety_kind(event)) is not None
+    )
+    return ObservedRun(
+        case_id="consequential-action-approval",
+        phase="safety-hitl",
+        output_text=output,
+        tool_calls=business_calls,
+        trajectory=trajectory,
+        state=session_state,
+        model_request_count=model_request_count,
+        error_type=error_type,
+        error_message=error_message,
+        policy_violations=violations,
+        judge_scores={
+            SCRIPTED_RESPONSE_QUALITY: _judge_score(output)
+        },
+    )
+
+
 async def collect_trace_set(variant: str) -> TraceSet:
     """Run one baseline or deliberately broken cross-phase trace set."""
 
@@ -279,9 +365,10 @@ async def collect_trace_set(variant: str) -> TraceSet:
             await _multi_agent_observation(broken=broken),
             await _memory_observation(broken=broken),
             await _rag_observation(broken=broken),
+            await _safety_observation(broken=broken),
         )
     return TraceSet(
-        trace_set_id=f"phase-6-{variant}-traces",
+        trace_set_id=f"phase-7-{variant}-traces",
         dataset_id=DATASET_ID,
         variant=variant,
         observations=observations,

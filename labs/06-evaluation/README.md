@@ -1,6 +1,6 @@
 # Lab 06: Cross-Architecture Evaluation Gate
 
-This lab turns the first five architecture labs into one CI-style release gate.
+This lab turns six architecture milestones into one CI-style release gate.
 It keeps three stages separate:
 
 1. `EvalDataset`: expected behavior and thresholds;
@@ -31,6 +31,7 @@ or judge score cannot compensate for one failed critical case.
 | Multi-agent | one bounded task specialist | two specialists overwrite shared state |
 | Context/memory | user-scoped memory preload | cross-user memory adapter leak |
 | RAG | source-preserving explicit retrieval | provenance removed before answer |
+| Safety/HITL | scoped, expiring approval before one payment | prompt-only instruction executes without approval |
 
 ## Run
 

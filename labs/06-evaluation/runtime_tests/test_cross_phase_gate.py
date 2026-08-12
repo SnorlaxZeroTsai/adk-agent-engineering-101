@@ -1,4 +1,4 @@
-"""ADK-backed release-gate tests over Labs 01-05."""
+"""ADK-backed release-gate tests over Labs 01-07."""
 
 from __future__ import annotations
 
@@ -46,9 +46,9 @@ class CrossPhaseGateTests(unittest.TestCase):
             policies,
         )
 
-    def test_baseline_suite_passes_all_five_architectures(self) -> None:
+    def test_baseline_suite_passes_all_six_architectures(self) -> None:
         self.assertTrue(self.baseline.passed)
-        self.assertEqual(len(self.baseline.case_reports), 5)
+        self.assertEqual(len(self.baseline.case_reports), 6)
         self.assertTrue(
             all(case.passed for case in self.baseline.case_reports)
         )
@@ -56,7 +56,7 @@ class CrossPhaseGateTests(unittest.TestCase):
 
     def test_deliberately_broken_suite_blocks_release(self) -> None:
         self.assertFalse(self.broken.passed)
-        self.assertEqual(len(self.broken.blocking_failures), 24)
+        self.assertEqual(len(self.broken.blocking_failures), 28)
         self.assertEqual(exit_code(self.broken), 1)
         self.assertTrue(
             all(not case.passed for case in self.broken.case_reports)
@@ -91,6 +91,12 @@ class CrossPhaseGateTests(unittest.TestCase):
             ].status,
             "failed",
         )
+        self.assertEqual(
+            results["consequential-action-approval"][
+                POLICY_SAFETY
+            ].status,
+            "failed",
+        )
 
     def test_fluent_broken_outputs_do_not_override_contract_failures(
         self,
@@ -102,6 +108,7 @@ class CrossPhaseGateTests(unittest.TestCase):
             "bounded-task-specialist",
             "memory-user-isolation",
             "rag-source-grounding",
+            "consequential-action-approval",
         ):
             with self.subTest(case_id=case_id):
                 self.assertEqual(
@@ -115,7 +122,7 @@ class CrossPhaseGateTests(unittest.TestCase):
             for item in self.broken.aggregate_metrics
             if item.metric_name == SCRIPTED_RESPONSE_QUALITY
         )
-        self.assertEqual(judge_aggregate.score, 4.2)
+        self.assertAlmostEqual(judge_aggregate.score, 13 / 3)
         self.assertEqual(judge_aggregate.status, "passed")
         self.assertFalse(self.broken.passed)
 
