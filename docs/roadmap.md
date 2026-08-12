@@ -98,7 +98,8 @@ compare behavior, event trace, state ownership, failure semantics and tests.
 | Phase 3 Multi-agent systems | Local/scripted baseline complete | Function, single-turn, transfer and task lifecycles under failure and conflict |
 | Phase 4 State, context and memory | Local/scripted baseline complete | Transient context, state scopes, artifact versions and memory isolation/deletion traces |
 | Phase 5 RAG engineering | Local/scripted baseline complete | Same-corpus retrieval, citation, ACL, version and deletion evidence |
-| Phase 6 Evaluation | Next | Reusable datasets, multi-dimensional metrics and CI regression thresholds |
+| Phase 6 Evaluation | Local/scripted gate complete | Five cross-phase cases, per-dimension failures and enforceable baseline/broken exit status |
+| Phase 7 Safety and HITL | Next | Enforcement coverage, confirmation lifecycle and resumable approval policy |
 
 The Phase 1 live-model gate remains open, but it is not a dependency for
 deterministic Workflow semantics.
@@ -360,21 +361,68 @@ Evidence:
 
 ### Phase 6: Evaluation
 
-Next hypothesis:
+Status: complete for deterministic local/scripted scope. Live judges, statistical
+calibration, latency/token/cost telemetry and durable result storage remain
+later integration gates.
+
+Hypothesis:
 
 > Evaluation should model an Agent as an observable trajectory with typed
 > outcomes. Deterministic contract metrics and probabilistic quality judges
 > need separate thresholds, ownership and failure explanations.
 
-Comparative experiment:
+Experiment:
 
 - normalize the existing five lab datasets into one eval-case contract;
 - score tool choice/arguments, trajectory, state, retrieval/citation, final
-  response, safety, latency and usage independently;
+  response, safety and model-request budgets independently;
+- reserve latency, token and monetary-cost metrics for instrumented live
+  integration;
 - keep deterministic assertions separate from LLM-judge metrics;
 - deliberately break one Agent in each completed architecture phase;
 - produce a CI-style report that blocks the broken variants while preserving
   explainable per-dimension failures.
+
+Observed:
+
+- dataset, trace and grade result remain different typed stages;
+- all five baseline architecture cases passed;
+- all five deliberate breakages failed with owning metric and evidence;
+- exact tool name/order/arguments, node/Event trajectory, nested state,
+  policy, retrieval/citation and request budgets are independent blockers;
+- the broken suite's scripted response-quality mean was `4.2/5` and passed,
+  while deterministic contracts correctly failed the release;
+- baseline CLI exited `0` and broken CLI exited `1`;
+- two 73,972-byte evidence renders were byte-identical;
+- partial trace generation and result comparison were shown to require
+  separate dataset-completeness and release-policy gates.
+
+Evidence:
+
+- `docs/evaluation/evaluation-engineering.md`
+- `docs/learning-notes/phase-6-evaluation.md`
+- `labs/06-evaluation`
+- `patterns/behavior-contract-gate.md`
+
+### Phase 7: Safety and HITL
+
+Next hypothesis:
+
+> Safety policy must be enforced at the boundary where unsafe data or action
+> can still be blocked. Human approval is a durable state transition with
+> identity, expiry and idempotency, not an instruction asking the model to wait.
+
+Comparative experiment:
+
+- map callbacks, plugins, tool confirmation and policy services to model
+  input/output and tool input/output coverage;
+- hold one consequential action constant across prompt-only, callback/plugin
+  and tool-confirmation variants;
+- inject unsafe model input/output, unsafe tool arguments/results and approval
+  replay;
+- persist approver identity, decision, scope, expiry and action idempotency;
+- resume with fresh runtime objects and prove rejected/expired approval cannot
+  execute the side effect.
 
 ## Later Phase Design Questions
 
@@ -472,6 +520,7 @@ They require at least one local implementation and one intentional break.
 | 2026-08-12 | Legacy composites have no resume semantics | They persist agent-state checkpoints; the migration issue is different replay/routing and parent-continuation behavior |
 | 2026-08-12 | Replayed output proves a side effect ran twice | Graph replay can re-surface prior output while an external side-effect ledger remains unchanged |
 | 2026-08-12 | `max_iterations` is a failed/successful outcome | It is only a technical bound; exhaustion needs an explicit domain route |
+| 2026-08-12 | One aggregate quality score can serve as a release gate | Preserve per-case deterministic blockers; the broken suite passed its `4.2/5` judge mean while failing architecture contracts |
 
 ## Milestone Tracking
 

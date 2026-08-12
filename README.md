@@ -21,8 +21,9 @@
 | Multi-agent systems | Local/scripted specialist baseline complete | [`docs/multi-agent/specialist-boundaries.md`](docs/multi-agent/specialist-boundaries.md) |
 | State, context and memory | Local/scripted lifecycle baseline complete | [`docs/context/data-lifecycle.md`](docs/context/data-lifecycle.md) |
 | RAG engineering | Local/scripted retrieval and citation baseline complete | [`docs/rag/rag-engineering.md`](docs/rag/rag-engineering.md) |
-| Executable labs | 43 offline + 53 ADK runtime tests passing | [`labs/`](labs/) |
-| Pattern catalog | Four candidates extracted | [`patterns/`](patterns/) |
+| Evaluation | Cross-phase CI-style gate complete | [`docs/evaluation/evaluation-engineering.md`](docs/evaluation/evaluation-engineering.md) |
+| Executable labs | 54 offline + 59 ADK runtime tests passing | [`labs/`](labs/) |
+| Pattern catalog | Five candidates extracted | [`patterns/`](patterns/) |
 | Mini Agent Garden | Planned | [`mini-agent-garden/README.md`](mini-agent-garden/README.md) |
 
 Research snapshot: 2026-08-12. Exact upstream commits are pinned in
@@ -37,9 +38,10 @@ Research snapshot: 2026-08-12. Exact upstream commits are pinned in
 4. Compare specialist execution boundaries in Lab 03.
 5. Compare transient context, state, artifacts and memory in Lab 04.
 6. Compare managed Search and explicit vector retrieval in Lab 05.
-7. Add evaluation and safety.
-8. Study production packaging only after the Agent architecture is understood.
-9. Use the accumulated evidence to design and implement the mini Agent Garden.
+7. Run the cross-architecture evaluation gate in Lab 06.
+8. Add safety and HITL enforcement.
+9. Study production packaging only after the Agent architecture is understood.
+10. Use the accumulated evidence to design and implement the mini Agent Garden.
 
 The detailed dependency order and phase exit criteria live in
 [`docs/roadmap.md`](docs/roadmap.md).
@@ -49,7 +51,7 @@ The detailed dependency order and phase exit criteria live in
 | Module | Required |
 |---|---|
 | Documentation and source-reading exercises | Git, a text editor |
-| Lab 01/02/03/04/05 deterministic tests | Python 3.10+ |
+| Lab 01/02/03/04/05/06 deterministic tests | Python 3.10+ |
 | Scripted ADK runtime tests | Python 3.10+, Git and network access for one-time bootstrap |
 | Live-model lab execution | Python 3.10+, `uv` or venv, Gemini API key or Google Cloud ADC |
 | Deployment modules | Google Cloud project, `gcloud`, Terraform |
@@ -76,6 +78,7 @@ Cloud credentials are not required for offline or scripted-model tests.
 | `03-multi-agent` | Compare function, single-turn, transfer and task specialist boundaries under failure and conflict | Offline domain tests use stdlib; scripted comparison reuses the pinned ADK environment |
 | `04-context-and-memory` | Compare transient model context, state scopes, artifact versions and memory retention under isolation/deletion failures | Offline domain tests use stdlib; scripted comparison reuses the pinned ADK environment |
 | `05-rag-engineering` | Compare native managed Search and explicit vector retrieval under provenance, ACL, version and deletion failures | Offline retrieval tests use stdlib; scripted ADK comparison reuses the pinned environment |
+| `06-evaluation` | Grade Agent, Workflow, specialist, memory and RAG behavior with per-case blocking metrics and a real CI exit status | Offline metric tests use stdlib; trace generation reuses the pinned ADK environment |
 
 ## Run
 
@@ -120,6 +123,13 @@ cd labs/05-rag-engineering
 python3 -m unittest discover -s tests -v
 ```
 
+Run only Lab 06 offline tests:
+
+```bash
+cd labs/06-evaluation
+python3 -m unittest discover -s tests -v
+```
+
 Inspect the lab's Agent and tool contract without importing ADK:
 
 ```bash
@@ -156,6 +166,12 @@ Run only the RAG runtime gate:
 
 ```bash
 make verify-rag
+```
+
+Run the cross-architecture evaluation gate:
+
+```bash
+make verify-evaluation
 ```
 
 After configuring credentials, run the interactive Agent:

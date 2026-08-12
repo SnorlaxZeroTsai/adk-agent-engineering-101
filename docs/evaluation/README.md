@@ -1,4 +1,8 @@
-# Evaluation Module
+# Evaluation
 
-Planned: final response, tool selection, tool arguments, trajectory, completion,
-latency, cost, safety and CI regression gates.
+- [`evaluation-engineering.md`](evaluation-engineering.md): dataset, trace,
+  metric, aggregation and CI release-gate decisions.
+- [`../learning-notes/phase-6-evaluation.md`](../learning-notes/phase-6-evaluation.md):
+  source findings, experiment results and corrections.
+- [`../../labs/06-evaluation`](../../labs/06-evaluation/): executable
+  cross-architecture gate.

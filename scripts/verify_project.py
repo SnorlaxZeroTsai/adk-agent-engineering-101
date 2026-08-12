@@ -19,6 +19,7 @@ REQUIRED_PATHS = (
     "docs/learning-notes/phase-3-multi-agent.md",
     "docs/learning-notes/phase-4-context-memory.md",
     "docs/learning-notes/phase-5-rag.md",
+    "docs/learning-notes/phase-6-evaluation.md",
     "docs/foundations/agent.md",
     "docs/foundations/tools.md",
     "docs/foundations/execution-model.md",
@@ -26,11 +27,13 @@ REQUIRED_PATHS = (
     "docs/multi-agent/specialist-boundaries.md",
     "docs/context/data-lifecycle.md",
     "docs/rag/rag-engineering.md",
+    "docs/evaluation/evaluation-engineering.md",
     "patterns/README.md",
     "patterns/deterministic-workflow.md",
     "patterns/bounded-specialist.md",
     "patterns/data-lifecycle-placement.md",
     "patterns/evidence-preserving-rag.md",
+    "patterns/behavior-contract-gate.md",
     "labs/README.md",
     "labs/01-agent-basics/README.md",
     "labs/01-agent-basics/agent_basics/runtime_trace.py",
@@ -59,6 +62,17 @@ REQUIRED_PATHS = (
     "labs/05-rag-engineering/rag_lab/runtime.py",
     "labs/05-rag-engineering/runtime_tests/test_rag_runtime.py",
     "labs/05-rag-engineering/scripts/run_rag_traces.py",
+    "labs/06-evaluation/README.md",
+    "labs/06-evaluation/evaluation_lab/contracts.py",
+    "labs/06-evaluation/evaluation_lab/dataset.py",
+    "labs/06-evaluation/evaluation_lab/engine.py",
+    "labs/06-evaluation/evaluation_lab/metrics.py",
+    "labs/06-evaluation/evaluation_lab/cross_lab.py",
+    "labs/06-evaluation/evaluation_lab/gate.py",
+    "labs/06-evaluation/tests/test_evaluation_engine.py",
+    "labs/06-evaluation/runtime_tests/test_cross_phase_gate.py",
+    "labs/06-evaluation/scripts/run_eval_gate.py",
+    "labs/06-evaluation/scripts/run_evaluation_traces.py",
     "case-studies/README.md",
     "agent-garden/README.md",
     "mini-agent-garden/README.md",
@@ -105,7 +119,7 @@ def main() -> None:
     roadmap = (ROOT / "docs/roadmap.md").read_text(encoding="utf-8")
     if "ADK 1.x" not in roadmap or "ADK 2.0" not in roadmap:
         fail("roadmap must preserve the ADK 1.x/2.0 migration boundary")
-    if "Phase 6 Evaluation | Next" not in roadmap:
+    if "Phase 7 Safety and HITL | Next" not in roadmap:
         fail("roadmap does not point to the next architecture dependency")
 
     workflow_note = (
@@ -152,11 +166,22 @@ def main() -> None:
         if required_concept not in rag_note:
             fail(f"RAG module lacks {required_concept!r}")
 
+    evaluation_note = (
+        ROOT / "docs/evaluation/evaluation-engineering.md"
+    ).read_text(encoding="utf-8")
+    for required_concept in (
+        "Agents CLI Lifecycle",
+        "Deliberate Breakage",
+        "CI Semantics",
+    ):
+        if required_concept not in evaluation_note:
+            fail(f"evaluation module lacks {required_concept!r}")
+
     state = (ROOT / "PROJECT_STATE.md").read_text(encoding="utf-8")
     if "Next Actions" not in state or "Unresolved Questions" not in state:
         fail("PROJECT_STATE.md lacks continuation context")
 
-    print("PASS: project structure and Phase 0-5 artifacts verified")
+    print("PASS: project structure and Phase 0-6 artifacts verified")
 
 
 if __name__ == "__main__":

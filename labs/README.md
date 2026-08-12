@@ -19,3 +19,6 @@ Current labs:
   artifacts and memory under staleness, isolation and deletion failures.
 - [`05-rag-engineering`](05-rag-engineering/): managed native Search versus
   explicit vector retrieval under provenance, ACL, version and deletion faults.
+- [`06-evaluation`](06-evaluation/): typed datasets, normalized traces,
+  deterministic/judge metrics and an enforceable cross-architecture release
+  gate.

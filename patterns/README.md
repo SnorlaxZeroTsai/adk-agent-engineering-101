@@ -23,3 +23,5 @@ Current candidates:
   artifact and memory placement from explicit scope and retention requirements.
 - [`evidence-preserving-rag.md`](evidence-preserving-rag.md): versioned,
   access-aware retrieval with source-preserving citations and lifecycle gates.
+- [`behavior-contract-gate.md`](behavior-contract-gate.md): separate dataset,
+  trace and grade stages with per-case deterministic release blockers.

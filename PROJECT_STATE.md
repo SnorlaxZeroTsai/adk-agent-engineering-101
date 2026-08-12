@@ -4,8 +4,8 @@ Last updated: 2026-08-12
 
 ## Current Goal
 
-Start Phase 6 by extracting a reusable evaluation contract from the completed
-Agent, Workflow, multi-agent, context/memory and RAG labs.
+Start Phase 7 by mapping safety enforcement and durable human approval across
+model, tool and side-effect boundaries.
 
 ## Completed
 
@@ -53,6 +53,18 @@ Agent, Workflow, multi-agent, context/memory and RAG labs.
 - Provenance-loss, unfiltered-search, stale-index and deletion-lag breakages.
 - 10 Lab 05 offline tests and 10 ADK-backed RAG tests.
 - Fourth candidate pattern: evidence-preserving RAG.
+- Phase 6 source comparison of ADK eval cases/metrics/results and Agents CLI
+  dataset/generate/grade/compare lifecycle.
+- Lab 06 typed `EvalDataset`, verdict-free `TraceSet` and CI-consumable
+  `SuiteReport`.
+- Five cross-phase cases covering Agent, Workflow, specialist, memory and RAG
+  behavior.
+- Exact tool/argument, trajectory, state, output, policy, retrieval and
+  model-request budget metrics.
+- Five passing baselines and five deliberately broken variants.
+- Baseline gate exits `0`; broken gate exits `1` with 24 blocking reasons.
+- 11 Lab 06 offline tests and 6 ADK-backed cross-phase tests.
+- Fifth candidate pattern: behavior contract gate.
 
 ## Important Findings
 
@@ -141,6 +153,23 @@ Agent, Workflow, multi-agent, context/memory and RAG labs.
     chunks or source deletions.
 37. The pinned managed and vector RAG sample evals are identical generic
     response-quality/turn-count checks with no enforced retrieval gate.
+38. ADK `InvocationEvents` is a reduced projection containing author/content;
+    it does not preserve state deltas, Workflow node paths, isolation scopes,
+    errors or grounding metadata required by several architecture gates.
+39. `TrajectoryEvaluator` compares exact tool names and arguments but averages
+    per-invocation `0/1` scores into the case result.
+40. `LocalEvalService` fails a case on a failed metric overall status, yet the
+    metric may already have averaged invocation failures. Legacy
+    `AgentEvaluator` also explicitly averages invocation scores.
+41. Agents CLI correctly separates dataset, populated trace and grade-result
+    stages, but partial trace generation can drop failed cases and still exit
+    `0`.
+42. `agents-cli eval compare` reports recursive JSON differences and deltas;
+    it does not decide regression or provide a blocking release status.
+43. Local Agents CLI custom metrics compile and execute Python with CLI process
+    privileges, making eval configuration a trusted-code boundary.
+44. The deliberately broken cross-phase suite passed its scripted judge mean
+    at `4.2/5` while deterministic metrics correctly blocked all five cases.
 
 ## Architecture Decisions
 
@@ -188,6 +217,19 @@ Agent, Workflow, multi-agent, context/memory and RAG labs.
 - Treat managed native Search and FunctionTool fallback as distinct runtime
   trajectories.
 - Separate ingestion success from version/deletion reconciliation.
+- Keep eval datasets, generated traces and grade results as separate types.
+- Require generated case IDs to exactly match the input dataset.
+- Preserve full runtime evidence before projecting it into evaluator-specific
+  structures.
+- Make deterministic safety, state, tool, retrieval and terminal-outcome
+  metrics block on every applicable case.
+- Treat `NOT_EVALUATED` as failure for a requested blocking metric.
+- Keep judge metrics advisory until model, sampling, calibration and failure
+  policy are explicit.
+- Preserve per-case failures even when an aggregate threshold passes.
+- Separate result comparison from release policy and expose a CI process
+  status.
+- Treat local custom metric functions as reviewed executable code.
 
 ## Unresolved Questions
 
@@ -214,8 +256,14 @@ Agent, Workflow, multi-agent, context/memory and RAG labs.
 - How do live managed Search and Vector Search compare on relevance, latency,
   token usage and monetary cost for the same corpus?
 - What deletion propagation bounds can each live backend enforce and prove?
-- Which deterministic and probabilistic eval thresholds should be release
-  blockers rather than advisory signals?
+- How should live judge sampling, confidence, drift and inter-rater agreement
+  be calibrated before a probabilistic metric becomes blocking?
+- Which latency, token and monetary-cost distributions should block a release?
+- Which safety mechanism owns each model-input, model-output, tool-input and
+  tool-output boundary?
+- How should approval identity, scope, expiry and revocation survive resume?
+- How should repeated approval responses and side-effect retries share one
+  idempotency key?
 
 ## Relevant Sources
 
@@ -239,6 +287,9 @@ Agent, Workflow, multi-agent, context/memory and RAG labs.
 - [`docs/rag/rag-engineering.md`](docs/rag/rag-engineering.md)
 - [`docs/learning-notes/phase-5-rag.md`](docs/learning-notes/phase-5-rag.md)
 - [`patterns/evidence-preserving-rag.md`](patterns/evidence-preserving-rag.md)
+- [`docs/evaluation/evaluation-engineering.md`](docs/evaluation/evaluation-engineering.md)
+- [`docs/learning-notes/phase-6-evaluation.md`](docs/learning-notes/phase-6-evaluation.md)
+- [`patterns/behavior-contract-gate.md`](patterns/behavior-contract-gate.md)
 
 ## Environment Notes
 
@@ -246,8 +297,9 @@ Agent, Workflow, multi-agent, context/memory and RAG labs.
 - `uv` is not installed.
 - Lab-local `.venv` contains editable `google-adk 2.6.3` from the exact pinned
   `/tmp/adk-python` commit.
-- `make verify` passes: repository invariants plus 43 offline tests.
-- `make verify-adk` passes: 53 ADK-backed tests plus five trace renderers.
+- `make verify` passes: repository invariants plus 54 offline tests.
+- `make verify-adk` passes: 59 ADK-backed tests plus six trace renderers and
+  baseline/broken evaluation exit checks.
 - `make verify-workflows` passes: 12 ADK-backed tests plus a 79 KB JSON
   evidence bundle.
 - `make verify-multi-agent` passes: 10 ADK-backed tests plus a 35,991-byte JSON
@@ -256,6 +308,9 @@ Agent, Workflow, multi-agent, context/memory and RAG labs.
   28,792-byte JSON evidence bundle.
 - `make verify-rag` passes: 10 ADK-backed tests plus a deterministic
   20,460-byte JSON evidence bundle.
+- `make verify-evaluation` passes: 6 ADK-backed cross-phase tests, baseline
+  exit `0`, expected broken exit `1` and a deterministic 73,972-byte evidence
+  bundle.
 - Live-model execution remains unverified until credentials are configured.
 - Lab 02 recreates Runner/root objects but retains one
   `InMemorySessionService`; it does not prove durable process recovery.
@@ -264,10 +319,11 @@ Agent, Workflow, multi-agent, context/memory and RAG labs.
 
 ## Next Actions
 
-1. Inspect ADK eval schemas, evaluators and `agents-cli` generate/grade/compare
-   lifecycle at the pinned commits.
-2. Normalize existing lab cases into a reusable typed eval-case/result model.
-3. Separate deterministic contract metrics from LLM-judge quality metrics.
-4. Add deliberately broken variants from Agent, Workflow, delegation, memory
-   and RAG phases to a CI-style regression gate.
-5. Produce per-dimension failure explanations and explicit blocking thresholds.
+1. Inventory ADK callbacks, plugins, tool confirmation, auth/credential and
+   HITL resume contracts at the pinned runtime.
+2. Map every mechanism to model input/output and tool input/output coverage.
+3. Build one consequential-action lab with prompt-only, enforced-policy and
+   durable-approval variants.
+4. Inject unsafe inputs/results, rejected/expired approval and replayed
+   function responses.
+5. Add the safety/HITL cases to the Phase 6 behavior-contract gate.
